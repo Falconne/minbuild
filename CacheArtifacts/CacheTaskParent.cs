@@ -14,6 +14,10 @@ namespace MinBuild
     public abstract class CacheTaskParent : Task
     {
         [Required]
+        public string ProjectName { get; set; }
+
+
+        [Required]
         public string Inputs { get; set; }
 
 
@@ -26,47 +30,32 @@ namespace MinBuild
                 y => y.Trim()).OrderBy(z => z).Distinct().ToList();
         }
 
-        protected string GetFilenameHash(IEnumerable<string> files)
-        {
-            var composite = new StringBuilder();
-            foreach (var file in files)
-            {
-                composite.Append(file);
-                using (var md5Hash = MD5.Create())
-                {
-                    var hash = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(composite.ToString()));
-                    var sb = new StringBuilder();
-                    foreach (var t in hash)
-                    {
-                        sb.Append(t.ToString("X2"));
-                    }
-
-                    var hashString = sb.ToString();
-                    return hashString;
-                }
-            }
-
-            return null;
-        }
-
         protected string GetContentHash(IEnumerable<string> files)
         {
+            var sb = new StringBuilder();
             foreach (var file in files)
             {
+                Log.LogMessage(MessageImportance.High, "\t\t\tInput: " + file);
                 using (var fs = OpenFileWithRetry(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var bs = new BufferedStream(fs))
                 {
-                    using (var cryptoProvider = new SHA1CryptoServiceProvider())
+                    using (var textReader = new StreamReader(fs))
                     {
-                        var hashString = BitConverter
-                                .ToString(cryptoProvider.ComputeHash(bs));
-                        hashString = hashString.Replace("-", "");
-                        return hashString;
+                        sb.Append(textReader.ReadToEnd());
+                        Log.LogMessage(MessageImportance.High, 
+                            string.Format("\t\t\t\tLength: {0}", sb.Length));
+
                     }
                 }
             }
 
-            return null;
+            using (var cryptoProvider = new SHA1CryptoServiceProvider())
+            {
+                var hashString = BitConverter
+                        .ToString(cryptoProvider.ComputeHash(Encoding.UTF8.GetBytes(sb.ToString())));
+                hashString = hashString.Replace("-", "");
+                Log.LogMessage(MessageImportance.High, "\t\t\t\tHash: " + hashString);
+                return hashString;
+            }
         }
 
         protected bool ShouldSkipCache(IEnumerable<string> outputFiles)
@@ -93,7 +82,7 @@ namespace MinBuild
                 {
                     return new FileStream(path, mode, fileAccess, fileShare);
                 }
-                catch (IOException ex)
+                catch (IOException)
                 {
                     var win32Error = Marshal.GetLastWin32Error();
 

@@ -2,7 +2,7 @@
     <UsingTask TaskName="MinBuild.CacheArtifacts"
                AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
 
-           <UsingTask TaskName="MinBuild.CheckCompileCache"
+    <UsingTask TaskName="MinBuild.CheckCompileCache"
                AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
 
     <PropertyGroup>
@@ -40,13 +40,15 @@
 
         <CheckCompileCache
             Inputs="$(MSBuildAllProjects);@(Compile);@(_CoreCompileResourceInputs);$(ApplicationIcon);$(AssemblyOriginatorKeyFile);@(ReferencePath);@(CompiledLicenseFile);@(LinkResource);@(EmbeddedDocumentation);$(Win32Resource);$(Win32Manifest);@(CustomAdditionalCompileInputs)"
-            Outputs="@(DocFileItem);@(IntermediateAssembly);@(_DebugSymbolsIntermediatePath);$(NonExistentFile);@(CustomAdditionalCompileOutputs)" />
+            Outputs="@(DocFileItem);@(IntermediateAssembly);@(_DebugSymbolsIntermediatePath);$(NonExistentFile);@(CustomAdditionalCompileOutputs)" 
+            ProjectName="$(ProjectName)" />
 
     </Target>
 
     <Target Name="CacheArtifactsAfterCompile">
         <CacheArtifacts
             Inputs="$(MSBuildAllProjects);@(Compile);@(_CoreCompileResourceInputs);$(ApplicationIcon);$(AssemblyOriginatorKeyFile);@(ReferencePath);@(CompiledLicenseFile);@(LinkResource);@(EmbeddedDocumentation);$(Win32Resource);$(Win32Manifest);@(CustomAdditionalCompileInputs)"
-            Outputs="@(DocFileItem);@(IntermediateAssembly);@(_DebugSymbolsIntermediatePath);$(NonExistentFile);@(CustomAdditionalCompileOutputs)" />
+            Outputs="@(DocFileItem);@(IntermediateAssembly);@(_DebugSymbolsIntermediatePath);$(NonExistentFile);@(CustomAdditionalCompileOutputs)" 
+            ProjectName="$(ProjectName)" />
     </Target>
 </Project>

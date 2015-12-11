@@ -4,7 +4,6 @@ using System.Linq;
 using System.IO;
 
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 
 namespace MinBuild
 {
@@ -26,14 +25,15 @@ namespace MinBuild
             }*/
             var contentHash = GetContentHash(inputFiles);
             var cacheOutput = Path.Combine(CacheLocation, contentHash);
+
+            Log.LogMessage(MessageImportance.High, ProjectName + ": Caching artifacts to " + cacheOutput);
             if (Directory.Exists(cacheOutput))
             {
-                Log.LogMessage(MessageImportance.High, "Cache dir is being created by another thread");
+                Log.LogMessage(MessageImportance.High, ProjectName + ": Cache dir is being created by another thread");
                 return true;
             }
 
             Directory.CreateDirectory(cacheOutput);
-            Log.LogMessage(MessageImportance.High, "Caching artifacts to " + cacheOutput);
             foreach (var outputFile in outputFiles)
             {
                 Log.LogMessage(MessageImportance.High, "\t" + outputFile);
