@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CacheArtifacts", "CacheArtifacts\CacheArtifacts.csproj", "{F6A4F043-1AC6-41D3-A0B1-A585121E6B82}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinBuild", "CacheArtifacts\MinBuild.csproj", "{F6A4F043-1AC6-41D3-A0B1-A585121E6B82}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
