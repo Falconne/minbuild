@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
-
+using System.Threading;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -53,7 +54,7 @@ namespace MinBuild
         {
             foreach (var file in files)
             {
-                using (var fs = new FileStream(file, FileMode.Open))
+                using (var fs = OpenFileWithRetry(file, FileMode.Open))
                 using (var bs = new BufferedStream(fs))
                 {
                     using (var cryptoProvider = new SHA1CryptoServiceProvider())
@@ -83,5 +84,45 @@ namespace MinBuild
         }
 
         protected string CacheLocation = @"c:\temp\minbuild";
+
+        private FileStream OpenFileWithRetry(string path, FileMode mode)
+        {
+            var autoResetEvent = new AutoResetEvent(false);
+
+            while (true)
+            {
+                try
+                {
+                    return new FileStream(path, mode);
+                }
+                catch (IOException ex)
+                {
+                    var win32Error = Marshal.GetLastWin32Error();
+
+                    if (win32Error != ERROR_SHARING_VIOLATION && win32Error != ERROR_LOCK_VIOLATION) continue;
+
+                    using (var fileSystemWatcher = new FileSystemWatcher(Path.GetDirectoryName(path),
+                            "*" + Path.GetExtension(path))
+                            {
+                                EnableRaisingEvents = true
+                            })
+                    {
+                        fileSystemWatcher.Changed +=
+                            (o, e) =>
+                            {
+                                if (Path.GetFullPath(e.FullPath) == Path.GetFullPath(path))
+                                {
+                                    autoResetEvent.Set();
+                                }
+                            };
+
+                        autoResetEvent.WaitOne();
+                    }
+                }
+            }
+        }
+
+        private const long ERROR_SHARING_VIOLATION = 0x20;
+        private long ERROR_LOCK_VIOLATION = 0x21;
     }
 }
