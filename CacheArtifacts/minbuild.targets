@@ -1,0 +1,52 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <UsingTask TaskName="MinBuild.CacheArtifacts"
+               AssemblyFile="C:\git\minbuild\CacheArtifacts\bin\Debug\CacheArtifacts.dll" />
+
+           <UsingTask TaskName="MinBuild.CheckCompileCache"
+               AssemblyFile="C:\git\minbuild\CacheArtifacts\bin\Debug\CacheArtifacts.dll" />
+
+    <PropertyGroup>
+        <TargetsTriggeredByCompilation>
+            $(TargetsTriggeredByCompilation);
+            CacheArtifactsAfterCompile
+        </TargetsTriggeredByCompilation>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <CoreCompileDependsOn>
+            $(CoreCompileDependsOn);
+            CheckCompileCacheBeforeCompile
+        </CoreCompileDependsOn>
+    </PropertyGroup>
+
+    <Target Name="CheckCompileCacheBeforeCompile"
+        Inputs="$(MSBuildAllProjects);
+                @(Compile);
+                @(_CoreCompileResourceInputs);
+                $(ApplicationIcon);
+                $(AssemblyOriginatorKeyFile);
+                @(ReferencePath);
+                @(CompiledLicenseFile);
+                @(LinkResource);
+                @(EmbeddedDocumentation);
+                $(Win32Resource);
+                $(Win32Manifest);
+                @(CustomAdditionalCompileInputs)"
+        Outputs="@(DocFileItem);
+                 @(IntermediateAssembly);
+                 @(_DebugSymbolsIntermediatePath);
+                 $(NonExistentFile);
+                 @(CustomAdditionalCompileOutputs)">
+
+        <CheckCompileCache
+            Inputs="$(MSBuildAllProjects);@(Compile);@(_CoreCompileResourceInputs);$(ApplicationIcon);$(AssemblyOriginatorKeyFile);@(ReferencePath);@(CompiledLicenseFile);@(LinkResource);@(EmbeddedDocumentation);$(Win32Resource);$(Win32Manifest);@(CustomAdditionalCompileInputs)"
+            Outputs="@(DocFileItem);@(IntermediateAssembly);@(_DebugSymbolsIntermediatePath);$(NonExistentFile);@(CustomAdditionalCompileOutputs)" />
+
+    </Target>
+
+    <Target Name="CacheArtifactsAfterCompile">
+        <CacheArtifacts
+            Inputs="$(MSBuildAllProjects);@(Compile);@(_CoreCompileResourceInputs);$(ApplicationIcon);$(AssemblyOriginatorKeyFile);@(ReferencePath);@(CompiledLicenseFile);@(LinkResource);@(EmbeddedDocumentation);$(Win32Resource);$(Win32Manifest);@(CustomAdditionalCompileInputs)"
+            Outputs="@(DocFileItem);@(IntermediateAssembly);@(_DebugSymbolsIntermediatePath);$(NonExistentFile);@(CustomAdditionalCompileOutputs)" />
+    </Target>
+</Project>
