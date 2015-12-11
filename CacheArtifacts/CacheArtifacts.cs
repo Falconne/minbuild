@@ -8,18 +8,21 @@ using Microsoft.Build.Utilities;
 
 namespace MinBuild
 {
-    public class CacheArtifacts : Task
+    public class CacheArtifacts : CacheTaskParent
     {
         public override bool Execute()
         {
-            var inputFiles = Inputs.Split(';').Where(x => !string.IsNullOrWhiteSpace(x)).Select(y => y.Trim());
+            var inputFiles = ParseFileList(Inputs);
             var outputFiles = Outputs.Split(';').Where(x => !string.IsNullOrWhiteSpace(x)).Select(y => y.Trim());
-            /*Log.LogMessage(MessageImportance.High, "****CacheArtifacts. Inputs: ");
+            Log.LogMessage(MessageImportance.High, "****CacheArtifacts. Inputs: ");
             foreach (var inputFile in inputFiles)
             {
                 Log.LogMessage(MessageImportance.High, "\t" + inputFile);
             }
+            var filenameHash = GetFilenameHash(inputFiles);
+            var contentHash = GetContentHash(inputFiles);
 
+            /*
             Log.LogMessage(MessageImportance.High, "****CacheArtifacts. Ouptuts: ");
             foreach (var outputFile in outputFiles)
             {
@@ -28,12 +31,5 @@ namespace MinBuild
             
             return true;
         }
-
-        [Required]
-        public string Inputs { get; set; }
-
-
-        [Required]
-        public string Outputs { get; set; }
     }
 }

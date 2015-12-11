@@ -9,19 +9,19 @@ using Microsoft.Build.Utilities;
 
 namespace MinBuild
 {
-    public class CheckCompileCache : Task
+    public class CheckCompileCache : CacheTaskParent
     {
         public override bool Execute()
         {
             var inputFiles = Inputs.Split(';').Where(x => !string.IsNullOrWhiteSpace(x)).Select(y => y.Trim());
             var outputFiles = Outputs.Split(';').Where(x => !string.IsNullOrWhiteSpace(x)).Select(y => y.Trim());
-            /*Log.LogMessage(MessageImportance.High, "****CacheArtifacts. Inputs: ");
+            /*Log.LogMessage(MessageImportance.High, "****CheckCompileCache. Inputs: ");
             foreach (var inputFile in inputFiles)
             {
                 Log.LogMessage(MessageImportance.High, "\t" + inputFile);
             }*/
 
-            Log.LogMessage(MessageImportance.High, "****CacheArtifacts. Ouptuts: ");
+            Log.LogMessage(MessageImportance.High, "****CheckCompileCache. Ouptuts: ");
             foreach (var outputFile in outputFiles)
             {
                 Log.LogMessage(MessageImportance.High, "\t" + outputFile);
@@ -38,12 +38,5 @@ namespace MinBuild
 
             return true;
         }
-
-        [Required]
-        public string Inputs { get; set; }
-
-
-        [Required]
-        public string Outputs { get; set; }
     }
 }

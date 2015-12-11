@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CacheArtifacts.cs" />
+    <Compile Include="CacheTaskParent.cs" />
     <Compile Include="CheckCompileCache.cs" />
   </ItemGroup>
   <ItemGroup>
