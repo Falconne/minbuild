@@ -19,11 +19,11 @@ namespace MinBuild
             }
 
             var inputFiles = ParseFileList(Inputs);
-            Log.LogMessage(MessageImportance.High, "****CacheArtifacts. Inputs: ");
+            /*Log.LogMessage(MessageImportance.Low, "****CacheArtifacts. Inputs: ");
             foreach (var inputFile in inputFiles)
             {
                 Log.LogMessage(MessageImportance.Low, "\t" + inputFile);
-            }
+            }*/
             var contentHash = GetContentHash(inputFiles);
             var cacheOutput = Path.Combine(CacheLocation, contentHash);
             if (Directory.Exists(cacheOutput))

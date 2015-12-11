@@ -42,7 +42,6 @@ namespace MinBuild
                     }
 
                     var hashString = sb.ToString();
-                    Log.LogMessage(MessageImportance.High, "Filename hash is " + hashString);
                     return hashString;
                 }
             }
@@ -54,7 +53,7 @@ namespace MinBuild
         {
             foreach (var file in files)
             {
-                using (var fs = OpenFileWithRetry(file, FileMode.Open))
+                using (var fs = OpenFileWithRetry(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (var bs = new BufferedStream(fs))
                 {
                     using (var cryptoProvider = new SHA1CryptoServiceProvider())
@@ -62,7 +61,6 @@ namespace MinBuild
                         var hashString = BitConverter
                                 .ToString(cryptoProvider.ComputeHash(bs));
                         hashString = hashString.Replace("-", "");
-                        Log.LogMessage(MessageImportance.High, "Content hash is " + hashString);
                         return hashString;
                     }
                 }
@@ -85,7 +83,7 @@ namespace MinBuild
 
         protected string CacheLocation = @"c:\temp\minbuild";
 
-        private FileStream OpenFileWithRetry(string path, FileMode mode)
+        private FileStream OpenFileWithRetry(string path, FileMode mode, FileAccess fileAccess, FileShare fileShare)
         {
             var autoResetEvent = new AutoResetEvent(false);
 
@@ -93,7 +91,7 @@ namespace MinBuild
             {
                 try
                 {
-                    return new FileStream(path, mode);
+                    return new FileStream(path, mode, fileAccess, fileShare);
                 }
                 catch (IOException ex)
                 {
