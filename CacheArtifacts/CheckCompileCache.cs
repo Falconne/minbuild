@@ -13,22 +13,39 @@ namespace MinBuild
     {
         public override bool Execute()
         {
-            var inputFiles = Inputs.Split(';').Where(x => !string.IsNullOrWhiteSpace(x)).Select(y => y.Trim());
-            var outputFiles = Outputs.Split(';').Where(x => !string.IsNullOrWhiteSpace(x)).Select(y => y.Trim());
-            /*Log.LogMessage(MessageImportance.High, "****CheckCompileCache. Inputs: ");
-            foreach (var inputFile in inputFiles)
+            var outputFiles = ParseFileList(Outputs);
+            if (ShouldSkipCache(outputFiles))
             {
-                Log.LogMessage(MessageImportance.High, "\t" + inputFile);
-            }*/
+                return true;
+            }
 
-            Log.LogMessage(MessageImportance.High, "****CheckCompileCache. Ouptuts: ");
+            var inputFiles = ParseFileList(Inputs);
+            var contentHash = GetContentHash(inputFiles);
+            var cacheOutput = Path.Combine(CacheLocation, contentHash);
+            if (!Directory.Exists(cacheOutput))
+            {
+                Log.LogMessage(MessageImportance.High, "Artifacts not cached, recompiling...");
+                return true;
+            }
+
+            var completeMarker = Path.Combine(cacheOutput, "complete");
+            if (!File.Exists(completeMarker))
+            {
+                Log.LogMessage(MessageImportance.High, "Cache dir incomplete, recompiling...");
+                return true;
+            }
+
+            Log.LogMessage(MessageImportance.High, "**** Retrieving cached artifacts");
             foreach (var outputFile in outputFiles)
             {
                 Log.LogMessage(MessageImportance.High, "\t" + outputFile);
                 var filename = Path.GetFileName(outputFile);
-                var src = Path.Combine(@"c:\temp\minbuild", filename);
+                var src = Path.Combine(cacheOutput, filename);
                 if (!File.Exists(src))
+                {
+                    Log.LogMessage(MessageImportance.High, "Cache file missing, recompiling...");
                     return true;
+                }
                 Log.LogMessage(MessageImportance.High, "Copying from " + src);
                 if (File.Exists(outputFile))
                     File.Delete(outputFile);

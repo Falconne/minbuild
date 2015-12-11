@@ -70,5 +70,18 @@ namespace MinBuild
             return null;
         }
 
+        protected bool ShouldSkipCache(IEnumerable<string> outputFiles)
+        {
+            var hashset = new HashSet<string>();
+            if (outputFiles.Any(file => !hashset.Add(Path.GetFileName(file))))
+            {
+                Log.LogMessage(MessageImportance.High, "Cache cannot be used with duplicate output files");
+                return true;
+            }
+
+            return false;
+        }
+
+        protected string CacheLocation = @"c:\temp\minbuild";
     }
 }

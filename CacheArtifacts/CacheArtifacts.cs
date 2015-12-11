@@ -12,22 +12,43 @@ namespace MinBuild
     {
         public override bool Execute()
         {
+            var outputFiles = ParseFileList(Outputs);
+            if (ShouldSkipCache(outputFiles))
+            {
+                return true;
+            }
+
             var inputFiles = ParseFileList(Inputs);
-            var outputFiles = Outputs.Split(';').Where(x => !string.IsNullOrWhiteSpace(x)).Select(y => y.Trim());
             Log.LogMessage(MessageImportance.High, "****CacheArtifacts. Inputs: ");
             foreach (var inputFile in inputFiles)
             {
-                Log.LogMessage(MessageImportance.High, "\t" + inputFile);
+                Log.LogMessage(MessageImportance.Low, "\t" + inputFile);
             }
-            var filenameHash = GetFilenameHash(inputFiles);
             var contentHash = GetContentHash(inputFiles);
+            var cacheOutput = Path.Combine(CacheLocation, contentHash);
+            if (Directory.Exists(cacheOutput))
+            {
+                Log.LogMessage(MessageImportance.High, "Cache dir is being created by another thread");
+                return true;
+            }
 
-            /*
-            Log.LogMessage(MessageImportance.High, "****CacheArtifacts. Ouptuts: ");
+            Directory.CreateDirectory(cacheOutput);
+            Log.LogMessage(MessageImportance.High, "Caching artifacts to " + cacheOutput);
             foreach (var outputFile in outputFiles)
             {
                 Log.LogMessage(MessageImportance.High, "\t" + outputFile);
-            }*/
+                var dst = Path.Combine(cacheOutput, Path.GetFileName(outputFile));
+                if (File.Exists(dst))
+                {
+                    Log.LogMessage(MessageImportance.High, "Cache files are being created by another thread");
+                    return true;
+                }
+
+                File.Copy(outputFile, dst);
+            }
+
+            var completeMarker = Path.Combine(cacheOutput, "complete");
+            File.Create(completeMarker);
             
             return true;
         }
