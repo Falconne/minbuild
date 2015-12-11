@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
 namespace MinBuild
 {
-    public class CacheArtifacts : Task
+    public class CheckCompileCache : Task
     {
         public override bool Execute()
         {
@@ -18,14 +19,23 @@ namespace MinBuild
             foreach (var inputFile in inputFiles)
             {
                 Log.LogMessage(MessageImportance.High, "\t" + inputFile);
-            }
+            }*/
 
             Log.LogMessage(MessageImportance.High, "****CacheArtifacts. Ouptuts: ");
             foreach (var outputFile in outputFiles)
             {
                 Log.LogMessage(MessageImportance.High, "\t" + outputFile);
-            }*/
-            
+                var filename = Path.GetFileName(outputFile);
+                var src = Path.Combine(@"c:\temp\minbuild", filename);
+                if (!File.Exists(src))
+                    return true;
+                Log.LogMessage(MessageImportance.High, "Copying from " + src);
+                if (File.Exists(outputFile))
+                    File.Delete(outputFile);
+                File.Copy(src, outputFile);
+                File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
+            }
+
             return true;
         }
 
