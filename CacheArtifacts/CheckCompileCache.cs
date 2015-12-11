@@ -35,7 +35,7 @@ namespace MinBuild
                 return true;
             }
 
-            Log.LogMessage(MessageImportance.High, "**** Retrieving cached artifacts");
+            Log.LogMessage(MessageImportance.High, "Retrieving cached artifacts");
             foreach (var outputFile in outputFiles)
             {
                 Log.LogMessage(MessageImportance.High, "\t" + outputFile);
@@ -43,10 +43,10 @@ namespace MinBuild
                 var src = Path.Combine(cacheOutput, filename);
                 if (!File.Exists(src))
                 {
-                    Log.LogMessage(MessageImportance.High, "Cache file missing, recompiling...");
+                    Log.LogMessage(MessageImportance.High, "\t\tCache file missing, recompiling...");
                     return true;
                 }
-                Log.LogMessage(MessageImportance.High, "Copying from " + src);
+                Log.LogMessage(MessageImportance.High, "\t\tCopying from " + src);
                 if (File.Exists(outputFile))
                     File.Delete(outputFile);
                 File.Copy(src, outputFile);
