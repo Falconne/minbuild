@@ -19,28 +19,38 @@
         </CoreCompileDependsOn>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <InputFiles>
+            $(MSBuildAllProjects);
+            @(Compile);
+            @(_CoreCompileResourceInputs);
+            $(ApplicationIcon);
+            $(AssemblyOriginatorKeyFile);
+            @(ReferencePath);
+            @(CompiledLicenseFile);
+            @(LinkResource);
+            @(EmbeddedDocumentation);
+            $(Win32Resource);
+            $(Win32Manifest);
+            @(CustomAdditionalCompileInputs)
+        </InputFiles>
+
+        <OutputFiles>
+            @(DocFileItem);
+            @(IntermediateAssembly);
+            @(_DebugSymbolsIntermediatePath);
+            $(NonExistentFile);
+            @(CustomAdditionalCompileOutputs)
+        </OutputFiles>
+    </PropertyGroup>
+
     <Target Name="CheckCompileCacheBeforeCompile"
-        Inputs="$(MSBuildAllProjects);
-                @(Compile);
-                @(_CoreCompileResourceInputs);
-                $(ApplicationIcon);
-                $(AssemblyOriginatorKeyFile);
-                @(ReferencePath);
-                @(CompiledLicenseFile);
-                @(LinkResource);
-                @(EmbeddedDocumentation);
-                $(Win32Resource);
-                $(Win32Manifest);
-                @(CustomAdditionalCompileInputs)"
-        Outputs="@(DocFileItem);
-                 @(IntermediateAssembly);
-                 @(_DebugSymbolsIntermediatePath);
-                 $(NonExistentFile);
-                 @(CustomAdditionalCompileOutputs)">
+        Inputs="$(InputFiles)"
+        Outputs="$(OutputFiles)">
 
         <CheckCompileCache
-            Inputs="$(MSBuildAllProjects);@(Compile);@(_CoreCompileResourceInputs);$(ApplicationIcon);$(AssemblyOriginatorKeyFile);@(ReferencePath);@(CompiledLicenseFile);@(LinkResource);@(EmbeddedDocumentation);$(Win32Resource);$(Win32Manifest);@(CustomAdditionalCompileInputs)"
-            Outputs="@(DocFileItem);@(IntermediateAssembly);@(_DebugSymbolsIntermediatePath);$(NonExistentFile);@(CustomAdditionalCompileOutputs)" 
+            Inputs="$(InputFiles)"
+            Outputs="$(OutputFiles)" 
             ProjectName="$(ProjectName)">
             
             <Output TaskParameter="InputHash" PropertyName="InputHash"/>
@@ -51,7 +61,7 @@
     <Target Name="CacheArtifactsAfterCompile">
         <CacheArtifacts
             InputHash="$(InputHash)"
-            Outputs="@(DocFileItem);@(IntermediateAssembly);@(_DebugSymbolsIntermediatePath);$(NonExistentFile);@(CustomAdditionalCompileOutputs)" 
+            Outputs="$(OutputFiles)" 
             ProjectName="$(ProjectName)" />
     </Target>
 </Project>

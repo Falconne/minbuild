@@ -14,7 +14,7 @@ namespace MinBuild
 
         public override bool Execute()
         {
-            var outputFiles = ParseFileList(Outputs);
+            var outputFiles = ParseFileList(Outputs).ToList();
             if (ShouldSkipCache(outputFiles))
             {
                 return true;

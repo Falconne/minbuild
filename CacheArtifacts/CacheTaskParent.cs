@@ -20,14 +20,14 @@ namespace MinBuild
         [Required]
         public string Outputs { get; set; }
 
-        protected static IList<string> ParseFileList(string raw)
+        protected static IEnumerable<string> ParseFileList(string raw)
         {
             var nonVersionInfoFiles =
                 raw.Split(';').Where(x => 
-                    !string.IsNullOrWhiteSpace(x) && 
-                    !x.Contains("AssemblyInfo.cs"));
+                    !string.IsNullOrWhiteSpace(x));
 
-            return nonVersionInfoFiles.Select(y => y.Trim()).OrderBy(z => z).Distinct().ToList();
+            var uniqueFiles = nonVersionInfoFiles.Select(y => y.Trim()).OrderBy(z => z).Distinct();
+            return uniqueFiles;
         }
 
         // Content hash is the sha1 of each input file's content, concatenanted then rehashed
@@ -36,7 +36,7 @@ namespace MinBuild
             var sb = new StringBuilder();
             foreach (var file in files)
             {
-                Log.LogMessage(MessageImportance.Low, "\t\t\tInput: " + file);
+                LogProjectMessage("\t\t\tInput: " + file, MessageImportance.Low);
                 var bytes = GetBytesWithRetry(file);
                 using (var cryptoProvider = new SHA1CryptoServiceProvider())
                 {
