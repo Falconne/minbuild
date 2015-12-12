@@ -18,6 +18,7 @@ namespace MinBuild
 
         public override bool Execute()
         {
+            // FIXME restrict to branch version
             LogProjectMessage("Checking for cached artifacts");
             var outputFiles = ParseFileList(Outputs).ToList();
             if (ShouldSkipCache(outputFiles))

@@ -1,4 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- Test with:
+         msbuild <sln> /p:Configuration=Release /p:Platform="Any CPU" /verbosity:m /t:rebuild /p:CustomBeforeMicrosoftCommonTargets="C:\git\minbuild\CacheArtifacts\bin\Debug\minbuild.targets" /filelogger /flp:verbosity=m-->
     <UsingTask TaskName="MinBuild.CacheArtifacts"
                AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
 
