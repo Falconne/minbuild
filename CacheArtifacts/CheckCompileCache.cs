@@ -60,8 +60,9 @@ namespace MinBuild
                 }
                 if (File.Exists(outputFile))
                     File.Delete(outputFile);
+                // Touch source file to reset its deletion timer
+                File.SetLastWriteTimeUtc(src, DateTime.UtcNow);
                 File.Copy(src, outputFile);
-                File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
             }
 
             return true;
