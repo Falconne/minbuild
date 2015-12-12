@@ -41,13 +41,16 @@
         <CheckCompileCache
             Inputs="$(MSBuildAllProjects);@(Compile);@(_CoreCompileResourceInputs);$(ApplicationIcon);$(AssemblyOriginatorKeyFile);@(ReferencePath);@(CompiledLicenseFile);@(LinkResource);@(EmbeddedDocumentation);$(Win32Resource);$(Win32Manifest);@(CustomAdditionalCompileInputs)"
             Outputs="@(DocFileItem);@(IntermediateAssembly);@(_DebugSymbolsIntermediatePath);$(NonExistentFile);@(CustomAdditionalCompileOutputs)" 
-            ProjectName="$(ProjectName)" />
+            ProjectName="$(ProjectName)">
+            
+            <Output TaskParameter="InputHash" PropertyName="InputHash"/>
+        </CheckCompileCache>
 
     </Target>
 
     <Target Name="CacheArtifactsAfterCompile">
         <CacheArtifacts
-            Inputs="$(MSBuildAllProjects);@(Compile);@(_CoreCompileResourceInputs);$(ApplicationIcon);$(AssemblyOriginatorKeyFile);@(ReferencePath);@(CompiledLicenseFile);@(LinkResource);@(EmbeddedDocumentation);$(Win32Resource);$(Win32Manifest);@(CustomAdditionalCompileInputs)"
+            InputHash="$(InputHash)"
             Outputs="@(DocFileItem);@(IntermediateAssembly);@(_DebugSymbolsIntermediatePath);$(NonExistentFile);@(CustomAdditionalCompileOutputs)" 
             ProjectName="$(ProjectName)" />
     </Target>

@@ -18,42 +18,37 @@ namespace MinBuild
 
 
         [Required]
-        public string Inputs { get; set; }
-
-
-        [Required]
         public string Outputs { get; set; }
 
-        protected IList<string> ParseFileList(string raw)
+        protected static IList<string> ParseFileList(string raw)
         {
-            return raw.Split(';').Where(x => !string.IsNullOrWhiteSpace(x) && !x.Contains("AssemblyInfo.cs")).Select(
-                y => y.Trim()).OrderBy(z => z).Distinct().ToList();
+            var nonVersionInfoFiles =
+                raw.Split(';').Where(x => 
+                    !string.IsNullOrWhiteSpace(x) && 
+                    !x.Contains("AssemblyInfo.cs"));
+
+            return nonVersionInfoFiles.Select(y => y.Trim()).OrderBy(z => z).Distinct().ToList();
         }
 
+        // Content hash is the sha1 of each input file's content, concatenanted then rehashed
         protected string GetContentHash(IEnumerable<string> files)
         {
             var sb = new StringBuilder();
             foreach (var file in files)
             {
-                Log.LogMessage(MessageImportance.High, "\t\t\tInput: " + file);
-                using (var fs = OpenFileWithRetry(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                Log.LogMessage(MessageImportance.Low, "\t\t\tInput: " + file);
+                var bytes = GetBytesWithRetry(file);
+                using (var cryptoProvider = new SHA1CryptoServiceProvider())
                 {
-                    using (var textReader = new StreamReader(fs))
-                    {
-                        sb.Append(textReader.ReadToEnd());
-                        Log.LogMessage(MessageImportance.High, 
-                            string.Format("\t\t\t\tLength: {0}", sb.Length));
-
-                    }
+                    var hashString = BitConverter.ToString(cryptoProvider.ComputeHash(bytes));
+                    sb.Append(hashString);
                 }
             }
 
             using (var cryptoProvider = new SHA1CryptoServiceProvider())
             {
                 var hashString = BitConverter
-                        .ToString(cryptoProvider.ComputeHash(Encoding.UTF8.GetBytes(sb.ToString())));
-                hashString = hashString.Replace("-", "");
-                Log.LogMessage(MessageImportance.High, "\t\t\t\tHash: " + hashString);
+                        .ToString(cryptoProvider.ComputeHash(Encoding.Default.GetBytes(sb.ToString())));
                 return hashString;
             }
         }
@@ -70,9 +65,15 @@ namespace MinBuild
             return false;
         }
 
-        protected string CacheLocation = @"c:\temp\minbuild";
+        protected void LogProjectMessage(string message, 
+            MessageImportance importance = MessageImportance.High)
+        {
+            Log.LogMessage(importance, string.Format("{0}: {1}", ProjectName, message));
+        }
 
-        private FileStream OpenFileWithRetry(string path, FileMode mode, FileAccess fileAccess, FileShare fileShare)
+        protected const string CacheLocation = @"c:\temp\minbuild";
+
+        private static byte[] GetBytesWithRetry(string path)
         {
             var autoResetEvent = new AutoResetEvent(false);
 
@@ -80,10 +81,11 @@ namespace MinBuild
             {
                 try
                 {
-                    return new FileStream(path, mode, fileAccess, fileShare);
+                    return File.ReadAllBytes(path);
                 }
                 catch (IOException)
                 {
+                    // Multithreaded builds will take exclusive locks on shared files
                     var win32Error = Marshal.GetLastWin32Error();
 
                     if (win32Error != ERROR_SHARING_VIOLATION && win32Error != ERROR_LOCK_VIOLATION) continue;
@@ -110,6 +112,6 @@ namespace MinBuild
         }
 
         private const long ERROR_SHARING_VIOLATION = 0x20;
-        private long ERROR_LOCK_VIOLATION = 0x21;
+        private const long ERROR_LOCK_VIOLATION = 0x21;
     }
 }

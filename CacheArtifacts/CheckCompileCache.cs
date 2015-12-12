@@ -5,14 +5,20 @@ using System.Linq;
 using System.Text;
 
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 
 namespace MinBuild
 {
     public class CheckCompileCache : CacheTaskParent
     {
+        [Required]
+        public string Inputs { private get; set; }
+
+        [Output]
+        public string InputHash { get; private set; }
+
         public override bool Execute()
         {
+            LogProjectMessage("Checking for cached artifacts");
             var outputFiles = ParseFileList(Outputs);
             if (ShouldSkipCache(outputFiles))
             {
@@ -20,33 +26,33 @@ namespace MinBuild
             }
 
             var inputFiles = ParseFileList(Inputs);
-            var contentHash = GetContentHash(inputFiles);
-            var cacheOutput = Path.Combine(CacheLocation, contentHash);
+            inputFiles = inputFiles.Where(File.Exists).ToList();
+            InputHash = GetContentHash(inputFiles);
+            var cacheOutput = Path.Combine(CacheLocation, InputHash);
             if (!Directory.Exists(cacheOutput))
             {
-                Log.LogMessage(MessageImportance.High, "Artifacts not cached, recompiling...");
+                LogProjectMessage("Artifacts not cached, recompiling...");
                 return true;
             }
 
             var completeMarker = Path.Combine(cacheOutput, "complete");
             if (!File.Exists(completeMarker))
             {
-                Log.LogMessage(MessageImportance.High, "Cache dir incomplete, recompiling...");
+                LogProjectMessage("Cache dir incomplete, recompiling...");
                 return true;
             }
 
-            Log.LogMessage(MessageImportance.High, "Retrieving cached artifacts");
+            LogProjectMessage("Retrieving cached artifacts from " + cacheOutput);
             foreach (var outputFile in outputFiles)
             {
-                Log.LogMessage(MessageImportance.High, "\t" + outputFile);
+                LogProjectMessage("\t" + outputFile);
                 var filename = Path.GetFileName(outputFile);
                 var src = Path.Combine(cacheOutput, filename);
                 if (!File.Exists(src))
                 {
-                    Log.LogMessage(MessageImportance.High, "\t\tCache file missing, recompiling...");
+                    LogProjectMessage("\t\tCache file missing, recompiling...");
                     return true;
                 }
-                Log.LogMessage(MessageImportance.High, "\t\tCopying from " + src);
                 if (File.Exists(outputFile))
                     File.Delete(outputFile);
                 File.Copy(src, outputFile);

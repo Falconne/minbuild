@@ -9,6 +9,9 @@ namespace MinBuild
 {
     public class CacheArtifacts : CacheTaskParent
     {
+        [Required]
+        public string InputHash { private get; set; }
+
         public override bool Execute()
         {
             var outputFiles = ParseFileList(Outputs);
@@ -17,30 +20,22 @@ namespace MinBuild
                 return true;
             }
 
-            var inputFiles = ParseFileList(Inputs);
-            /*Log.LogMessage(MessageImportance.Low, "****CacheArtifacts. Inputs: ");
-            foreach (var inputFile in inputFiles)
-            {
-                Log.LogMessage(MessageImportance.Low, "\t" + inputFile);
-            }*/
-            var contentHash = GetContentHash(inputFiles);
-            var cacheOutput = Path.Combine(CacheLocation, contentHash);
-
-            Log.LogMessage(MessageImportance.High, ProjectName + ": Caching artifacts to " + cacheOutput);
+            var cacheOutput = Path.Combine(CacheLocation, InputHash);
+            LogProjectMessage("Caching artifacts to " + cacheOutput);
             if (Directory.Exists(cacheOutput))
             {
-                Log.LogMessage(MessageImportance.High, ProjectName + ": Cache dir is being created by another thread");
+                LogProjectMessage("Cache dir is being created by another thread");
                 return true;
             }
 
             Directory.CreateDirectory(cacheOutput);
             foreach (var outputFile in outputFiles)
             {
-                Log.LogMessage(MessageImportance.High, "\t" + outputFile);
+                LogProjectMessage("\t" + outputFile);
                 var dst = Path.Combine(cacheOutput, Path.GetFileName(outputFile));
                 if (File.Exists(dst))
                 {
-                    Log.LogMessage(MessageImportance.High, "Cache files are being created by another thread");
+                    LogProjectMessage("Cache files are being created by another thread");
                     return true;
                 }
 
