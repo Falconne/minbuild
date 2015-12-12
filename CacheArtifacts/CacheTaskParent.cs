@@ -13,9 +13,11 @@ namespace MinBuild
         [Required]
         public string ProjectName { get; set; }
 
-
         [Required]
         public string Outputs { get; set; }
+
+        [Required]
+        public string BranchVersion { get; set; }
 
         protected static IEnumerable<string> ParseFileList(string raw)
         {
@@ -45,7 +47,11 @@ namespace MinBuild
             Log.LogMessage(importance, string.Format("{0}: {1}", ProjectName, message));
         }
 
-        protected const string CacheLocation = @"c:\temp\minbuild";
+        protected string BranchCacheLocation { get { return Path.Combine(CacheLocation, BranchVersion); } }
+
+        protected string PrecomputedCacheLocation { get { return Path.Combine(CacheLocation, "Precomputed"); } }
+
+        private const string CacheLocation = @"c:\temp\minbuild";
 
     }
 }

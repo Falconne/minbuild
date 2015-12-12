@@ -20,11 +20,11 @@ namespace MinBuild
                 return true;
             }
 
-            var cacheOutput = Path.Combine(CacheLocation, InputHash);
+            var cacheOutput = Path.Combine(BranchCacheLocation, InputHash);
             LogProjectMessage("Caching artifacts to " + cacheOutput, MessageImportance.Normal);
             if (Directory.Exists(cacheOutput))
             {
-                LogProjectMessage("Cache dir is being created by another thread");
+                Log.LogWarning(ProjectName + ": Cache dir is being created by another thread");
                 return true;
             }
 
@@ -35,7 +35,7 @@ namespace MinBuild
                 var dst = Path.Combine(cacheOutput, Path.GetFileName(outputFile));
                 if (File.Exists(dst))
                 {
-                    LogProjectMessage("Cache files are being created by another thread");
+                    Log.LogWarning(ProjectName + ": Cache files are being created by another thread");
                     return true;
                 }
 

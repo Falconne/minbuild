@@ -21,7 +21,7 @@ namespace MinBuild
         public override bool Execute()
         {
             // FIXME restrict to branch version
-            LogProjectMessage("Checking for cached artifacts");
+            LogProjectMessage("Recompile requested, checking for cached artifacts", MessageImportance.Normal);
             var outputFiles = ParseFileList(Outputs).ToList();
             if (ShouldSkipCache(outputFiles))
             {
@@ -34,8 +34,33 @@ namespace MinBuild
             var inputFiles = inputFilesRaw.Where(
                 x => !x.Contains("AssemblyInfo.cs") && File.Exists(x)).ToList();
 
+            LogProjectMessage("\tRecompile reason:", MessageImportance.Normal);
+            var missingOutputFiles = outputFiles.Where(x => !File.Exists(x)).ToList();
+            if (missingOutputFiles.Any())
+            {
+                LogProjectMessage("\t\tMissing outputs:", MessageImportance.Normal);
+                missingOutputFiles.ForEach(x => LogProjectMessage("\t\t\t" + Path.GetFullPath(x)));
+            }
+            else
+            {
+                var outputFilesAccessTimes = outputFiles.Select(x => new FileInfo(x).LastWriteTime);
+                var oldestOutputTime = outputFilesAccessTimes.OrderBy(x => x).First();
+                LogProjectMessage("\t\tOutputs are:", MessageImportance.Normal);
+                outputFiles.ForEach(x => LogProjectMessage(
+                    "\t\t\t" + Path.GetFullPath(x), MessageImportance.Normal));
+                LogProjectMessage("\t\tOne or more inputs have changed:", MessageImportance.Normal);
+                foreach (var inputFile in inputFiles)
+                {
+                    var fi = new FileInfo(inputFile);
+                    if (fi.LastWriteTime > oldestOutputTime)
+                    {
+                        LogProjectMessage("\t\t\t" + Path.GetFullPath(inputFile), MessageImportance.Normal);
+                    }
+                }
+            }
+
             InputHash = GetHashForFiles(inputFiles);
-            var cacheOutput = Path.Combine(CacheLocation, InputHash);
+            var cacheOutput = Path.Combine(BranchCacheLocation, InputHash);
             if (!Directory.Exists(cacheOutput))
             {
                 LogProjectMessage("Artifacts not cached, recompiling...");
@@ -52,7 +77,7 @@ namespace MinBuild
             LogProjectMessage("Retrieving cached artifacts from " + cacheOutput);
             foreach (var outputFile in outputFiles)
             {
-                LogProjectMessage("\t" + outputFile, MessageImportance.Normal);
+                LogProjectMessage("\t" + Path.GetFullPath(outputFile), MessageImportance.Normal);
                 var filename = Path.GetFileName(outputFile);
                 var src = Path.Combine(cacheOutput, filename);
                 if (!File.Exists(src))
@@ -90,7 +115,6 @@ namespace MinBuild
         {
             var cryptoProvider = new MD5CryptoServiceProvider();
             var hashString = BitConverter.ToString(cryptoProvider.ComputeHash(bytes));
-            LogProjectMessage("\t\t\tComputed Hash: " + hashString, MessageImportance.Low);
 
             return hashString;
         }
@@ -115,6 +139,8 @@ namespace MinBuild
             return GetHashForContent(bytes);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage(
+            "Microsoft.Interoperability", "CA1404:CallGetLastErrorImmediatelyAfterPInvoke")]
         private static byte[] GetBytesWithRetry(string path)
         {
             var autoResetEvent = new AutoResetEvent(false);
@@ -157,10 +183,9 @@ namespace MinBuild
         private string GetPrecomputedHashFor(string filepath)
         {
             //LogProjectMessage("Checking for precomputed hash for " + filepath);
-            var precomputedHashLocation = Path.Combine(CacheLocation, "Precomputed");
             var fi = new FileInfo(filepath);
             var dirAsSubpath = fi.FullName.Replace(":", "");
-            var cachePath = Path.Combine(precomputedHashLocation, dirAsSubpath);
+            var cachePath = Path.Combine(PrecomputedCacheLocation, dirAsSubpath);
 
             if (Directory.Exists(cachePath))
             {

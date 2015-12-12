@@ -44,6 +44,8 @@
             $(NonExistentFile);
             @(CustomAdditionalCompileOutputs)
         </OutputFiles>
+
+        <BranchVersion Condition=" '$(BranchVersion)' == '' ">0</BranchVersion>
     </PropertyGroup>
 
     <Target Name="CheckCompileCacheBeforeCompile"
@@ -51,6 +53,7 @@
         Outputs="$(OutputFiles)">
 
         <CheckCompileCache
+            BranchVersion="$(BranchVersion)"
             Inputs="$(InputFiles)"
             Outputs="$(OutputFiles)" 
             ProjectName="$(ProjectName)">
@@ -62,6 +65,7 @@
 
     <Target Name="CacheArtifactsAfterCompile">
         <CacheArtifacts
+            BranchVersion="$(BranchVersion)"
             InputHash="$(InputHash)"
             Outputs="$(OutputFiles)" 
             ProjectName="$(ProjectName)" />
