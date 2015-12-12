@@ -43,7 +43,7 @@ namespace MinBuild
             }
 
             var completeMarker = Path.Combine(cacheOutput, "complete");
-            File.Create(completeMarker);
+            File.Create(completeMarker).Close();
             
             return true;
         }
