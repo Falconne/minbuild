@@ -21,7 +21,7 @@ namespace MinBuild
             }
 
             var cacheOutput = Path.Combine(CacheLocation, InputHash);
-            LogProjectMessage("Caching artifacts to " + cacheOutput);
+            LogProjectMessage("Caching artifacts to " + cacheOutput, MessageImportance.Normal);
             if (Directory.Exists(cacheOutput))
             {
                 LogProjectMessage("Cache dir is being created by another thread");
@@ -31,7 +31,7 @@ namespace MinBuild
             Directory.CreateDirectory(cacheOutput);
             foreach (var outputFile in outputFiles)
             {
-                LogProjectMessage("\t" + outputFile);
+                LogProjectMessage("\t" + outputFile, MessageImportance.Normal);
                 var dst = Path.Combine(cacheOutput, Path.GetFileName(outputFile));
                 if (File.Exists(dst))
                 {

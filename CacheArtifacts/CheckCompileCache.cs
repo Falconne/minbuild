@@ -34,7 +34,7 @@ namespace MinBuild
             var inputFiles = inputFilesRaw.Where(
                 x => !x.Contains("AssemblyInfo.cs") && File.Exists(x)).ToList();
 
-            InputHash = GetContentHash(inputFiles);
+            InputHash = GetHashForFiles(inputFiles);
             var cacheOutput = Path.Combine(CacheLocation, InputHash);
             if (!Directory.Exists(cacheOutput))
             {
@@ -71,7 +71,7 @@ namespace MinBuild
         }
 
         // Content hash is the hash of each input file's content, concatenanted then rehashed
-        protected string GetContentHash(IList<string> files)
+        private string GetHashForFiles(IList<string> files)
         {
             // TODO detect architecture
             var sb = new StringBuilder(48 * (files.Count() + 5));
@@ -188,7 +188,6 @@ namespace MinBuild
             File.Create(newHashFile).Close();
             // Used to ensure we recompute if the source file is modified
             File.SetLastWriteTime(newHashFile, fi.LastWriteTime);
-            LogProjectMessage(string.Format("Created precomputed hash {0} for {1}, stored in {2}", hash, filepath, newHashFile));
 
             return hash;
         }
