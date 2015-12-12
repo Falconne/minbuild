@@ -26,8 +26,12 @@ namespace MinBuild
                 return true;
             }
 
-            var inputFiles = ParseFileList(Inputs);
-            inputFiles = inputFiles.Where(x => !x.Contains("AssemblyInfo.cs") && File.Exists(x)).ToList();
+            var inputFilesRaw = ParseFileList(Inputs);
+            // Ignore AssemblyInfo files as version number differences don't matter
+            // TODO allow override of this skip
+            var inputFiles = inputFilesRaw.Where(
+                x => !x.Contains("AssemblyInfo.cs") && File.Exists(x)).ToList();
+
             InputHash = GetContentHash(inputFiles);
             var cacheOutput = Path.Combine(CacheLocation, InputHash);
             if (!Directory.Exists(cacheOutput))

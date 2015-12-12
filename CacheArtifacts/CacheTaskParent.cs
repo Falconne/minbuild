@@ -31,9 +31,9 @@ namespace MinBuild
         }
 
         // Content hash is the hash of each input file's content, concatenanted then rehashed
-        protected string GetContentHash(IEnumerable<string> files)
+        protected string GetContentHash(IList<string> files)
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(48 * (files.Count() + 5));
             foreach (var file in files)
             {
                 LogProjectMessage("\t\t\tInput: " + file, MessageImportance.Low);
@@ -42,8 +42,7 @@ namespace MinBuild
                 sb.Append(fileHash);
             }
 
-            var allHashesBytes = Encoding.Default.GetBytes(sb.ToString());
-            var hashString = GetHashFor(allHashesBytes);
+            var hashString = GetHashFor(sb.ToString());
             return hashString;
         }
 
@@ -64,6 +63,21 @@ namespace MinBuild
         {
             Log.LogMessage(importance, string.Format("{0}: {1}", ProjectName, message));
         }
+
+        protected string GetHashFor(byte[] bytes)
+        {
+            var cryptoProvider = new MD5CryptoServiceProvider();
+            var hashString = BitConverter.ToString(cryptoProvider.ComputeHash(bytes));
+            LogProjectMessage("\t\t\tComputed Hash: " + hashString, MessageImportance.Low);
+
+            return hashString;
+        }
+
+        protected string GetHashFor(string raw)
+        {
+            return GetHashFor(Encoding.Default.GetBytes(raw));
+        }
+
 
         protected const string CacheLocation = @"c:\temp\minbuild";
 
@@ -103,15 +117,6 @@ namespace MinBuild
                     }
                 }
             }
-        }
-
-        private string GetHashFor(byte[] bytes)
-        {
-            var cryptoProvider = new MD5CryptoServiceProvider();
-            var hashString = BitConverter.ToString(cryptoProvider.ComputeHash(bytes));
-            LogProjectMessage("\t\t\tComputed Hash: " + hashString, MessageImportance.Low);
-
-            return hashString;
         }
 
         private const long ERROR_SHARING_VIOLATION = 0x20;
