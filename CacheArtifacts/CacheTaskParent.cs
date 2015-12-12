@@ -30,7 +30,7 @@ namespace MinBuild
             return uniqueFiles;
         }
 
-        // Content hash is the sha1 of each input file's content, concatenanted then rehashed
+        // Content hash is the hash of each input file's content, concatenanted then rehashed
         protected string GetContentHash(IEnumerable<string> files)
         {
             var sb = new StringBuilder();
@@ -38,17 +38,19 @@ namespace MinBuild
             {
                 LogProjectMessage("\t\t\tInput: " + file, MessageImportance.Low);
                 var bytes = GetBytesWithRetry(file);
-                using (var cryptoProvider = new SHA1CryptoServiceProvider())
+                using (var cryptoProvider = new MD5CryptoServiceProvider())
                 {
                     var hashString = BitConverter.ToString(cryptoProvider.ComputeHash(bytes));
+                    LogProjectMessage("\t\t\tHash: " + hashString, MessageImportance.Low);
                     sb.Append(hashString);
                 }
             }
 
-            using (var cryptoProvider = new SHA1CryptoServiceProvider())
+            using (var cryptoProvider = new MD5CryptoServiceProvider())
             {
                 var hashString = BitConverter
                         .ToString(cryptoProvider.ComputeHash(Encoding.Default.GetBytes(sb.ToString())));
+                LogProjectMessage("\tFullHash: " + hashString, MessageImportance.Low);
                 return hashString;
             }
         }
