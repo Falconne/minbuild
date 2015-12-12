@@ -38,21 +38,13 @@ namespace MinBuild
             {
                 LogProjectMessage("\t\t\tInput: " + file, MessageImportance.Low);
                 var bytes = GetBytesWithRetry(file);
-                using (var cryptoProvider = new MD5CryptoServiceProvider())
-                {
-                    var hashString = BitConverter.ToString(cryptoProvider.ComputeHash(bytes));
-                    LogProjectMessage("\t\t\tHash: " + hashString, MessageImportance.Low);
-                    sb.Append(hashString);
-                }
+                var fileHash = GetHashFor(bytes);
+                sb.Append(fileHash);
             }
 
-            using (var cryptoProvider = new MD5CryptoServiceProvider())
-            {
-                var hashString = BitConverter
-                        .ToString(cryptoProvider.ComputeHash(Encoding.Default.GetBytes(sb.ToString())));
-                LogProjectMessage("\tFullHash: " + hashString, MessageImportance.Low);
-                return hashString;
-            }
+            var allHashesBytes = Encoding.Default.GetBytes(sb.ToString());
+            var hashString = GetHashFor(allHashesBytes);
+            return hashString;
         }
 
         protected bool ShouldSkipCache(IEnumerable<string> outputFiles)
@@ -111,6 +103,15 @@ namespace MinBuild
                     }
                 }
             }
+        }
+
+        private string GetHashFor(byte[] bytes)
+        {
+            var cryptoProvider = new MD5CryptoServiceProvider();
+            var hashString = BitConverter.ToString(cryptoProvider.ComputeHash(bytes));
+            LogProjectMessage("\t\t\tComputed Hash: " + hashString, MessageImportance.Low);
+
+            return hashString;
         }
 
         private const long ERROR_SHARING_VIOLATION = 0x20;
