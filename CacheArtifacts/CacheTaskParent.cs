@@ -19,6 +19,9 @@ namespace MinBuild
         [Required]
         public string BranchVersion { get; set; }
 
+        [Required]
+        public string CacheRoot { get; set; }
+        
         protected static IEnumerable<string> ParseFileList(string raw)
         {
             var nonVersionInfoFiles =
@@ -51,7 +54,10 @@ namespace MinBuild
 
         protected string PrecomputedCacheLocation { get { return Path.Combine(CacheLocation, "Precomputed"); } }
 
-        private const string CacheLocation = @"c:\temp\minbuild";
+        private string CacheLocation
+        {
+            get { return Path.Combine(CacheRoot, "csharp"); }
+        }
 
     }
 }

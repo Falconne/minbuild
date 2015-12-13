@@ -39,7 +39,8 @@ namespace MinBuild
             if (missingOutputFiles.Any())
             {
                 LogProjectMessage("\t\tMissing outputs:", MessageImportance.Normal);
-                missingOutputFiles.ForEach(x => LogProjectMessage("\t\t\t" + Path.GetFullPath(x)));
+                missingOutputFiles.ForEach(x => 
+                    LogProjectMessage("\t\t\t" + Path.GetFullPath(x), MessageImportance.Normal));
             }
             else
             {
@@ -104,6 +105,7 @@ namespace MinBuild
             {
                 LogProjectMessage("\t\t\tInput: " + file, MessageImportance.Low);
                 var fileHash = GetHashForFile(file);
+                LogProjectMessage("\t\t\tHash: " + fileHash, MessageImportance.Low);
                 sb.Append(fileHash);
             }
 
