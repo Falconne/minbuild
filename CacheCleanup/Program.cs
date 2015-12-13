@@ -16,7 +16,7 @@ namespace CacheCleanup
             if (args.Length > 0)
                 cacheRoot = args[0];
 
-            logger.Info("Using cache root " + cacheRoot);
+            logger.Info("Using cache root {0}", cacheRoot);
             CleanCSharpCache(Path.Combine(cacheRoot, "csharp"));
         }
 
@@ -27,7 +27,7 @@ namespace CacheCleanup
                 var di = new DirectoryInfo(directory);
                 if (di.Name == "Precomputed")
                     continue;
-                logger.Info("Check branch version " + directory);
+                logger.Info("Check branch version {0}", directory);
                 CheckAndCleanCsharpVersionDir(directory);
             }
         }
@@ -35,10 +35,11 @@ namespace CacheCleanup
         private static void CheckAndCleanCsharpVersionDir(string versionDir)
         {
             var now = DateTime.UtcNow;
-            logger.Info("Current time UTC is " + now);
-            foreach (var directory in Directory.GetDirectories(versionDir))
+            logger.Info("Current time UTC is {0}", now);
+            var allDirs = Directory.GetDirectories(versionDir);
+            foreach (var directory in allDirs)
             {
-                logger.Info("Check " + directory);
+                logger.Info("Check {0}", directory);
                 var completeMarker = Path.Combine(directory, "complete");
                 if (!File.Exists(completeMarker))
                 {
@@ -47,12 +48,20 @@ namespace CacheCleanup
                     continue;
                 }
                 var dirTime = new DirectoryInfo(directory).LastWriteTimeUtc;
-                logger.Info("Directory write time is " + dirTime);
+                logger.Info("Directory write time is {0}", dirTime);
                 var diff = now - dirTime;
                 logger.Info("Age in days: " + diff.Days);
                 if (diff.Days > 4)
                 {
-                    logger.Info("Directory is outdated");
+                    logger.Info("Deleting old directory {0} ", directory);
+                    try
+                    {
+                        Directory.Delete(directory, true);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.Error("Cannot delete {0} due to {1}", directory, e.Message);
+                    }
                 }
                 else
                 {
