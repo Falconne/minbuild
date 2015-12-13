@@ -76,6 +76,8 @@ namespace MinBuild
             }
 
             LogProjectMessage("Retrieving cached artifacts from " + cacheOutput);
+            // Touch to reset deletion timer
+            File.SetLastWriteTimeUtc(completeMarker, DateTime.UtcNow);
             foreach (var outputFile in outputFiles)
             {
                 LogProjectMessage("\t" + Path.GetFullPath(outputFile), MessageImportance.Normal);
@@ -88,9 +90,8 @@ namespace MinBuild
                 }
                 if (File.Exists(outputFile))
                     File.Delete(outputFile);
-                // Touch source file to reset its deletion timer
-                File.SetLastWriteTimeUtc(src, DateTime.UtcNow);
                 File.Copy(src, outputFile);
+                File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
             }
 
             return true;

@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinBuild", "CacheArtifacts\MinBuild.csproj", "{F6A4F043-1AC6-41D3-A0B1-A585121E6B82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CacheCleanup", "CacheCleanup\CacheCleanup.csproj", "{7ABDA366-4378-4197-94F6-D1F1CDFE76AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{F6A4F043-1AC6-41D3-A0B1-A585121E6B82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6A4F043-1AC6-41D3-A0B1-A585121E6B82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6A4F043-1AC6-41D3-A0B1-A585121E6B82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7ABDA366-4378-4197-94F6-D1F1CDFE76AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7ABDA366-4378-4197-94F6-D1F1CDFE76AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7ABDA366-4378-4197-94F6-D1F1CDFE76AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7ABDA366-4378-4197-94F6-D1F1CDFE76AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
