@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Framework.XamlTypes;
 
 namespace MinBuild
 {
@@ -16,13 +17,20 @@ namespace MinBuild
         [Required]
         public string Inputs { private get; set; }
 
+        [Required]
+        public bool ShowRecompileReason { private get; set; }
+
+        [Required]
+        public bool ShowContentHashes { private get; set; }
+
         [Output]
         public string InputHash { get; private set; }
 
         public override bool Execute()
         {
-            // FIXME restrict to branch version
-            LogProjectMessage("Recompile requested, checking for cached artifacts", MessageImportance.Normal);
+            var recompileReasonPriority = (ShowRecompileReason) ? 
+                MessageImportance.High : MessageImportance.Normal;
+            LogProjectMessage("Recompile requested, checking for cached artifacts", recompileReasonPriority);
             var outputFiles = ParseFileList(Outputs).ToList();
             if (ShouldSkipCache(outputFiles))
             {
@@ -35,28 +43,28 @@ namespace MinBuild
             var inputFiles = inputFilesRaw.Where(
                 x => !x.Contains("AssemblyInfo.cs") && File.Exists(x)).ToList();
 
-            LogProjectMessage("\tRecompile reason:", MessageImportance.Normal);
+            LogProjectMessage("\tRecompile reason:", recompileReasonPriority);
             var missingOutputFiles = outputFiles.Where(x => !File.Exists(x)).ToList();
             if (missingOutputFiles.Any())
             {
-                LogProjectMessage("\t\tMissing outputs:", MessageImportance.Normal);
+                LogProjectMessage("\t\tMissing outputs:", recompileReasonPriority);
                 missingOutputFiles.ForEach(x => 
-                    LogProjectMessage("\t\t\t" + Path.GetFullPath(x), MessageImportance.Normal));
+                    LogProjectMessage("\t\t\t" + Path.GetFullPath(x), recompileReasonPriority));
             }
             else
             {
                 var outputFilesAccessTimes = outputFiles.Select(x => new FileInfo(x).LastWriteTime);
                 var oldestOutputTime = outputFilesAccessTimes.OrderBy(x => x).First();
-                LogProjectMessage("\t\tOutputs are:", MessageImportance.Normal);
+                LogProjectMessage("\t\tOutputs are:", recompileReasonPriority);
                 outputFiles.ForEach(x => LogProjectMessage(
-                    "\t\t\t" + Path.GetFullPath(x), MessageImportance.Normal));
-                LogProjectMessage("\t\tOne or more inputs have changed:", MessageImportance.Normal);
+                    "\t\t\t" + Path.GetFullPath(x), recompileReasonPriority));
+                LogProjectMessage("\t\tOne or more inputs have changed:", recompileReasonPriority);
                 foreach (var inputFile in inputFiles)
                 {
                     var fi = new FileInfo(inputFile);
                     if (fi.LastWriteTime > oldestOutputTime)
                     {
-                        LogProjectMessage("\t\t\t" + Path.GetFullPath(inputFile), MessageImportance.Normal);
+                        LogProjectMessage("\t\t\t" + Path.GetFullPath(inputFile), recompileReasonPriority);
                     }
                 }
             }
@@ -103,11 +111,12 @@ namespace MinBuild
         {
             // TODO detect architecture
             var sb = new StringBuilder(48 * (files.Count() + 5));
+            var priority = (ShowContentHashes) ? MessageImportance.High : MessageImportance.Low;
             foreach (var file in files)
             {
-                LogProjectMessage("\t\t\tInput: " + file, MessageImportance.Low);
+                LogProjectMessage("\t\t\tInput: " + file, priority);
                 var fileHash = GetHashForFile(file);
-                LogProjectMessage("\t\t\tHash: " + fileHash, MessageImportance.Low);
+                LogProjectMessage("\t\t\tHash: " + fileHash, priority);
                 sb.Append(fileHash);
             }
 

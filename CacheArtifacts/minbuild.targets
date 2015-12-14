@@ -47,6 +47,8 @@
 
         <BranchVersion Condition=" '$(BranchVersion)' == '' ">0</BranchVersion>
         <CacheRoot Condition=" '$(CacheRoot)' == '' ">c:\temp\minbuild</CacheRoot>
+        <ShowRecompileReason Condition=" '$(ShowRecompileReason)' == '' ">false</ShowRecompileReason>
+        <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">true</ShowContentHashes>
     </PropertyGroup>
 
     <Target Name="CheckCompileCacheBeforeCompile"
@@ -56,6 +58,8 @@
         <CheckCompileCache
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
+            ShowRecompileReason="$(ShowRecompileReason)"
+            ShowContentHashes="$(ShowContentHashes)"
             Inputs="$(InputFiles)"
             Outputs="$(OutputFiles)" 
             ProjectName="$(ProjectName)">
