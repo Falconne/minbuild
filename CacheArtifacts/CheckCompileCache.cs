@@ -18,6 +18,9 @@ namespace MinBuild
         public string Inputs { private get; set; }
 
         [Required]
+        public string BuildConfig { private get; set; }
+
+        [Required]
         public bool ShowRecompileReason { private get; set; }
 
         [Required]
@@ -70,6 +73,7 @@ namespace MinBuild
             }
 
             InputHash = GetHashForFiles(inputFiles);
+            InputHash = GetHashForContent(InputHash + BuildConfig);
             var cacheOutput = Path.Combine(BranchCacheLocation, InputHash);
             if (!Directory.Exists(cacheOutput))
             {

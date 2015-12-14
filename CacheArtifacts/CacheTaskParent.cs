@@ -25,7 +25,7 @@ namespace MinBuild
         protected static IEnumerable<string> ParseFileList(string raw)
         {
             var nonVersionInfoFiles =
-                raw.Split(';').Where(x => 
+                raw.Split(';').Where(x =>
                     !string.IsNullOrWhiteSpace(x));
 
             var uniqueFiles = nonVersionInfoFiles.Select(y => y.Trim()).OrderBy(z => z).Distinct();
