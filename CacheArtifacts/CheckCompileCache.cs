@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -213,9 +214,27 @@ namespace MinBuild
 
             var hash = GetHashForFile(filepath, false);
             var newHashFile = Path.Combine(cachePath, hash + ".hash");
-            File.Create(newHashFile).Close();
-            // Used to ensure we recompute if the source file is modified
-            File.SetLastWriteTime(newHashFile, fi.LastWriteTime);
+
+            // As build is multithreaded, other threads could be writing this file out.
+            // Ignore any write errors as it doesn't mater who updates the cache file.
+            try
+            {
+                File.Create(newHashFile).Close();
+            }
+            catch (IOException e)
+            {
+                Log.LogWarning("Cannot create precomputed hash " + newHashFile);
+                return hash;
+            }
+            try
+            {
+                // Used to ensure we recompute if the source file is modified
+                File.SetLastWriteTime(newHashFile, fi.LastWriteTime);
+            }
+            catch (IOException)
+            {
+                Log.LogWarning("Cannot set last modified time on " + newHashFile);
+            }
 
             return hash;
         }
