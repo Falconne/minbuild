@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <!-- Test with:
-         msbuild <sln> /p:Configuration=Release /p:Platform="Any CPU" /verbosity:m /t:rebuild /p:CustomBeforeMicrosoftCommonTargets="C:\git\minbuild\CacheArtifacts\bin\Debug\minbuild.targets" /filelogger /flp:verbosity=m-->
+         msbuild <sln> /p:Configuration=Release /p:Platform="Any CPU" /verbosity:m /t:rebuild /p:CustomBeforeMicrosoftCommonTargets="C:\git\minbuild\CacheArtifacts\bin\Debug\minbuild.targets" /p:ForceImportAfterCppTargets="C:\git\minbuild\CacheArtifacts\bin\Debug\minbuild.targes" /filelogger /flp:verbosity=m-->
     <UsingTask TaskName="MinBuild.CacheArtifacts"
                AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
 
@@ -78,7 +78,7 @@
             ProjectName="$(ProjectName)" />
     </Target>
 
-    <Target Name="BeforeCLCompile" BeforeTargets="Build">
-        <Message Text="*****Before CLCompile: @(CLCompile)" Importance="High" />
+    <Target Name="CheckCompileCacheBeforeCompileCPP" BeforeTargets="CLCompile">
+        <Message Text="*****Before CLCompile: @(CLCompile)" Importance="high" />
     </Target>
 </Project>
