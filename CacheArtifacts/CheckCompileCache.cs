@@ -233,6 +233,7 @@ namespace MinBuild
             catch (IOException e)
             {
                 Log.LogWarning("Cannot create precomputed hash " + newHashFile);
+                Log.LogWarning("Reason " + e.Message);
                 return hash;
             }
             try

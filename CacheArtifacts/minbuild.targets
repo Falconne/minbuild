@@ -77,4 +77,8 @@
             Outputs="$(OutputFiles)" 
             ProjectName="$(ProjectName)" />
     </Target>
+
+    <Target Name="BeforeCLCompile" BeforeTargets="Build">
+        <Message Text="*****Before CLCompile: @(CLCompile)" Importance="High" />
+    </Target>
 </Project>
