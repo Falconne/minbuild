@@ -75,6 +75,7 @@
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
             InputHash="$(InputHash)"
+            ShowContentHashes="$(ShowContentHashes)"
             Outputs="$(OutputFiles)" 
             ProjectName="$(ProjectName)" />
     </Target>

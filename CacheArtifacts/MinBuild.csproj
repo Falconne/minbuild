@@ -44,10 +44,14 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CPP\CacheArtifactsCPP.cs" />
+    <Compile Include="CPP\CacheTaskCPP.cs" />
+    <Compile Include="CPP\CheckCompileCacheCPP.cs" />
+    <Compile Include="CSharp\CacheTaskCSharp.cs" />
     <Compile Include="Properties\AssemblyInfo1.cs" />
-    <Compile Include="CacheArtifactsCSharp.cs" />
+    <Compile Include="CSharp\CacheArtifactsCSharp.cs" />
     <Compile Include="CacheTaskParent.cs" />
-    <Compile Include="CheckCompileCacheCSharp.cs" />
+    <Compile Include="CSharp\CheckCompileCacheCSharp.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Build.Framework" />

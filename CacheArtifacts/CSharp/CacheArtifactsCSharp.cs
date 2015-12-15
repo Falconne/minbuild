@@ -7,7 +7,7 @@ using Microsoft.Build.Framework;
 
 namespace MinBuild
 {
-    public class CacheArtifactsCSharp : CacheTaskParent
+    public class CacheArtifactsCSharp : CacheTaskCSharp
     {
         [Required]
         public string InputHash { private get; set; }
