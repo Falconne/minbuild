@@ -7,6 +7,9 @@
     <UsingTask TaskName="MinBuild.CheckCompileCacheCSharp"
                AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
 
+    <UsingTask TaskName="MinBuild.CheckCompileCacheCPP"
+               AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
+
     <PropertyGroup>
         <TargetsTriggeredByCompilation>
             $(TargetsTriggeredByCompilation);
@@ -56,7 +59,6 @@
         <CacheRoot Condition=" '$(CacheRoot)' == '' ">c:\temp\minbuild</CacheRoot>
         <ShowRecompileReason Condition=" '$(ShowRecompileReason)' == '' ">false</ShowRecompileReason>
         <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">true</ShowContentHashes>
-        <BuildConfig>$(ConfigurationName)|$(PlatformName)</BuildConfig>
     </PropertyGroup>
 
     <Target Name="CheckCompileCacheBeforeCompileCSharp"
@@ -70,7 +72,7 @@
             ShowContentHashes="$(ShowContentHashes)"
             Inputs="$(InputFilesCSharp)"
             Outputs="$(OutputFilesCSharp)"
-            BuildConfig="$(BuildConfig)"
+            BuildConfig="$(ConfigurationName)|$(PlatformName)"
             ProjectName="$(ProjectName)">
             
             <Output TaskParameter="InputHash" PropertyName="InputHash"/>
@@ -90,11 +92,12 @@
 
     <Target Name="CheckCompileCacheBeforeCompileCPP" BeforeTargets="CLCompile">
         <CheckCompileCacheCPP
-            BuildConfig="$(BuildConfig)"
-            Inputs="@(CLCompile)">
-            
-            <Output TaskParameter="InputHash" PropertyName="InputHash" />
-        </CheckCompileCacheCPP>
+            BranchVersion="$(BranchVersion)"
+            CacheRoot="$(CacheRoot)"
+            ProjectName="$(ProjectName)"
+            ShowContentHashes="$(ShowContentHashes)"
+            BuildConfig="$(Configuration)|$(PlatformName)"
+            Inputs="@(CLCompile)" />
     </Target>
 
     <Target Name="CacheArtifactsAfterCompileCPP">
