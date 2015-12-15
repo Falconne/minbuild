@@ -1,10 +1,10 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <!-- Test with:
-         msbuild <sln> /p:Configuration=Release /p:Platform="Any CPU" /verbosity:m /t:rebuild /p:CustomBeforeMicrosoftCommonTargets="C:\git\minbuild\CacheArtifacts\bin\Debug\minbuild.targets" /p:ForceImportAfterCppTargets="C:\git\minbuild\CacheArtifacts\bin\Debug\minbuild.targes" /filelogger /flp:verbosity=m-->
-    <UsingTask TaskName="MinBuild.CacheArtifacts"
+         msbuild <sln> /p:Configuration=Release /p:Platform="Any CPU" /verbosity:m /t:rebuild /p:CustomBeforeMicrosoftCommonTargets="C:\git\minbuild\CacheArtifacts\bin\Release\minbuild.targets" /p:ForceImportAfterCppTargets="C:\git\minbuild\CacheArtifacts\bin\Release\minbuild.targes" /filelogger /flp:verbosity=m-->
+    <UsingTask TaskName="MinBuild.CacheArtifactsCSharp"
                AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
 
-    <UsingTask TaskName="MinBuild.CheckCompileCache"
+    <UsingTask TaskName="MinBuild.CheckCompileCacheCSharp"
                AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
 
     <PropertyGroup>
@@ -19,6 +19,13 @@
             $(CoreCompileDependsOn);
             CheckCompileCacheBeforeCompileCSharp
         </CoreCompileDependsOn>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AfterLinkTargets>
+            $(AfterLinkTargets);
+            CacheArtifactsAfterCompileCPP
+        </AfterLinkTargets>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -80,12 +87,12 @@
             ProjectName="$(ProjectName)" />
     </Target>
 
-    <Target Name="CheckCompileCacheBeforeCompileCPP" BeforeTargets="Build">
+    <Target Name="CheckCompileCacheBeforeCompileCPP" BeforeTargets="CLCompile">
         <Message Text="*****Before Build: @(CLCompile)" Importance="high" />
         <Message Text="*****Before TLogLocation: $(TLogLocation)" Importance="high" />
     </Target>
 
-    <Target Name="CacheArtifactsAfterCompileCPP" AfterTargets="Build">
+    <Target Name="CacheArtifactsAfterCompileCPP">
         <Message Text="*****After Build: @(CLCompile)" Importance="high" />
         <Message Text="*****After TLogLocation: $(TLogLocation)" Importance="high" />
     </Target>
