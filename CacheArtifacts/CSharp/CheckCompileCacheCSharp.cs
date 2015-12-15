@@ -72,23 +72,9 @@ namespace MinBuild
 
             InputHash = GetHashForFiles(inputFiles);
             InputHash = GetHashForContent(InputHash + BuildConfig);
-            var cacheOutput = Path.Combine(BranchCacheLocation, InputHash);
-            if (!Directory.Exists(cacheOutput))
-            {
-                LogProjectMessage("Artifacts not cached, recompiling...");
-                return true;
-            }
+            var cacheOutput = GetCacheDirForHash(InputHash);
+            if (string.IsNullOrWhiteSpace(cacheOutput)) return true;
 
-            var completeMarker = Path.Combine(cacheOutput, "complete");
-            if (!File.Exists(completeMarker))
-            {
-                LogProjectMessage("Cache dir incomplete, recompiling...");
-                return true;
-            }
-
-            LogProjectMessage("Retrieving cached artifacts from " + cacheOutput);
-            // Touch to reset deletion timer
-            File.SetLastWriteTimeUtc(completeMarker, DateTime.UtcNow);
             foreach (var outputFile in outputFiles)
             {
                 LogProjectMessage("\t" + Path.GetFullPath(outputFile), MessageImportance.Normal);

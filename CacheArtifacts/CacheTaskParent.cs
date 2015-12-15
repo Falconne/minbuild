@@ -203,6 +203,29 @@ namespace MinBuild
             return hash;
         }
 
+        protected string GetCacheDirForHash(string hash)
+        {
+            var cacheOutput = Path.Combine(BranchCacheLocation, hash);
+            if (!Directory.Exists(cacheOutput))
+            {
+                LogProjectMessage("Artifacts not cached, recompiling...");
+                return null;
+            }
+
+            var completeMarker = Path.Combine(cacheOutput, "complete");
+            if (!File.Exists(completeMarker))
+            {
+                LogProjectMessage("Cache dir incomplete, recompiling...");
+                return null;
+            }
+
+            LogProjectMessage("Retrieving cached artifacts from " + cacheOutput);
+            // Touch to reset deletion timer
+            File.SetLastWriteTimeUtc(completeMarker, DateTime.UtcNow);
+
+            return cacheOutput;
+        }
+
         private const long ERROR_SHARING_VIOLATION = 0x20;
         private const long ERROR_LOCK_VIOLATION = 0x21;
 

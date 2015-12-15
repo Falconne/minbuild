@@ -29,7 +29,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <InputFiles>
+        <InputFilesCSharp>
             $(MSBuildAllProjects);
             @(Compile);
             @(_CoreCompileResourceInputs);
@@ -42,20 +42,21 @@
             $(Win32Resource);
             $(Win32Manifest);
             @(CustomAdditionalCompileInputs)
-        </InputFiles>
+        </InputFilesCSharp>
 
-        <OutputFiles>
+        <OutputFilesCSharp>
             @(DocFileItem);
             @(IntermediateAssembly);
             @(_DebugSymbolsIntermediatePath);
             $(NonExistentFile);
             @(CustomAdditionalCompileOutputs)
-        </OutputFiles>
+        </OutputFilesCSharp>
 
         <BranchVersion Condition=" '$(BranchVersion)' == '' ">0</BranchVersion>
         <CacheRoot Condition=" '$(CacheRoot)' == '' ">c:\temp\minbuild</CacheRoot>
         <ShowRecompileReason Condition=" '$(ShowRecompileReason)' == '' ">false</ShowRecompileReason>
         <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">true</ShowContentHashes>
+        <BuildConfig>$(ConfigurationName)|$(PlatformName)</BuildConfig>
     </PropertyGroup>
 
     <Target Name="CheckCompileCacheBeforeCompileCSharp"
@@ -67,9 +68,9 @@
             CacheRoot="$(CacheRoot)"
             ShowRecompileReason="$(ShowRecompileReason)"
             ShowContentHashes="$(ShowContentHashes)"
-            Inputs="$(InputFiles)"
-            Outputs="$(OutputFiles)"
-            BuildConfig="$(ConfigurationName)|$(PlatformName)"
+            Inputs="$(InputFilesCSharp)"
+            Outputs="$(OutputFilesCSharp)"
+            BuildConfig="$(BuildConfig)"
             ProjectName="$(ProjectName)">
             
             <Output TaskParameter="InputHash" PropertyName="InputHash"/>
@@ -83,13 +84,17 @@
             CacheRoot="$(CacheRoot)"
             InputHash="$(InputHash)"
             ShowContentHashes="$(ShowContentHashes)"
-            Outputs="$(OutputFiles)" 
+            Outputs="$(OutputFilesCSharp)" 
             ProjectName="$(ProjectName)" />
     </Target>
 
     <Target Name="CheckCompileCacheBeforeCompileCPP" BeforeTargets="CLCompile">
-        <Message Text="*****Before Build: @(CLCompile)" Importance="high" />
-        <Message Text="*****Before TLogLocation: $(TLogLocation)" Importance="high" />
+        <CheckCompileCacheCPP
+            BuildConfig="$(BuildConfig)"
+            Inputs="@(CLCompile)">
+            
+            <Output TaskParameter="InputHash" PropertyName="InputHash" />
+        </CheckCompileCacheCPP>
     </Target>
 
     <Target Name="CacheArtifactsAfterCompileCPP">
