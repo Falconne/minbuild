@@ -34,6 +34,7 @@ namespace MinBuild
             var recompileReasonPriority = (ShowRecompileReason) ? 
                 MessageImportance.High : MessageImportance.Normal;
             LogProjectMessage("Recompile requested, checking for cached artifacts", recompileReasonPriority);
+            LogProjectMessage("Build configuration: " + BuildConfig);
             var outputFiles = ParseFileList(Outputs).ToList();
             if (ShouldSkipCache(outputFiles))
             {
