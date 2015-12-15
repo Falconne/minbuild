@@ -53,8 +53,7 @@ namespace MinBuild
             }
 
             var lines = File.ReadAllLines(tlog);
-            IEnumerable<string> filteredLines;
-            filteredLines = ignoreComments ? 
+            var filteredLines = ignoreComments ? 
                 lines.Where(x => !x.StartsWith("^")) : 
                 lines.Select(x => x.Replace("^", ""));
 
