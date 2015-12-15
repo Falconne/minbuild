@@ -12,7 +12,7 @@ using Microsoft.Build.Framework.XamlTypes;
 
 namespace MinBuild
 {
-    public class CheckCompileCache : CacheTaskParent
+    public class CheckCompileCacheCSharp : CacheTaskParent
     {
         [Required]
         public string Inputs { private get; set; }

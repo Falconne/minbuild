@@ -45,9 +45,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo1.cs" />
-    <Compile Include="CacheArtifacts.cs" />
+    <Compile Include="CacheArtifactsCSharp.cs" />
     <Compile Include="CacheTaskParent.cs" />
-    <Compile Include="CheckCompileCache.cs" />
+    <Compile Include="CheckCompileCacheCSharp.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Build.Framework" />

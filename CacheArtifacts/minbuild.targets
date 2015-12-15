@@ -10,14 +10,14 @@
     <PropertyGroup>
         <TargetsTriggeredByCompilation>
             $(TargetsTriggeredByCompilation);
-            CacheArtifactsAfterCompile
+            CacheArtifactsAfterCompileCSharp
         </TargetsTriggeredByCompilation>
     </PropertyGroup>
 
     <PropertyGroup>
         <CoreCompileDependsOn>
             $(CoreCompileDependsOn);
-            CheckCompileCacheBeforeCompile
+            CheckCompileCacheBeforeCompileCSharp
         </CoreCompileDependsOn>
     </PropertyGroup>
 
@@ -51,11 +51,11 @@
         <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">true</ShowContentHashes>
     </PropertyGroup>
 
-    <Target Name="CheckCompileCacheBeforeCompile"
+    <Target Name="CheckCompileCacheBeforeCompileCSharp"
         Inputs="$(InputFiles)"
         Outputs="$(OutputFiles)">
 
-        <CheckCompileCache
+        <CheckCompileCacheCSharp
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
             ShowRecompileReason="$(ShowRecompileReason)"
@@ -66,12 +66,12 @@
             ProjectName="$(ProjectName)">
             
             <Output TaskParameter="InputHash" PropertyName="InputHash"/>
-        </CheckCompileCache>
+        </CheckCompileCacheCSharp>
 
     </Target>
 
-    <Target Name="CacheArtifactsAfterCompile">
-        <CacheArtifacts
+    <Target Name="CacheArtifactsAfterCompileCSharp">
+        <CacheArtifactsCSharp
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
             InputHash="$(InputHash)"
@@ -81,11 +81,11 @@
 
     <Target Name="CheckCompileCacheBeforeCompileCPP" BeforeTargets="Build">
         <Message Text="*****Before Build: @(CLCompile)" Importance="high" />
-        <Message Text="*****After TLogLocation: $(TLogLocation)" Importance="high" />
+        <Message Text="*****Before TLogLocation: $(TLogLocation)" Importance="high" />
     </Target>
 
-    <Target Name="CacheArtifactsCPP" AfterTargets="Build">
-        <Message Text="*****Before Build: @(CLCompile)" Importance="high" />
+    <Target Name="CacheArtifactsAfterCompileCPP" AfterTargets="Build">
+        <Message Text="*****After Build: @(CLCompile)" Importance="high" />
         <Message Text="*****After TLogLocation: $(TLogLocation)" Importance="high" />
     </Target>
 </Project>
