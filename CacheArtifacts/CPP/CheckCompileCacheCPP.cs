@@ -10,28 +10,34 @@ namespace MinBuild
 {
     public class CheckCompileCacheCPP : CacheTaskCPP
     {
-        [Required]
-        public string Inputs { private get; set; }
-
-        [Required]
-        public string BuildConfig { private get; set; }
-
-
         public override bool Execute()
         {
             LogProjectMessage("Recompile requested, checking for cached artifacts");
             LogProjectMessage("Build configuration: " + BuildConfig);
-            var inputFiles = ParseFileList(Inputs).ToList();
-            var cppInput = GetHashForFiles(inputFiles);
-            cppInput = GetHashForContent(cppInput + BuildConfig);
-            var tlogCacheLocation = GetCacheDirForHash(cppInput);
+
+            var tlogCacheLocation = GetTLogCacheLocation();
             if (string.IsNullOrWhiteSpace(tlogCacheLocation)) return true;
-
+            var completeMarker = Path.Combine(tlogCacheLocation, "complete");
+            if (!File.Exists(completeMarker))
+            {
+                LogProjectMessage(completeMarker + " is missing, recompiling...");
+                return false;
+            }
+            
             var compileInputs = ReadTlogFile(tlogCacheLocation, "CL.read.1.tlog", false);
-            var compileOutputs = ReadTlogFile(tlogCacheLocation, "CL.write.1.tlog", true);
-            var linkInputs = ReadTlogFile(tlogCacheLocation, "link.read.1.tlog", true);
-            var linkOutputs = ReadTlogFile(tlogCacheLocation, "link.read.1.tlog", true);
+            if (compileInputs == null) return true;
 
+            var compileOutputs = ReadTlogFile(tlogCacheLocation, "CL.write.1.tlog", true);
+            if (compileOutputs == null) return true;
+
+            var linkInputs = ReadTlogFile(tlogCacheLocation, "link.read.1.tlog", true);
+            if (linkInputs == null) return true;
+
+            var linkOutputs = ReadTlogFile(tlogCacheLocation, "link.write.1.tlog", true);
+            if (linkOutputs == null) return true;
+
+            LogProjectMessage("Cached tracking logs found");
+            
             // Real inputs are our source files and linker inputs minus objects from our own
             // compile (i.e.  other libs).
             var externalLinkInputs = linkInputs.Where(x => !compileOutputs.Contains(x));
@@ -48,7 +54,7 @@ namespace MinBuild
             var tlog = Path.Combine(tlogCacheLocation, name);
             if (!File.Exists(tlog))
             {
-                LogProjectMessage(tlog + " not found, skipping cache");
+                LogProjectMessage(tlog + " not found, recompiling...");
                 return null;
             }
 
