@@ -44,7 +44,7 @@ namespace MinBuild
             }
 
             // Copy built tracking logs to cache directory
-            var buildTLogFiles = Directory.GetFiles("*.1.tlog");
+            var buildTLogFiles = Directory.GetFiles(LocalTlogLocation, "*.1.tlog");
             foreach (var buildTLogFile in buildTLogFiles)
             {
                 LogProjectMessage(string.Format("Copy built log {0} to {1}", buildTLogFile, tlogCacheLocation));
@@ -59,6 +59,7 @@ namespace MinBuild
                 }
             }
 
+            // Parse real inputs and outputs
             IList<string> realInputs, realOutputs;
             if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs))
                 return true;
@@ -67,7 +68,6 @@ namespace MinBuild
             inputFilesHash = GetHashForContent(inputFilesHash + BuildConfig);
             var cacheOutput = GetCacheDirForHash(inputFilesHash);
             if (string.IsNullOrWhiteSpace(cacheOutput)) return true;
-
 
             return true;
         }
