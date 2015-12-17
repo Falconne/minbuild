@@ -23,47 +23,12 @@ namespace MinBuild
                 LogProjectMessage(completeMarker + " is missing, recompiling...");
                 return false;
             }
-            
-            var compileInputs = ReadTlogFile(tlogCacheLocation, "CL.read.1.tlog", false);
-            if (compileInputs == null) return true;
 
-            var compileOutputs = ReadTlogFile(tlogCacheLocation, "CL.write.1.tlog", true);
-            if (compileOutputs == null) return true;
-
-            var linkInputs = ReadTlogFile(tlogCacheLocation, "link.read.1.tlog", true);
-            if (linkInputs == null) return true;
-
-            var linkOutputs = ReadTlogFile(tlogCacheLocation, "link.write.1.tlog", true);
-            if (linkOutputs == null) return true;
-
-            LogProjectMessage("Cached tracking logs found");
-            
-            // Real inputs are our source files and linker inputs minus objects from our own
-            // compile (i.e.  other libs).
-            var externalLinkInputs = linkInputs.Where(x => !compileOutputs.Contains(x));
-
-            var realInputs = compileInputs.Concat(externalLinkInputs).ToList();
-            LogProjectMessage("Inputs:");
-            realInputs.ForEach(x => LogProjectMessage("\t" + x));
+            IList<string> realInputs, realOutputs;
+            if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs))
+                return true;
 
             return true;
         }
-
-        private IEnumerable<string> ReadTlogFile(string tlogCacheLocation, string name, bool ignoreComments)
-        {
-            var tlog = Path.Combine(tlogCacheLocation, name);
-            if (!File.Exists(tlog))
-            {
-                LogProjectMessage(tlog + " not found, recompiling...");
-                return null;
-            }
-
-            var lines = File.ReadAllLines(tlog);
-            var filteredLines = ignoreComments ? 
-                lines.Where(x => !x.StartsWith("^")) : 
-                lines.Select(x => x.Replace("^", ""));
-
-            return filteredLines;
-        } 
     }
 }

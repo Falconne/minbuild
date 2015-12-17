@@ -59,6 +59,16 @@ namespace MinBuild
                 }
             }
 
+            IList<string> realInputs, realOutputs;
+            if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs))
+                return true;
+
+            var inputFilesHash = GetHashForFiles(realInputs);
+            inputFilesHash = GetHashForContent(inputFilesHash + BuildConfig);
+            var cacheOutput = GetCacheDirForHash(inputFilesHash);
+            if (string.IsNullOrWhiteSpace(cacheOutput)) return true;
+
+
             return true;
         }
     }
