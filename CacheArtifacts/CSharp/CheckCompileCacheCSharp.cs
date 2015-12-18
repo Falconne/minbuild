@@ -72,7 +72,7 @@ namespace MinBuild
 
             InputHash = GetHashForFiles(inputFiles);
             InputHash = GetHashForContent(InputHash + BuildConfig);
-            var cacheOutput = GetCacheDirForHash(InputHash);
+            var cacheOutput = GetExistingCacheDirForHash(InputHash);
             if (string.IsNullOrWhiteSpace(cacheOutput)) return true;
 
             foreach (var outputFile in outputFiles)

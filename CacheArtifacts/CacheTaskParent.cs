@@ -241,7 +241,12 @@ namespace MinBuild
 
         protected string GetCacheDirForHash(string hash)
         {
-            var cacheOutput = Path.Combine(BranchCacheLocation, hash);
+            return Path.Combine(BranchCacheLocation, hash);
+        }
+
+        protected string GetExistingCacheDirForHash(string hash)
+        {
+            var cacheOutput = GetCacheDirForHash(hash);
             if (!Directory.Exists(cacheOutput))
             {
                 LogProjectMessage("Artifacts not cached, recompiling...");

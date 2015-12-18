@@ -48,6 +48,8 @@ namespace MinBuild
             foreach (var buildTLogFile in buildTLogFiles)
             {
                 LogProjectMessage(string.Format("Copy built log {0} to {1}", buildTLogFile, tlogCacheLocation));
+                if (!Directory.Exists(tlogCacheLocation))
+                    Directory.CreateDirectory(tlogCacheLocation);
                 try
                 {
                     File.Copy(buildTLogFile, Path.Combine(tlogCacheLocation, Path.GetFileName(buildTLogFile)));

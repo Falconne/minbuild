@@ -21,7 +21,7 @@ namespace MinBuild
             if (!File.Exists(completeMarker))
             {
                 LogProjectMessage(completeMarker + " is missing, recompiling...");
-                return false;
+                return true;
             }
 
             IList<string> realInputs, realOutputs;

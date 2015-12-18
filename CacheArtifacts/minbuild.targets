@@ -10,6 +10,9 @@
     <UsingTask TaskName="MinBuild.CheckCompileCacheCPP"
                AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
 
+    <UsingTask TaskName="MinBuild.CacheArtifactsCPP"
+               AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
+
     <PropertyGroup>
         <TargetsTriggeredByCompilation>
             $(TargetsTriggeredByCompilation);
@@ -101,7 +104,13 @@
     </Target>
 
     <Target Name="CacheArtifactsAfterCompileCPP">
-        <Message Text="*****After Build: @(CLCompile)" Importance="high" />
-        <Message Text="*****After TLogLocation: $(TLogLocation)" Importance="high" />
+        <CacheArtifactsCPP
+            LocalTlogLocation="$(TLogLocation)"
+            Inputs="@(CLCompile)"
+            BranchVersion="$(BranchVersion)"
+            CacheRoot="$(CacheRoot)"
+            ShowContentHashes="$(ShowContentHashes)"
+            BuildConfig="$(Configuration)|$(PlatformName)"
+            ProjectName="$(ProjectName)" />
     </Target>
 </Project>
