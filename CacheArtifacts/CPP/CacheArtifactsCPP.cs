@@ -69,6 +69,13 @@ namespace MinBuild
             var cacheOutput = GetCacheDirForHash(inputFilesHash);
             if (string.IsNullOrWhiteSpace(cacheOutput)) return true;
 
+            LogProjectMessage("Caching artifacts to " + cacheOutput);
+            if (Directory.Exists(cacheOutput))
+            {
+                Log.LogWarning(ProjectName + ": Cache dir is being created by another thread");
+                return true;
+            }
+
             return true;
         }
     }

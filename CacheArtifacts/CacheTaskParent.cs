@@ -41,7 +41,9 @@ namespace MinBuild
             var hashset = new HashSet<string>();
             if (outputFiles.Any(file => !hashset.Add(Path.GetFileName(file))))
             {
-                Log.LogMessage(MessageImportance.High, "Cache cannot be used with duplicate output files");
+                Log.LogWarning("Cache cannot be used with duplicate output files:");
+                var duplicates = outputFiles.Where(file => !hashset.Add(Path.GetFileName(file))).ToList();
+                duplicates.ForEach(x => Log.LogWarning("\t" + x));
                 return true;
             }
 
@@ -59,6 +61,41 @@ namespace MinBuild
         protected string BranchCacheLocation { get { return Path.Combine(CacheLocation, BranchVersion); } }
 
         protected string PrecomputedCacheLocation { get { return Path.Combine(CacheLocation, "Precomputed"); } }
+
+        protected bool CacheBuildArtifacts(IList<string> outputFiles, string cacheHash)
+        {
+            if (ShouldSkipCache(outputFiles))
+            {
+                return true;
+            }
+
+            var cacheOutput = Path.Combine(BranchCacheLocation, cacheHash);
+            LogProjectMessage("Caching artifacts to " + cacheOutput, MessageImportance.High);
+            if (Directory.Exists(cacheOutput))
+            {
+                Log.LogWarning(ProjectName + ": Cache dir is being created by another thread");
+                return true;
+            }
+
+            Directory.CreateDirectory(cacheOutput);
+            foreach (var outputFile in outputFiles)
+            {
+                LogProjectMessage("\t" + outputFile, MessageImportance.High);
+                var dst = Path.Combine(cacheOutput, Path.GetFileName(outputFile));
+                if (File.Exists(dst))
+                {
+                    Log.LogWarning(ProjectName + ": Cache files are being created by another thread");
+                    return true;
+                }
+
+                File.Copy(outputFile, dst);
+            }
+
+            var completeMarker = Path.Combine(cacheOutput, "complete");
+            File.Create(completeMarker).Close();
+
+            return true;
+        }
 
         // Content hash is the hash of each input file's content, concatenanted then rehashed
         protected string GetHashForFiles(IList<string> files)
