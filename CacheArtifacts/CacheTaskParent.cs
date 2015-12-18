@@ -65,11 +65,10 @@ namespace MinBuild
         protected bool CacheBuildArtifacts(IList<string> outputFiles, string cacheHash)
         {
             if (ShouldSkipCache(outputFiles))
-            {
                 return true;
-            }
 
             var cacheOutput = Path.Combine(BranchCacheLocation, cacheHash);
+            if (string.IsNullOrWhiteSpace(cacheOutput)) return true;
             LogProjectMessage("Caching artifacts to " + cacheOutput, MessageImportance.High);
             if (Directory.Exists(cacheOutput))
             {
