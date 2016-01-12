@@ -28,6 +28,8 @@ namespace MinBuild
             if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs))
                 return true;
 
+            RestoreCachedArtifactsIfPossible(realInputs, realOutputs);
+
             return true;
         }
     }

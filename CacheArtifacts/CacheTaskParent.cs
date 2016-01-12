@@ -24,6 +24,12 @@ namespace MinBuild
 
         [Required]
         public bool ShowContentHashes { private get; set; }
+
+        [Required]
+        public bool ShowRecompileReason { private get; set; }
+
+        [Required]
+        public string BuildConfig { protected get; set; }
         
 
         protected static IEnumerable<string> ParseFileList(string raw)
@@ -58,10 +64,14 @@ namespace MinBuild
 
         protected abstract string GetCacheType();
 
+        // We use a separate cache for each major version so we don't have to worry about version info.
+        // That is, a cached file from any branch in this major version is ok to use.
+        // TODO Rename Branch to Release
         protected string BranchCacheLocation { get { return Path.Combine(CacheLocation, BranchVersion); } }
 
         protected string PrecomputedCacheLocation { get { return Path.Combine(CacheLocation, "Precomputed"); } }
 
+        // Copy the built output files to the appropriate cache directory based on the input hash
         protected bool CacheBuildArtifacts(IList<string> outputFiles, string cacheHash)
         {
             if (ShouldSkipCache(outputFiles))
@@ -94,6 +104,67 @@ namespace MinBuild
             File.Create(completeMarker).Close();
 
             return true;
+        }
+
+
+        protected string RestoreCachedArtifactsIfPossible(IList<string> inputFiles, IList<string> outputFiles)
+        {
+            var recompileReasonPriority = (ShowRecompileReason)
+                ? MessageImportance.High
+                : MessageImportance.Normal;
+            LogProjectMessage("Recompile requested, checking for cached artifacts", recompileReasonPriority);
+            LogProjectMessage("Build configuration: " + BuildConfig, recompileReasonPriority);
+            LogProjectMessage("\tRecompile reason:", recompileReasonPriority);
+            var missingOutputFiles = outputFiles.Where(x => !File.Exists(x)).ToList();
+            if (missingOutputFiles.Any())
+            {
+                LogProjectMessage("\t\tMissing outputs:", recompileReasonPriority);
+                missingOutputFiles.ForEach(x =>
+                    LogProjectMessage("\t\t\t" + Path.GetFullPath(x), recompileReasonPriority));
+            }
+            else
+            {
+                var outputFilesAccessTimes = outputFiles.Select(x => new FileInfo(x).LastWriteTime);
+                var oldestOutputTime = outputFilesAccessTimes.OrderBy(x => x).First();
+                LogProjectMessage("\t\tOutputs are:", recompileReasonPriority);
+                foreach (var outputFile in outputFiles)
+                {
+                    LogProjectMessage("\t\t\t" + Path.GetFullPath(outputFile), recompileReasonPriority);
+                }
+
+                LogProjectMessage("\t\tOne or more inputs have changed:", recompileReasonPriority);
+                foreach (var inputFile in inputFiles)
+                {
+                    var fi = new FileInfo(inputFile);
+                    if (fi.LastWriteTime > oldestOutputTime)
+                    {
+                        LogProjectMessage("\t\t\t" + Path.GetFullPath(inputFile), recompileReasonPriority);
+                    }
+                }
+            }
+
+            var inputHash = GetHashForFiles(inputFiles);
+            inputHash = GetHashForContent(inputHash + BuildConfig);
+            var cacheOutput = GetExistingCacheDirForHash(inputHash);
+            if (string.IsNullOrWhiteSpace(cacheOutput)) return inputHash;
+
+            foreach (var outputFile in outputFiles)
+            {
+                LogProjectMessage("\t" + Path.GetFullPath(outputFile), MessageImportance.Normal);
+                var filename = Path.GetFileName(outputFile);
+                var src = Path.Combine(cacheOutput, filename);
+                if (!File.Exists(src))
+                {
+                    LogProjectMessage("\t\tCache file missing, recompiling...");
+                    return inputHash;
+                }
+                if (File.Exists(outputFile))
+                    File.Delete(outputFile);
+                File.Copy(src, outputFile);
+                File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
+            }
+
+            return inputHash;
         }
 
         // Content hash is the hash of each input file's content, concatenanted then rehashed

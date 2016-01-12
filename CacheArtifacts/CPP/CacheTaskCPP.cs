@@ -13,9 +13,6 @@ namespace MinBuild
         [Required]
         public string Inputs { protected get; set; }
 
-        [Required]
-        public string BuildConfig { protected get; set; }
-
         protected override string GetCacheType()
         {
             return "cpp";

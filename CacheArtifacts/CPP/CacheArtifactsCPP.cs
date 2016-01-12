@@ -22,13 +22,15 @@ namespace MinBuild
             if (string.IsNullOrWhiteSpace(tlogCacheLocation))
                 return true;
 
-            // Check that tracking logs have been created for this build
+            // Check that tracking logs have been created for this build.
+            // LocalTlogLocation is where the build writes the tracking logs.
             if (!File.Exists(Path.Combine(LocalTlogLocation, "CL.read.1.tlog"))) return true;
             if (!File.Exists(Path.Combine(LocalTlogLocation, "CL.write.1.tlog"))) return true;
             if (!File.Exists(Path.Combine(LocalTlogLocation, "link.read.1.tlog"))) return true;
             if (!File.Exists(Path.Combine(LocalTlogLocation, "link.write.1.tlog"))) return true;
             LogProjectMessage("Build tracking logs found");
 
+            // If tracking log cache exists, ready it for resetting
             var completeMarker = Path.Combine(tlogCacheLocation, "complete");
             if (File.Exists(completeMarker))
             {
@@ -43,7 +45,7 @@ namespace MinBuild
                 }
             }
 
-            // Copy built tracking logs to cache directory
+            // Copy built tracking logs to tlog cache directory
             var buildTLogFiles = Directory.GetFiles(LocalTlogLocation, "*.1.tlog");
             foreach (var buildTLogFile in buildTLogFiles)
             {
@@ -67,8 +69,10 @@ namespace MinBuild
                 return true;
 
             var inputFilesHash = GetHashForFiles(realInputs);
+            // Must not mix caches across different build configs
             inputFilesHash = GetHashForContent(inputFilesHash + BuildConfig);
 
+            // Cache the actual built binaries
             return CacheBuildArtifacts(realOutputs, inputFilesHash);
         }
     }
