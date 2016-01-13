@@ -20,6 +20,7 @@ namespace MinBuild
 
         protected string GetTLogCacheLocation()
         {
+            LogProjectMessage("Calculating tlog cache location from inputs");
             var inputFiles = ParseFileList(Inputs).ToList();
             var cppInput = GetHashForFiles(inputFiles);
             cppInput = GetHashForContent(cppInput + BuildConfig);
@@ -35,6 +36,7 @@ namespace MinBuild
             if (string.IsNullOrWhiteSpace(tlogCacheLocation) || !Directory.Exists(tlogCacheLocation))
                 return false;
 
+            LogProjectMessage("Parsing real inputs and outputs from tlogs.");
             var allInputs = new List<string>();
             var inputTLogFiles = Directory.GetFiles(tlogCacheLocation, "*.read.1.tlog");
             foreach (var inputTLogFile in inputTLogFiles)

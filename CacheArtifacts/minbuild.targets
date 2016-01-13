@@ -32,6 +32,11 @@
             $(AfterLinkTargets);
             CacheArtifactsAfterCompileCPP
         </AfterLinkTargets>
+
+        <AfterLibTargets>
+            $(AfterLibTargets);
+            CacheArtifactsAfterCompileCPP
+        </AfterLibTargets>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -99,6 +104,7 @@
             CacheRoot="$(CacheRoot)"
             ProjectName="$(ProjectName)"
             ShowContentHashes="$(ShowContentHashes)"
+            ShowRecompileReason="$(ShowRecompileReason)"
             BuildConfig="$(Configuration)|$(PlatformName)"
             Inputs="@(CLCompile)" />
     </Target>
@@ -110,6 +116,7 @@
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
             ShowContentHashes="$(ShowContentHashes)"
+            ShowRecompileReason="$(ShowRecompileReason)"
             BuildConfig="$(Configuration)|$(PlatformName)"
             ProjectName="$(ProjectName)" />
     </Target>
