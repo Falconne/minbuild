@@ -24,6 +24,10 @@ namespace MinBuild
                 return true;
             }
 
+            // Reset deletion timer on tlog cache directory
+            File.SetLastWriteTimeUtc(completeMarker, DateTime.UtcNow);
+
+            EvaluateLinkTLogFilename(tlogCacheLocation);
             IList<string> realInputs, realOutputs;
             if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs))
                 return true;

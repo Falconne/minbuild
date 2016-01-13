@@ -25,10 +25,10 @@ namespace MinBuild
             // Check that tracking logs have been created for this build.
             // LocalTlogLocation is where the build writes the tracking logs.
             LogProjectMessage("Looking for built tracking logs in " + LocalTlogLocation);
+            EvaluateLinkTLogFilename(LocalTlogLocation);
             if (!File.Exists(Path.Combine(LocalTlogLocation, "CL.read.1.tlog"))) return true;
             if (!File.Exists(Path.Combine(LocalTlogLocation, "CL.write.1.tlog"))) return true;
-            if (!File.Exists(Path.Combine(LocalTlogLocation, "link.read.1.tlog"))) return true;
-            if (!File.Exists(Path.Combine(LocalTlogLocation, "link.write.1.tlog"))) return true;
+            if (!File.Exists(Path.Combine(LocalTlogLocation, LinkTLogFilename))) return true;
             LogProjectMessage("Build tracking logs found");
 
             // If tracking log cache exists, ready it for resetting
@@ -51,18 +51,23 @@ namespace MinBuild
             foreach (var buildTLogFile in buildTLogFiles)
             {
                 LogProjectMessage(string.Format("Copy built log {0} to {1}", buildTLogFile, tlogCacheLocation));
-                if (!Directory.Exists(tlogCacheLocation))
-                    Directory.CreateDirectory(tlogCacheLocation);
+                var destination = Path.Combine(tlogCacheLocation, Path.GetFileName(buildTLogFile));
                 try
                 {
-                    File.Copy(buildTLogFile, Path.Combine(tlogCacheLocation, Path.GetFileName(buildTLogFile)));
+                    if (!Directory.Exists(tlogCacheLocation))
+                        Directory.CreateDirectory(tlogCacheLocation);
+                    if (File.Exists(destination))
+                        File.Delete(destination);
+                    File.Copy(buildTLogFile, destination);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     Log.LogWarning("Cannot copy to " + tlogCacheLocation + " skipping cache");
+                    Log.LogWarning("Reason: " + e.Message);
                     return true;
                 }
             }
+            File.Create(completeMarker).Close();
 
             // Parse real inputs and outputs
             IList<string> realInputs, realOutputs;

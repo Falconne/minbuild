@@ -1,6 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <!-- Test with:
-         msbuild <sln> /p:Configuration=Release /p:Platform="Any CPU" /verbosity:m /t:rebuild /p:CustomBeforeMicrosoftCommonTargets="C:\git\minbuild\CacheArtifacts\bin\Release\minbuild.targets" /p:ForceImportAfterCppTargets="C:\git\minbuild\CacheArtifacts\bin\Release\minbuild.targes" /filelogger /flp:verbosity=m-->
+         msbuild <sln> /p:Configuration=Release /p:Platform="Any CPU" /verbosity:m /t:rebuild /p:CustomBeforeMicrosoftCommonTargets="C:\git\minbuild\CacheArtifacts\bin\Release\minbuild.targets" /p:ForceImportAfterCppTargets="C:\git\minbuild\CacheArtifacts\bin\Release\minbuild.targes" /filelogger /flp:verbosity=m  /p:ShowRecompileReason=True /p:ShowContentHashes=True
+         -->
     <UsingTask TaskName="MinBuild.CacheArtifactsCSharp"
                AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
 
@@ -66,7 +67,7 @@
         <BranchVersion Condition=" '$(BranchVersion)' == '' ">0</BranchVersion>
         <CacheRoot Condition=" '$(CacheRoot)' == '' ">c:\temp\minbuild</CacheRoot>
         <ShowRecompileReason Condition=" '$(ShowRecompileReason)' == '' ">false</ShowRecompileReason>
-        <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">true</ShowContentHashes>
+        <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">false</ShowContentHashes>
     </PropertyGroup>
 
     <Target Name="CheckCompileCacheBeforeCompileCSharp"

@@ -27,6 +27,19 @@ namespace MinBuild
             return GetCacheDirForHash(cppInput);
         }
 
+        // Link TLog is different for .exe builds and .lib builds
+        protected void EvaluateLinkTLogFilename(string tlogCacheLocation)
+        {
+            LinkTLogFilename = "link.write.1.tlog";
+            var linkTLog = Path.Combine(tlogCacheLocation, LinkTLogFilename);
+            if (!File.Exists(linkTLog))
+            {
+                LinkTLogFilename = "Lib-link.write.1.tlog";
+            }
+
+            LogProjectMessage("Link tlog evaluated as " + LinkTLogFilename);
+        }
+
         protected bool ParseRealInputsAndOutputs(string tlogCacheLocation, 
             out IList<string> realInputs, out IList<string> realOutputs)
         {
@@ -48,19 +61,20 @@ namespace MinBuild
             }
 
             LogProjectMessage("All inputs before filter:");
-            allInputs.ForEach(x => LogProjectMessage("\t" + x));
+            allInputs.ForEach(x => LogProjectMessage("\t" + x, MessageImportance.Low));
 
             // Real inputs are our source files and linker inputs minus objects from our own
             // compile (i.e.  other libs).
             var intermediateOutputTLogFiles = Directory.GetFiles(tlogCacheLocation, "*.write.1.tlog").Where(
-                x => !"link.write.1.tlog".Equals(x));
+                x => !x.Contains("link.write.1.tlog"));
             allInputs.RemoveAll(x => intermediateOutputTLogFiles.Contains(x));
 
             LogProjectMessage("All inputs after filter:");
-            allInputs.ForEach(x => LogProjectMessage("\t" + x));
+            allInputs.ForEach(x => LogProjectMessage("\t" + x, MessageImportance.Low));
             if (allInputs.Count == 0) return false;
+            realInputs = allInputs;
 
-            realOutputs = ReadTlogFile(tlogCacheLocation, "link.write.1.tlog").ToList();
+            realOutputs = ReadTlogFile(tlogCacheLocation, LinkTLogFilename).ToList();
             if (realOutputs.Count == 0) return false;
 
             LogProjectMessage("Real Outputs:");
@@ -71,6 +85,8 @@ namespace MinBuild
 
             return true;
         }
+
+        protected string LinkTLogFilename;
 
         private IEnumerable<string> ReadTlogFile(string tlogCacheLocation, string name)
         {
@@ -90,7 +106,11 @@ namespace MinBuild
                 lines.Where(x => !x.StartsWith("^")) :
                 lines.Select(x => x.Replace("^", ""));
 
-            filteredLines = filteredLines.Where(x => !x.EndsWith(".ASSEMBLYATTRIBUTES.CPP"));
+            filteredLines = filteredLines.Select(x => x.ToUpper());
+            filteredLines = filteredLines.Where(x => 
+                !x.EndsWith(".ASSEMBLYATTRIBUTES.CPP") &&
+                !x.Contains("|") &&
+                !x.EndsWith(".OBJ"));
 
             LogProjectMessage("Content from " + name);
             foreach (var filteredLine in filteredLines)

@@ -175,6 +175,7 @@ namespace MinBuild
             // TODO detect architecture
             var sb = new StringBuilder(48 * (files.Count() + 5));
             var priority = (ShowContentHashes) ? MessageImportance.High : MessageImportance.Low;
+            LogProjectMessage(string.Format("Generating hashes for {0} files", files.Count), priority);
             foreach (var file in files)
             {
                 LogProjectMessage("\t\t\tInput: " + file, priority);
@@ -184,6 +185,8 @@ namespace MinBuild
             }
 
             var hashString = GetHashForContent(sb.ToString());
+            LogProjectMessage("Generated Hash: " + hashString, priority);
+
             return hashString;
         }
 
@@ -205,7 +208,7 @@ namespace MinBuild
             if (allowPrecompute)
             {
                 // TODO be smarter (remember, msbuild tasks run 32bit)
-                if (file.Contains(@"\Program Files"))
+                if (file.ToLower().Contains(@"\program files"))
                 {
                     return GetPrecomputedHashFor(file);
                 }
@@ -258,7 +261,7 @@ namespace MinBuild
         // Cache and retrieve procomputed content hash for SDK input files
         protected string GetPrecomputedHashFor(string filepath)
         {
-            //LogProjectMessage("Checking for precomputed hash for " + filepath);
+            LogProjectMessage("Checking for precomputed hash for " + filepath, MessageImportance.Low);
             var fi = new FileInfo(filepath);
             var dirAsSubpath = fi.FullName.Replace(":", "");
             var cachePath = Path.Combine(PrecomputedCacheLocation, dirAsSubpath);
@@ -299,6 +302,7 @@ namespace MinBuild
                 Log.LogWarning("Reason " + e.Message);
                 return hash;
             }
+
             try
             {
                 // Used to ensure we recompute if the source file is modified
