@@ -22,6 +22,14 @@ namespace MinBuild
         {
             LogProjectMessage("Calculating tlog cache location from inputs");
             var inputFiles = ParseFileList(Inputs).ToList();
+            foreach (var inputFile in inputFiles)
+            {
+                if (!File.Exists(inputFile))
+                {
+                    LogProjectMessage("Creating non existent file " + inputFile);
+                    File.Create(inputFile);
+                }
+            }
             var cppInput = GetHashForFiles(inputFiles);
             cppInput = GetHashForContent(cppInput + BuildConfig);
             return GetCacheDirForHash(cppInput);
@@ -49,7 +57,7 @@ namespace MinBuild
             if (string.IsNullOrWhiteSpace(tlogCacheLocation) || !Directory.Exists(tlogCacheLocation))
                 return false;
 
-            LogProjectMessage("Parsing real inputs and outputs from tlogs.");
+            LogProjectMessage("Parsing real inputs and outputs from tlogs.", MessageImportance.Low);
             var allInputs = new List<string>();
             var inputTLogFiles = Directory.GetFiles(tlogCacheLocation, "*.read.1.tlog");
             foreach (var inputTLogFile in inputTLogFiles)
@@ -60,7 +68,7 @@ namespace MinBuild
                 allInputs.AddRange(inputs);
             }
 
-            LogProjectMessage("All inputs before filter:");
+            LogProjectMessage("All inputs before filter:", MessageImportance.Low);
             allInputs.ForEach(x => LogProjectMessage("\t" + x, MessageImportance.Low));
 
             // Real inputs are our source files and linker inputs minus objects from our own
@@ -69,7 +77,7 @@ namespace MinBuild
                 x => !x.Contains("link.write.1.tlog"));
             allInputs.RemoveAll(x => intermediateOutputTLogFiles.Contains(x));
 
-            LogProjectMessage("All inputs after filter:");
+            LogProjectMessage("All inputs after filter:", MessageImportance.Low);
             allInputs.ForEach(x => LogProjectMessage("\t" + x, MessageImportance.Low));
             if (allInputs.Count == 0) return false;
             realInputs = allInputs;
@@ -77,10 +85,10 @@ namespace MinBuild
             realOutputs = ReadTlogFile(tlogCacheLocation, LinkTLogFilename).ToList();
             if (realOutputs.Count == 0) return false;
 
-            LogProjectMessage("Real Outputs:");
+            LogProjectMessage("Real Outputs:", MessageImportance.Low);
             foreach (var realOutput in realOutputs)
             {
-                LogProjectMessage("\t" + realOutput);
+                LogProjectMessage("\t" + realOutput, MessageImportance.Low);
             }
 
             return true;
@@ -112,10 +120,10 @@ namespace MinBuild
                 !x.Contains("|") &&
                 !x.EndsWith(".OBJ"));
 
-            LogProjectMessage("Content from " + name);
+            LogProjectMessage("Content from " + name, MessageImportance.Low);
             foreach (var filteredLine in filteredLines)
             {
-                LogProjectMessage("\t" + filteredLine);
+                LogProjectMessage("\t" + filteredLine, MessageImportance.Low);
             }
 
             return filteredLines;

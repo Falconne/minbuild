@@ -5,11 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 
 namespace MinBuild
 {
     public class CheckCompileCacheCPP : CacheTaskCPP
     {
+        [Output]
+        public bool RestoreSuccessful { get; private set; }
+
         public override bool Execute()
         {
             LogProjectMessage("Recompile requested, checking for cached artifacts");
@@ -32,7 +36,9 @@ namespace MinBuild
             if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs))
                 return true;
 
-            RestoreCachedArtifactsIfPossible(realInputs, realOutputs);
+            bool restoreSuccessful;
+            RestoreCachedArtifactsIfPossible(realInputs, realOutputs, out restoreSuccessful);
+            RestoreSuccessful = restoreSuccessful;
 
             return true;
         }

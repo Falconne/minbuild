@@ -34,7 +34,8 @@ namespace MinBuild
             var inputFiles = inputFilesRaw.Where(
                 x => !x.Contains("AssemblyInfo.cs") && File.Exists(x)).ToList();
 
-            InputHash = RestoreCachedArtifactsIfPossible(inputFiles, outputFiles);
+            bool dummy;
+            InputHash = RestoreCachedArtifactsIfPossible(inputFiles, outputFiles, out dummy);
 
             return true;
         }

@@ -35,11 +35,11 @@ namespace MinBuild
 
         protected static IEnumerable<string> ParseFileList(string raw)
         {
-            var nonVersionInfoFiles =
+            var inputFiles =
                 raw.Split(';').Where(x =>
                     !string.IsNullOrWhiteSpace(x));
 
-            var uniqueFiles = nonVersionInfoFiles.Select(y => y.Trim()).OrderBy(z => z).Distinct();
+            var uniqueFiles = inputFiles.Select(y => y.Trim()).OrderBy(z => z).Distinct();
             return uniqueFiles;
         }
 
@@ -108,8 +108,10 @@ namespace MinBuild
         }
 
 
-        protected string RestoreCachedArtifactsIfPossible(IList<string> inputFiles, IList<string> outputFiles)
+        protected string RestoreCachedArtifactsIfPossible(IList<string> inputFiles, IList<string> outputFiles,
+            out bool restoreSuccessful)
         {
+            restoreSuccessful = false;
             var recompileReasonPriority = (ShowRecompileReason)
                 ? MessageImportance.High
                 : MessageImportance.Normal;
@@ -166,6 +168,7 @@ namespace MinBuild
                 File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
             }
 
+            restoreSuccessful = true;
             return inputHash;
         }
 
