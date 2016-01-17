@@ -40,6 +40,7 @@ namespace MinBuild
                     !string.IsNullOrWhiteSpace(x));
 
             var uniqueFiles = inputFiles.Select(y => y.Trim()).OrderBy(z => z).Distinct();
+            uniqueFiles = uniqueFiles.Where(File.Exists);
             return uniqueFiles;
         }
 
@@ -106,7 +107,6 @@ namespace MinBuild
 
             return true;
         }
-
 
         protected string RestoreCachedArtifactsIfPossible(IList<string> inputFiles, IList<string> outputFiles,
             out bool restoreSuccessful)
