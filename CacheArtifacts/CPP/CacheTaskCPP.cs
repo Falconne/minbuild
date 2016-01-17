@@ -73,9 +73,11 @@ namespace MinBuild
 
             // Real inputs are our source files and linker inputs minus objects from our own
             // compile (i.e.  other libs).
-            var intermediateOutputTLogFiles = Directory.GetFiles(tlogCacheLocation, "*.write.1.tlog").Where(
+            var intermediateOutputFiles = Directory.GetFiles(tlogCacheLocation, "*.write.1.tlog").Where(
                 x => !x.Contains("link.write.1.tlog"));
-            allInputs.RemoveAll(x => intermediateOutputTLogFiles.Contains(x));
+            intermediateOutputFiles = intermediateOutputFiles.Where(x => !x.ToLower().EndsWith(".pdb"));
+            allInputs.RemoveAll(x => intermediateOutputFiles.Contains(x));
+            allInputs.RemoveAll(x => !File.Exists(x));
 
             LogProjectMessage("All inputs after filter:", MessageImportance.Low);
             allInputs.ForEach(x => LogProjectMessage("\t" + x, MessageImportance.Low));
@@ -109,7 +111,7 @@ namespace MinBuild
 
             var lines = File.ReadAllLines(tlog);
             
-            var ignoreComments = "CL.read.1.tlog".Equals(name) || "rc.read.1.tlog".Equals(name);
+            var ignoreComments = name.ToLower().Contains(".write.1.tlog");
             var filteredLines = ignoreComments ?
                 lines.Where(x => !x.StartsWith("^")) :
                 lines.Select(x => x.Replace("^", ""));

@@ -61,7 +61,7 @@
 
         <BranchVersion Condition=" '$(BranchVersion)' == '' ">0</BranchVersion>
         <CacheRoot Condition=" '$(CacheRoot)' == '' ">c:\temp\minbuild</CacheRoot>
-        <ShowRecompileReason Condition=" '$(ShowRecompileReason)' == '' ">false</ShowRecompileReason>
+        <ShowRecompileReason Condition=" '$(ShowRecompileReason)' == '' ">true</ShowRecompileReason>
         <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">false</ShowContentHashes>
         <SkipCompile>false</SkipCompile>
     </PropertyGroup>

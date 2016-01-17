@@ -115,6 +115,7 @@ namespace MinBuild
             var recompileReasonPriority = (ShowRecompileReason)
                 ? MessageImportance.High
                 : MessageImportance.Normal;
+
             LogProjectMessage("Recompile requested, checking for cached artifacts", recompileReasonPriority);
             LogProjectMessage("Build configuration: " + BuildConfig, recompileReasonPriority);
             LogProjectMessage("\tRecompile reason:", recompileReasonPriority);
@@ -129,20 +130,27 @@ namespace MinBuild
             {
                 var outputFilesAccessTimes = outputFiles.Select(x => new FileInfo(x).LastWriteTime);
                 var oldestOutputTime = outputFilesAccessTimes.OrderBy(x => x).First();
-                LogProjectMessage("\t\tOutputs are:", recompileReasonPriority);
+                LogProjectMessage("\t\tOutputs are:", MessageImportance.Normal);
                 foreach (var outputFile in outputFiles)
                 {
-                    LogProjectMessage("\t\t\t" + Path.GetFullPath(outputFile), recompileReasonPriority);
+                    LogProjectMessage("\t\t\t" + Path.GetFullPath(outputFile), MessageImportance.Normal);
                 }
 
-                LogProjectMessage("\t\tOne or more inputs have changed:", recompileReasonPriority);
+                LogProjectMessage("\t\tOne or more inputs may have changed:", recompileReasonPriority);
+                var hasInputChanged = false;
                 foreach (var inputFile in inputFiles)
                 {
                     var fi = new FileInfo(inputFile);
-                    if (fi.LastWriteTime > oldestOutputTime)
-                    {
-                        LogProjectMessage("\t\t\t" + Path.GetFullPath(inputFile), recompileReasonPriority);
-                    }
+                    if (fi.LastWriteTime <= oldestOutputTime) continue;
+                    LogProjectMessage("\t\t\t" + Path.GetFullPath(inputFile), recompileReasonPriority);
+                    hasInputChanged = true;
+                }
+
+                if (!hasInputChanged)
+                {
+                    LogProjectMessage("Outputs are upto date, not checking cache.");
+                    restoreSuccessful = true;
+                    return "";
                 }
             }
 
@@ -164,6 +172,7 @@ namespace MinBuild
                 }
                 if (File.Exists(outputFile))
                     File.Delete(outputFile);
+                LogProjectMessage("Restoring cached file to " + outputFile);
                 File.Copy(src, outputFile);
                 File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
             }
