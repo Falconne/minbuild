@@ -98,6 +98,10 @@
     <Target Name="CheckCompileCacheBeforeCompileCPP" BeforeTargets="BeforeClCompile">
         <PropertyGroup>
             <RestoreSuccessful>False</RestoreSuccessful>
+            <InputFiles>
+                @(CLCompile);
+                $(ProjectPath)
+            </InputFiles>
         </PropertyGroup>
 
         <CheckCompileCacheCPP
@@ -107,7 +111,7 @@
             ShowContentHashes="$(ShowContentHashes)"
             ShowRecompileReason="$(ShowRecompileReason)"
             BuildConfig="$(Configuration)|$(PlatformName)"
-            Inputs="@(CLCompile)">
+            Inputs="$(InputFiles)">
 
             <Output TaskParameter="RestoreSuccessful" PropertyName="RestoreSuccessful"/>
         </CheckCompileCacheCPP>
@@ -122,7 +126,7 @@
             Condition="'$(SkipCompile)' != 'true'">
         <CacheArtifactsCPP
             LocalTlogLocation="$(TLogLocation)"
-            Inputs="@(CLCompile)"
+            Inputs="$(InputFiles)"
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
             ShowContentHashes="$(ShowContentHashes)"
