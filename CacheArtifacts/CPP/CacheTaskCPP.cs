@@ -21,7 +21,7 @@ namespace MinBuild
         protected string GetTLogCacheLocation()
         {
             LogProjectMessage("Calculating tlog cache location from inputs");
-            var inputFiles = ParseFileList(Inputs).ToList();
+            var inputFiles = ParseFileList(Inputs).Where(File.Exists).ToList();
             foreach (var inputFile in inputFiles)
             {
                 if (!File.Exists(inputFile))
@@ -120,6 +120,7 @@ namespace MinBuild
             filteredLines = filteredLines.Where(x => 
                 !x.EndsWith(".ASSEMBLYATTRIBUTES.CPP") &&
                 !x.Contains("|") &&
+                !x.EndsWith(".TLOG") &&
                 !x.EndsWith(".OBJ"));
 
             LogProjectMessage("Content from " + name, MessageImportance.Low);

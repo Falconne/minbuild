@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <!-- Test with:
-         msbuild <sln> /p:Configuration=Release /p:Platform="Any CPU" /verbosity:m /t:rebuild [/p:CustomBeforeMicroso]ftCommonTargets="C:\git\minbuild\CacheArtifacts\bin\Release\minbuild.targets" /p:ForceImportAfterCppTargets="C:\git\minbuild\CacheArtifacts\bin\Release\minbuild.targes" /filelogger /flp:verbosity=m  /p:ShowRecompileReason=True /p:ShowContentHashes=True
+         msbuild <sln> /p:Configuration=Release /p:Platform="Any CPU" /verbosity:m /t:rebuild /p:CustomAfterMicrosoftCommonTargets="C:\git\minbuild\CacheArtifacts\bin\Release\minbuild.targets" /filelogger /flp:verbosity=m /p:ShowRecompileReason=True /p:ShowContentHashes=True
          -->
     <UsingTask TaskName="MinBuild.CacheArtifactsCSharp"
                AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
@@ -67,9 +67,8 @@
     </PropertyGroup>
 
     <Target Name="CheckCompileCacheBeforeCompileCSharp"
-        Inputs="$(InputFiles)"
-        Outputs="$(OutputFiles)">
-
+        Inputs="$(InputFilesCSharp)"
+        Outputs="$(OutputFilesCSharp)">
         <CheckCompileCacheCSharp
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
@@ -85,23 +84,26 @@
 
     </Target>
 
-    <Target Name="CacheArtifactsAfterCompileCSharp">
+    <Target Name="CacheArtifactsAfterCompileCSharp"
+        Condition="'$(InputHash)' != 'SKIP'">
         <CacheArtifactsCSharp
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
             InputHash="$(InputHash)"
             ShowContentHashes="$(ShowContentHashes)"
+            ShowRecompileReason="$(ShowRecompileReason)"
             Outputs="$(OutputFilesCSharp)" 
+            BuildConfig="$(ConfigurationName)|$(PlatformName)"
             ProjectName="$(ProjectName)" />
     </Target>
 
     <Target Name="CheckCompileCacheBeforeCompileCPP" BeforeTargets="BeforeClCompile">
         <PropertyGroup>
             <RestoreSuccessful>False</RestoreSuccessful>
-            <InputFiles>
+            <InputFilesCPP>
                 @(CLCompile);
                 $(ProjectPath)
-            </InputFiles>
+            </InputFilesCPP>
         </PropertyGroup>
 
         <CheckCompileCacheCPP
@@ -111,7 +113,7 @@
             ShowContentHashes="$(ShowContentHashes)"
             ShowRecompileReason="$(ShowRecompileReason)"
             BuildConfig="$(Configuration)|$(PlatformName)"
-            Inputs="$(InputFiles)">
+            Inputs="$(InputFilesCPP)">
 
             <Output TaskParameter="RestoreSuccessful" PropertyName="RestoreSuccessful"/>
         </CheckCompileCacheCPP>
@@ -126,7 +128,7 @@
             Condition="'$(SkipCompile)' != 'true'">
         <CacheArtifactsCPP
             LocalTlogLocation="$(TLogLocation)"
-            Inputs="$(InputFiles)"
+            Inputs="$(InputFilesCPP)"
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
             ShowContentHashes="$(ShowContentHashes)"

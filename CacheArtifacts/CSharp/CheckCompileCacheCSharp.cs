@@ -36,6 +36,7 @@ namespace MinBuild
 
             bool dummy;
             InputHash = RestoreCachedArtifactsIfPossible(inputFiles, outputFiles, out dummy);
+            LogProjectMessage("InputHash returned: " + InputHash, MessageImportance.Normal);
 
             return true;
         }

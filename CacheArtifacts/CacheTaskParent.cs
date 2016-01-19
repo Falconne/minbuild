@@ -38,9 +38,8 @@ namespace MinBuild
             var inputFiles =
                 raw.Split(';').Where(x =>
                     !string.IsNullOrWhiteSpace(x));
-
             var uniqueFiles = inputFiles.Select(y => y.Trim()).OrderBy(z => z).Distinct();
-            uniqueFiles = uniqueFiles.Where(File.Exists);
+            uniqueFiles = uniqueFiles.Where(x => !x.ToLower().EndsWith("assemblyattributes.cs"));
             return uniqueFiles;
         }
 
@@ -128,8 +127,8 @@ namespace MinBuild
             }
             else
             {
-                var outputFilesAccessTimes = outputFiles.Select(x => new FileInfo(x).LastWriteTime);
-                var oldestOutputTime = outputFilesAccessTimes.OrderBy(x => x).First();
+                var outputFileInfos = outputFiles.Select(x => new FileInfo(x)).ToList();
+                var outputFilesAccessTimes = outputFileInfos.Select(x => x.LastWriteTime);
                 LogProjectMessage("\t\tOutputs are:", MessageImportance.Normal);
                 foreach (var outputFile in outputFiles)
                 {
@@ -138,19 +137,25 @@ namespace MinBuild
 
                 LogProjectMessage("\t\tOne or more inputs may have changed:", recompileReasonPriority);
                 var hasInputChanged = false;
+                var oldestOutputTime = outputFilesAccessTimes.OrderBy(x => x).First();
                 foreach (var inputFile in inputFiles)
                 {
                     var fi = new FileInfo(inputFile);
                     if (fi.LastWriteTime <= oldestOutputTime) continue;
                     LogProjectMessage("\t\t\t" + Path.GetFullPath(inputFile), recompileReasonPriority);
                     hasInputChanged = true;
+                    LogProjectMessage("\t\t\tNot checking for any more changed inputs", recompileReasonPriority);
+                    var oldestOutputFile = outputFileInfos.FirstOrDefault(x => x.LastWriteTime == oldestOutputTime);
+                    if (oldestOutputFile != null)
+                        LogProjectMessage("\t\tOldest output file was: " + oldestOutputFile);
+                    break;
                 }
 
                 if (!hasInputChanged)
                 {
                     LogProjectMessage("Outputs are upto date, not checking cache.");
                     restoreSuccessful = true;
-                    return "";
+                    return "SKIP";
                 }
             }
 
