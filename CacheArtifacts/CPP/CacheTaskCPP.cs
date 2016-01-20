@@ -118,7 +118,7 @@ namespace MinBuild
                 return null;
             }
 
-            LogProjectMessage("Reading " + tlog);
+            LogProjectMessage("Reading " + tlog, MessageImportance.Low);
 
             var lines = File.ReadAllLines(tlog);
             
