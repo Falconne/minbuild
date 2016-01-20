@@ -43,6 +43,11 @@ namespace MinBuild
             if (!File.Exists(linkTLog))
             {
                 LinkTLogFilename = "Lib-link.write.1.tlog";
+                linkTLog = Path.Combine(tlogCacheLocation, LinkTLogFilename);
+                if (!File.Exists(linkTLog))
+                {
+                    LinkTLogFilename = "Lib-link-cvtres.write.1.tlog";
+                }
             }
 
             LogProjectMessage("Link tlog evaluated as " + LinkTLogFilename);
