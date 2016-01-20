@@ -127,6 +127,7 @@ namespace MinBuild
                 !x.EndsWith(".ASSEMBLYATTRIBUTES.CPP") &&
                 !x.Contains("|") &&
                 !x.EndsWith(".TLOG") &&
+                !x.EndsWith(".METAGEN") &&
                 !x.Contains(@"\PROGRAM FILES") &&
                 !x.EndsWith(".OBJ"));
 
