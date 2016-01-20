@@ -30,9 +30,9 @@ namespace MinBuild
                     File.Create(inputFile);
                 }
             }
-            var cppInput = GetHashForFiles(inputFiles);
-            cppInput = GetHashForContent(cppInput + BuildConfig);
-            return GetCacheDirForHash(cppInput);
+            var cppInputHash = GetHashForFiles(inputFiles);
+            cppInputHash = GetHashForContent(cppInputHash + BuildConfig);
+            return GetCacheDirForHash(cppInputHash);
         }
 
         // Link TLog is different for .exe builds and .lib builds
@@ -68,6 +68,8 @@ namespace MinBuild
                 allInputs.AddRange(inputs);
             }
 
+            allInputs = allInputs.OrderBy(z => z).Distinct().ToList();
+
             LogProjectMessage("All inputs before filter:", MessageImportance.Low);
             allInputs.ForEach(x => LogProjectMessage("\t" + x, MessageImportance.Low));
 
@@ -75,8 +77,12 @@ namespace MinBuild
             // compile (i.e.  other libs).
             var intermediateOutputFiles = Directory.GetFiles(tlogCacheLocation, "*.write.1.tlog").Where(
                 x => !x.Contains("link.write.1.tlog"));
-            intermediateOutputFiles = intermediateOutputFiles.Where(x => !x.ToLower().EndsWith(".pdb"));
-            allInputs.RemoveAll(x => intermediateOutputFiles.Contains(x));
+            foreach (var intermediateOutputFile in intermediateOutputFiles)
+            {
+                var intermediateOutputs = ReadTlogFile(tlogCacheLocation, intermediateOutputFile);
+                intermediateOutputs = intermediateOutputs.Where(x => !x.ToLower().EndsWith(".pdb")).ToList();
+                allInputs.RemoveAll(x => intermediateOutputs.Contains(x));
+            }
             allInputs.RemoveAll(x => !File.Exists(x));
 
             LogProjectMessage("All inputs after filter:", MessageImportance.Low);
@@ -98,7 +104,7 @@ namespace MinBuild
 
         protected string LinkTLogFilename;
 
-        private IEnumerable<string> ReadTlogFile(string tlogCacheLocation, string name)
+        private IList<string> ReadTlogFile(string tlogCacheLocation, string name)
         {
             var tlog = Path.Combine(tlogCacheLocation, name);
             if (!File.Exists(tlog))
@@ -116,20 +122,23 @@ namespace MinBuild
                 lines.Where(x => !x.StartsWith("^")) :
                 lines.Select(x => x.Replace("^", ""));
 
-            filteredLines = filteredLines.Select(x => x.ToUpper());
-            filteredLines = filteredLines.Where(x => 
+            filteredLines = filteredLines.Select(x => x.Trim().ToUpper());
+            filteredLines = filteredLines.Where(x =>
                 !x.EndsWith(".ASSEMBLYATTRIBUTES.CPP") &&
                 !x.Contains("|") &&
                 !x.EndsWith(".TLOG") &&
+                !x.Contains(@"\PROGRAM FILES") &&
                 !x.EndsWith(".OBJ"));
 
+            filteredLines = filteredLines.OrderBy(x => x).Distinct();
             LogProjectMessage("Content from " + name, MessageImportance.Low);
-            foreach (var filteredLine in filteredLines)
+            var result = filteredLines.ToList();
+            foreach (var filteredLine in result)
             {
                 LogProjectMessage("\t" + filteredLine, MessageImportance.Low);
             }
 
-            return filteredLines;
+            return result;
         }
     }
 }

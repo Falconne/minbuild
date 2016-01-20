@@ -189,20 +189,18 @@ namespace MinBuild
         // Content hash is the hash of each input file's content, concatenanted then rehashed
         protected string GetHashForFiles(IList<string> files)
         {
-            // TODO detect architecture
             var sb = new StringBuilder(48 * (files.Count() + 5));
             var priority = (ShowContentHashes) ? MessageImportance.High : MessageImportance.Low;
             LogProjectMessage(string.Format("Generating hashes for {0} files", files.Count), priority);
-            foreach (var file in files)
+            foreach (var file in files.OrderBy(x => x))
             {
                 LogProjectMessage("\t\t\tInput: " + file, priority);
                 var fileHash = GetHashForFile(file);
-                LogProjectMessage("\t\t\tHash: " + fileHash, priority);
                 sb.Append(fileHash);
             }
 
             var hashString = GetHashForContent(sb.ToString());
-            LogProjectMessage("Generated Hash: " + hashString, priority);
+            LogProjectMessage("Generated Hash for files: " + hashString, priority);
 
             return hashString;
         }
@@ -211,6 +209,8 @@ namespace MinBuild
         {
             var cryptoProvider = new MD5CryptoServiceProvider();
             var hashString = BitConverter.ToString(cryptoProvider.ComputeHash(bytes));
+            var priority = (ShowContentHashes) ? MessageImportance.High : MessageImportance.Low;
+            LogProjectMessage("Generated Hash for content: " + hashString, priority);
 
             return hashString;
         }
@@ -224,7 +224,7 @@ namespace MinBuild
         {
             if (allowPrecompute)
             {
-                // TODO be smarter (remember, msbuild tasks run 32bit)
+                // TODO detect architecture, be smarter (remember, msbuild tasks run 32bit)
                 if (file.ToLower().Contains(@"\program files"))
                 {
                     return GetPrecomputedHashFor(file);
