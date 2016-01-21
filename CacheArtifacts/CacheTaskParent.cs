@@ -111,6 +111,8 @@ namespace MinBuild
                 ? MessageImportance.High
                 : MessageImportance.Normal;
 
+            if (outputFiles == null || outputFiles.Count == 0)
+                throw new Exception("Cache restore called with no output files");
             LogProjectMessage("Recompile requested, checking for cached artifacts", recompileReasonPriority);
             LogProjectMessage("Build configuration: " + BuildConfig, recompileReasonPriority);
             LogProjectMessage("\tRecompile reason:", recompileReasonPriority);
@@ -123,27 +125,26 @@ namespace MinBuild
             }
             else
             {
-                var outputFileInfos = outputFiles.Select(x => new FileInfo(x)).ToList();
-                var outputFilesAccessTimes = outputFileInfos.Select(x => x.LastWriteTime);
-                LogProjectMessage("\t\tOutputs are:", MessageImportance.Normal);
+                LogProjectMessage("\t\tOutput files are:", MessageImportance.Normal);
                 foreach (var outputFile in outputFiles)
                 {
                     LogProjectMessage("\t\t\t" + Path.GetFullPath(outputFile), MessageImportance.Normal);
                 }
 
                 LogProjectMessage("\t\tOne or more inputs may have changed:", recompileReasonPriority);
+                var outputFileInfos = outputFiles.Select(x => new FileInfo(x)).ToList();
+                var oldestOutputFile = outputFileInfos.OrderBy(x => x.LastWriteTime).First();
+                var oldestOutputTime = oldestOutputFile.LastWriteTime;
+                LogProjectMessage("Oldest output file is " + oldestOutputFile);
+
                 var hasInputChanged = false;
-                var oldestOutputTime = outputFilesAccessTimes.OrderBy(x => x).First();
                 foreach (var inputFile in inputFiles)
                 {
                     var fi = new FileInfo(inputFile);
-                    if (fi.LastWriteTime <= oldestOutputTime) continue;
+                    if (fi.LastWriteTime < oldestOutputTime) continue;
                     LogProjectMessage("\t\t\t" + Path.GetFullPath(inputFile), recompileReasonPriority);
                     hasInputChanged = true;
                     LogProjectMessage("\t\t\tNot checking for any more changed inputs", recompileReasonPriority);
-                    var oldestOutputFile = outputFileInfos.FirstOrDefault(x => x.LastWriteTime == oldestOutputTime);
-                    if (oldestOutputFile != null)
-                        LogProjectMessage("\t\tOldest output file was: " + oldestOutputFile);
                     break;
                 }
 
