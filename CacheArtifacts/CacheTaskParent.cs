@@ -81,21 +81,17 @@ namespace MinBuild
             var cacheOutput = Path.Combine(BranchCacheLocation, cacheHash);
             if (string.IsNullOrWhiteSpace(cacheOutput)) return true;
             LogProjectMessage("Caching artifacts to " + cacheOutput, MessageImportance.High);
-            if (Directory.Exists(cacheOutput))
-            {
-                Log.LogWarning(ProjectName + ": Cache dir is being created by another thread");
-                return true;
-            }
+            if (!Directory.Exists(cacheOutput))
+                Directory.CreateDirectory(cacheOutput);
 
-            Directory.CreateDirectory(cacheOutput);
             foreach (var outputFile in outputFiles)
             {
-                LogProjectMessage("\t" + outputFile, MessageImportance.High);
+                LogProjectMessage("\t" + outputFile);
                 var dst = Path.Combine(cacheOutput, Path.GetFileName(outputFile));
                 if (File.Exists(dst))
                 {
-                    Log.LogWarning(ProjectName + ": Cache files are being created by another thread");
-                    return true;
+                    Log.LogWarning(ProjectName + ": Overwriting cached file " + dst);
+                    File.Delete(dst);
                 }
 
                 File.Copy(outputFile, dst);
@@ -172,7 +168,7 @@ namespace MinBuild
                 var src = Path.Combine(cacheOutput, filename);
                 if (!File.Exists(src))
                 {
-                    LogProjectMessage("\t\tCache file missing, recompiling...");
+                    LogProjectMessage(string.Format("\t\tCache file {0} missing, recompiling...", filename));
                     return inputHash;
                 }
                 if (File.Exists(outputFile))
