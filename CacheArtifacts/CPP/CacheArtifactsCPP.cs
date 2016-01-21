@@ -24,6 +24,7 @@ namespace MinBuild
 
             // Check that tracking logs have been created for this build.
             // LocalTlogLocation is where the build writes the tracking logs.
+            LogProjectMessage("Current directory is " + Directory.GetCurrentDirectory());
             LogProjectMessage("Looking for built tracking logs in " + LocalTlogLocation);
             EvaluateLinkTLogFilename(LocalTlogLocation);
             if (!File.Exists(Path.Combine(LocalTlogLocation, "CL.read.1.tlog"))) return true;

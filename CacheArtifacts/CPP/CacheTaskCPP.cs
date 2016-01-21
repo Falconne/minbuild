@@ -39,16 +39,9 @@ namespace MinBuild
         protected void EvaluateLinkTLogFilename(string tlogCacheLocation)
         {
             LinkTLogFilename = "link.write.1.tlog";
-            var linkTLog = Path.Combine(tlogCacheLocation, LinkTLogFilename);
-            if (!File.Exists(linkTLog))
-            {
-                LinkTLogFilename = "Lib-link.write.1.tlog";
-                linkTLog = Path.Combine(tlogCacheLocation, LinkTLogFilename);
-                if (!File.Exists(linkTLog))
-                {
-                    LinkTLogFilename = "Lib-link-cvtres.write.1.tlog";
-                }
-            }
+            var actualLinkFile = Directory.GetFiles(tlogCacheLocation, "*link*write.1.tlog").FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(actualLinkFile))
+                LinkTLogFilename = Path.GetFileName(actualLinkFile);
 
             LogProjectMessage("Link tlog evaluated as " + LinkTLogFilename);
         }
