@@ -39,7 +39,7 @@ namespace MinBuild
         protected void EvaluateLinkTLogFilename(string tlogCacheLocation)
         {
             LinkTLogFilename = "link.write.1.tlog";
-            var actualLinkFile = Directory.GetFiles(tlogCacheLocation, "*link*write.1.tlog").FirstOrDefault();
+            var actualLinkFile = Directory.GetFiles(tlogCacheLocation, "*link*write.*.tlog").FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(actualLinkFile))
                 LinkTLogFilename = Path.GetFileName(actualLinkFile);
 
@@ -57,7 +57,7 @@ namespace MinBuild
 
             LogProjectMessage("Parsing real inputs and outputs from tlogs.", MessageImportance.Low);
             var allInputs = new List<string>();
-            var inputTLogFiles = Directory.GetFiles(tlogCacheLocation, "*.read.1.tlog");
+            var inputTLogFiles = Directory.GetFiles(tlogCacheLocation, "*.read.*.tlog");
             foreach (var inputTLogFile in inputTLogFiles)
             {
                 var inputs = ReadTlogFile(tlogCacheLocation, inputTLogFile);
@@ -73,13 +73,15 @@ namespace MinBuild
 
             // Real inputs are our source files and linker inputs minus objects from our own
             // compile (i.e.  other libs).
-            var intermediateOutputFiles = Directory.GetFiles(tlogCacheLocation, "*.write.1.tlog").Where(
-                x => !x.Contains("link.write.1.tlog"));
+            var intermediateOutputFiles = Directory.GetFiles(tlogCacheLocation, "*.write.*.tlog").Where(
+                x => !x.Contains("link.write.")).ToList();
+            var parsedOutputs = new List<string>();
             foreach (var intermediateOutputFile in intermediateOutputFiles)
             {
                 var intermediateOutputs = ReadTlogFile(tlogCacheLocation, intermediateOutputFile);
                 intermediateOutputs = intermediateOutputs.Where(x => !x.ToLower().EndsWith(".pdb")).ToList();
                 allInputs.RemoveAll(x => intermediateOutputs.Contains(x));
+                parsedOutputs.AddRange(intermediateOutputs.Where(x => x.ToLower().EndsWith(".lib")));
             }
             allInputs.RemoveAll(x => !File.Exists(x));
 
@@ -88,10 +90,11 @@ namespace MinBuild
             if (allInputs.Count == 0) return false;
             realInputs = allInputs;
 
-            realOutputs = ReadTlogFile(tlogCacheLocation, LinkTLogFilename).ToList();
-            if (realOutputs.Count == 0) return false;
+            parsedOutputs.AddRange(ReadTlogFile(tlogCacheLocation, LinkTLogFilename).ToList());
+            if (parsedOutputs.Count == 0) return false;
 
             LogProjectMessage("Real Outputs:", MessageImportance.Low);
+            realOutputs = parsedOutputs;
             foreach (var realOutput in realOutputs)
             {
                 LogProjectMessage("\t" + realOutput, MessageImportance.Low);
@@ -115,7 +118,7 @@ namespace MinBuild
 
             var lines = File.ReadAllLines(tlog);
             
-            var ignoreComments = name.ToLower().Contains(".write.1.tlog");
+            var ignoreComments = name.ToLower().Contains(".write.");
             var filteredLines = ignoreComments ?
                 lines.Where(x => !x.StartsWith("^")) :
                 lines.Select(x => x.Replace("^", ""));

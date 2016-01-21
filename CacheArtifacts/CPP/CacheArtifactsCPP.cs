@@ -48,7 +48,7 @@ namespace MinBuild
             }
 
             // Copy built tracking logs to tlog cache directory
-            var buildTLogFiles = Directory.GetFiles(LocalTlogLocation, "*.1.tlog");
+            var buildTLogFiles = Directory.GetFiles(LocalTlogLocation, "*.tlog");
             LogProjectMessage(string.Format("Copying built tlogs from {0} to {1}", 
                 LocalTlogLocation, tlogCacheLocation));
             foreach (var buildTLogFile in buildTLogFiles)
