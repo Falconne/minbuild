@@ -79,9 +79,11 @@ namespace MinBuild
             foreach (var intermediateOutputFile in intermediateOutputFiles)
             {
                 var intermediateOutputs = ReadTlogFile(tlogCacheLocation, intermediateOutputFile);
-                intermediateOutputs = intermediateOutputs.Where(x => !x.ToLower().EndsWith(".pdb")).ToList();
                 allInputs.RemoveAll(x => intermediateOutputs.Contains(x));
-                parsedOutputs.AddRange(intermediateOutputs.Where(x => x.ToLower().EndsWith(".lib")));
+
+                // Don't discard any intermediate .lib or .pdb files, sometimes they are actual outputs but
+                // not mentioned in the final link.write file.
+                parsedOutputs.AddRange(intermediateOutputs.Where(x => x.EndsWith(".LIB") || x.EndsWith(".PDB")));
             }
             allInputs.RemoveAll(x => !File.Exists(x));
 
@@ -92,9 +94,9 @@ namespace MinBuild
 
             parsedOutputs.AddRange(ReadTlogFile(tlogCacheLocation, LinkTLogFilename).ToList());
             if (parsedOutputs.Count == 0) return false;
-
+            
             LogProjectMessage("Real Outputs:", MessageImportance.Low);
-            realOutputs = parsedOutputs;
+            realOutputs = parsedOutputs.OrderBy(x => x).Distinct().ToList();
             foreach (var realOutput in realOutputs)
             {
                 LogProjectMessage("\t" + realOutput, MessageImportance.Low);
