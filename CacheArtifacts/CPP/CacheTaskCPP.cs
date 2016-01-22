@@ -125,13 +125,18 @@ namespace MinBuild
                 lines.Where(x => !x.StartsWith("^")) :
                 lines.Select(x => x.Replace("^", ""));
 
+            var windowsDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows).ToUpper();
+            var pfDir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToUpper();
+            pfDir = pfDir.Replace(" (X86)", "");
+
             filteredLines = filteredLines.Select(x => x.Trim().ToUpper());
             filteredLines = filteredLines.Where(x =>
                 !x.EndsWith(".ASSEMBLYATTRIBUTES.CPP") &&
                 !x.Contains("|") &&
                 !x.EndsWith(".TLOG") &&
                 !x.EndsWith(".METAGEN") &&
-                !x.Contains(@"\PROGRAM FILES") &&
+                !x.StartsWith(windowsDir) &&
+                !x.StartsWith(pfDir) &&
                 !x.EndsWith(".OBJ"));
 
             filteredLines = filteredLines.OrderBy(x => x).Distinct();
