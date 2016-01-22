@@ -63,6 +63,7 @@
         <CacheRoot Condition=" '$(CacheRoot)' == '' ">c:\temp\minbuild</CacheRoot>
         <ShowRecompileReason Condition=" '$(ShowRecompileReason)' == '' ">true</ShowRecompileReason>
         <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">false</ShowContentHashes>
+        <AlwaysRestoreCache Condition=" '$(AlwaysRestoreCache)' == '' ">false</AlwaysRestoreCache>
         <SkipCompile>false</SkipCompile>
     </PropertyGroup>
 
@@ -74,6 +75,7 @@
             CacheRoot="$(CacheRoot)"
             ShowRecompileReason="$(ShowRecompileReason)"
             ShowContentHashes="$(ShowContentHashes)"
+            AlwaysRestoreCache="$(AlwaysRestoreCache)"
             Inputs="$(InputFilesCSharp)"
             Outputs="$(OutputFilesCSharp)"
             BuildConfig="$(ConfigurationName)|$(PlatformName)"
@@ -92,6 +94,7 @@
             InputHash="$(InputHash)"
             ShowContentHashes="$(ShowContentHashes)"
             ShowRecompileReason="$(ShowRecompileReason)"
+            AlwaysRestoreCache="$(AlwaysRestoreCache)"
             Outputs="$(OutputFilesCSharp)"
             BuildConfig="$(ConfigurationName)|$(PlatformName)"
             ProjectName="$(ProjectName)" />
@@ -112,6 +115,7 @@
             ProjectName="$(ProjectName)"
             ShowContentHashes="$(ShowContentHashes)"
             ShowRecompileReason="$(ShowRecompileReason)"
+            AlwaysRestoreCache="$(AlwaysRestoreCache)"
             BuildConfig="$(Configuration)|$(PlatformName)"
             Inputs="$(InputFilesCPP)">
 
@@ -133,6 +137,7 @@
             CacheRoot="$(CacheRoot)"
             ShowContentHashes="$(ShowContentHashes)"
             ShowRecompileReason="$(ShowRecompileReason)"
+            AlwaysRestoreCache="$(AlwaysRestoreCache)"
             BuildConfig="$(Configuration)|$(PlatformName)"
             ProjectName="$(ProjectName)" />
     </Target>

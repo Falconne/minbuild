@@ -30,6 +30,9 @@ namespace MinBuild
         public bool ShowRecompileReason { private get; set; }
 
         [Required]
+        public bool AlwaysRestoreCache { private get; set; }
+
+        [Required]
         public string BuildConfig { protected get; set; }
         
 
@@ -150,9 +153,13 @@ namespace MinBuild
 
                 if (!hasInputChanged)
                 {
-                    LogProjectMessage("Outputs are upto date, not checking cache.");
-                    restoreSuccessful = true;
-                    return "SKIP";
+                    if (!AlwaysRestoreCache)
+                    {
+                        LogProjectMessage("Outputs are upto date, not checking cache.");
+                        restoreSuccessful = true;
+                        return "SKIP";
+                    }
+                    LogProjectMessage("Outputs are upto date, but restoring anyway due to AlwaysRestoreCache switch.");
                 }
             }
 
