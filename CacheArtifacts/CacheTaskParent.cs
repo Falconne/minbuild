@@ -42,7 +42,9 @@ namespace MinBuild
                 raw.Split(';').Where(x =>
                     !string.IsNullOrWhiteSpace(x));
             var uniqueFiles = inputFiles.Select(y => y.Trim()).OrderBy(z => z).Distinct();
-            uniqueFiles = uniqueFiles.Where(x => !x.ToLower().EndsWith("assemblyattributes.cs"));
+            uniqueFiles = uniqueFiles.Where(x => 
+                !x.ToLower().EndsWith("assemblyattributes.cs") &&
+                !x.ToLower().EndsWith(".rc"));
             return uniqueFiles;
         }
 
