@@ -36,15 +36,38 @@ namespace MinBuild
         public string BuildConfig { protected get; set; }
         
 
-        protected static IEnumerable<string> ParseFileList(string raw)
+        protected IEnumerable<string> ParseFileList(string raw)
         {
+            var windowsDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows).ToLower();
+            var pfDir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToLower();
+            pfDir = pfDir.Replace(" (x86)", "");
+
             var inputFiles =
                 raw.Split(';').Where(x =>
-                    !string.IsNullOrWhiteSpace(x));
-            var uniqueFiles = inputFiles.Select(y => y.Trim()).OrderBy(z => z).Distinct();
-            uniqueFiles = uniqueFiles.Where(x => 
-                !x.ToLower().EndsWith("assemblyattributes.cs") &&
-                !x.ToLower().EndsWith(".rc"));
+                    !string.IsNullOrWhiteSpace(x)).Select(x => x.ToLower().Trim());
+
+            var uniqueFiles = inputFiles.Where(x =>
+                !x.StartsWith(pfDir) &&
+                !x.EndsWith("assemblyattributes.cs") &&
+                !x.StartsWith(windowsDir) &&
+                !x.EndsWith(".rc")).ToList();
+
+            // Generated project names are random, so don't include them in the sorting. They would move
+            // around from build to build and change the content hash.
+            var tmpProj = uniqueFiles.FirstOrDefault(x => x.EndsWith(".tmp_proj"));
+            if (!string.IsNullOrWhiteSpace(tmpProj))
+            {
+                LogProjectMessage("Moving temporary project to end of list: " + tmpProj);
+                uniqueFiles = uniqueFiles.Where(x => x != tmpProj).ToList();
+            }
+
+            uniqueFiles = uniqueFiles.OrderBy(z => z).Distinct().ToList();
+
+            if (!string.IsNullOrWhiteSpace(tmpProj))
+            {
+                uniqueFiles.Add(tmpProj);
+            }
+
             return uniqueFiles;
         }
 
