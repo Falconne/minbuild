@@ -36,7 +36,7 @@ namespace MinBuild
         public string BuildConfig { protected get; set; }
         
 
-        protected IEnumerable<string> ParseFileList(string raw)
+        protected IList<string> ParseFileList(string raw)
         {
             var windowsDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows).ToLower();
             var pfDir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToLower();
@@ -49,6 +49,7 @@ namespace MinBuild
             var uniqueFiles = inputFiles.Where(x =>
                 !x.StartsWith(pfDir) &&
                 !x.EndsWith("assemblyattributes.cs") &&
+                !x.EndsWith("assemblyinfo.cs") &&
                 !x.StartsWith(windowsDir) &&
                 !x.EndsWith(".rc")).ToList();
 
@@ -69,6 +70,15 @@ namespace MinBuild
             }
 
             return uniqueFiles;
+        }
+
+        protected void CheckForMissingInputs(IList<string> inputFiles)
+        {
+            foreach (var inputFile in inputFiles.Where(x => !File.Exists(x)))
+            {
+                Log.LogError(ProjectName + ": Input file is missing " + inputFile);
+                File.Create(inputFile);
+            }
         }
 
         protected bool ShouldSkipCache(IEnumerable<string> outputFiles)

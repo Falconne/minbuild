@@ -21,15 +21,8 @@ namespace MinBuild
         protected string GetTLogCacheLocation()
         {
             LogProjectMessage("Calculating tlog cache location from inputs");
-            var inputFiles = ParseFileList(Inputs).Where(File.Exists).ToList();
-            foreach (var inputFile in inputFiles)
-            {
-                if (!File.Exists(inputFile))
-                {
-                    LogProjectMessage("Creating non existent file " + inputFile);
-                    File.Create(inputFile);
-                }
-            }
+            var inputFiles = ParseFileList(Inputs);
+            CheckForMissingInputs(inputFiles);
             var cppInputHash = GetHashForFiles(inputFiles);
             cppInputHash = GetHashForContent(cppInputHash + BuildConfig);
             return GetCacheDirForHash(cppInputHash);

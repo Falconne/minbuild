@@ -22,17 +22,14 @@ namespace MinBuild
 
         public override bool Execute()
         {
-            var outputFiles = ParseFileList(Outputs).ToList();
+            var outputFiles = ParseFileList(Outputs);
             if (ShouldSkipCache(outputFiles))
             {
                 return true;
             }
 
-            var inputFilesRaw = ParseFileList(Inputs);
-            // Ignore AssemblyInfo files as version number differences don't matter
-            // TODO allow override of this skip
-            var inputFiles = inputFilesRaw.Where(
-                x => !x.Contains("AssemblyInfo.cs") && File.Exists(x)).ToList();
+            var inputFiles = ParseFileList(Inputs);
+            CheckForMissingInputs(inputFiles);
 
             bool dummy;
             InputHash = RestoreCachedArtifactsIfPossible(inputFiles, outputFiles, out dummy);
