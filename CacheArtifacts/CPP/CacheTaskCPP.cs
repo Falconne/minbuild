@@ -79,6 +79,7 @@ namespace MinBuild
                 parsedOutputs.AddRange(intermediateOutputs.Where(x => x.EndsWith(".LIB")));
             }
             allInputs.RemoveAll(x => !File.Exists(x));
+            allInputs = allInputs.OrderBy(x => x).Distinct().ToList();
 
             LogProjectMessage("All inputs after filter:", MessageImportance.Low);
             allInputs.ForEach(x => LogProjectMessage("\t" + x, MessageImportance.Low));
