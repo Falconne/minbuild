@@ -53,7 +53,7 @@ namespace MinBuild
             var inputTLogFiles = Directory.GetFiles(tlogCacheLocation, "*.read.*.tlog");
             foreach (var inputTLogFile in inputTLogFiles)
             {
-                var inputs = ReadTlogFile(tlogCacheLocation, inputTLogFile);
+                var inputs = ReadTlogFile(inputTLogFile);
                 if (inputs == null)
                     continue;
                 allInputs.AddRange(inputs);
@@ -71,12 +71,13 @@ namespace MinBuild
             var parsedOutputs = new List<string>();
             foreach (var intermediateOutputFile in intermediateOutputFiles)
             {
-                var intermediateOutputs = ReadTlogFile(tlogCacheLocation, intermediateOutputFile);
+                var intermediateOutputs = ReadTlogFile(intermediateOutputFile);
                 allInputs.RemoveAll(x => intermediateOutputs.Contains(x));
 
                 // Don't discard any intermediate .lib or .pdb files, sometimes they are actual outputs but
                 // not mentioned in the final link.write file.
-                parsedOutputs.AddRange(intermediateOutputs.Where(x => x.EndsWith(".LIB")));
+                parsedOutputs.AddRange(intermediateOutputs.Where(x => x.EndsWith(".LIB") ||
+                    (x.EndsWith(".PDB") && intermediateOutputFile.ToLower().Contains("cl."))));
             }
             allInputs.RemoveAll(x => !File.Exists(x));
             allInputs = allInputs.OrderBy(x => x).Distinct().ToList();
@@ -86,7 +87,7 @@ namespace MinBuild
             if (allInputs.Count == 0) return false;
             realInputs = allInputs;
 
-            parsedOutputs.AddRange(ReadTlogFile(tlogCacheLocation, LinkTLogFilename).ToList());
+            parsedOutputs.AddRange(ReadTlogFile(Path.Combine(tlogCacheLocation, LinkTLogFilename)).ToList());
             if (parsedOutputs.Count == 0) return false;
             
             LogProjectMessage("Real Outputs:", MessageImportance.Low);
@@ -101,9 +102,8 @@ namespace MinBuild
 
         protected string LinkTLogFilename;
 
-        private IList<string> ReadTlogFile(string tlogCacheLocation, string name)
+        private IList<string> ReadTlogFile(string tlog)
         {
-            var tlog = Path.Combine(tlogCacheLocation, name);
             if (!File.Exists(tlog))
             {
                 LogProjectMessage(tlog + " not found, recompiling...");
@@ -113,8 +113,8 @@ namespace MinBuild
             LogProjectMessage("Reading " + tlog, MessageImportance.Low);
 
             var lines = File.ReadAllLines(tlog);
-            
-            var ignoreComments = name.ToLower().Contains(".write.");
+
+            var ignoreComments = tlog.ToLower().Contains(".write.");
             var filteredLines = ignoreComments ?
                 lines.Where(x => !x.StartsWith("^")) :
                 lines.Select(x => x.Replace("^", ""));
@@ -135,7 +135,7 @@ namespace MinBuild
                 !x.EndsWith(".OBJ"));
 
             filteredLines = filteredLines.OrderBy(x => x).Distinct();
-            LogProjectMessage("Content from " + name, MessageImportance.Low);
+            LogProjectMessage("Content from " + tlog, MessageImportance.Low);
             var result = filteredLines.ToList();
             foreach (var filteredLine in result)
             {

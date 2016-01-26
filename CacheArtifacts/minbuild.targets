@@ -613,4 +613,42 @@
         </XDCMake>
     </Target>
 
+    <Target Name="BscMake"
+        Condition="'@(BscMake)' != '' and '$(SkipCompile)' != 'true'">
+
+        <ItemGroup>
+            <BscMake Condition="'@(BscMake)' != ''">
+                <MinimalRebuildFromTracking Condition="'$(_BuildActionType)' != 'Build' or '$(ForceRebuild)' == 'true'">false</MinimalRebuildFromTracking>
+            </BscMake>
+        </ItemGroup>
+
+        <PropertyGroup>
+            <BSCMakeToolArchitecture Condition="'$(BSCMakeToolArchitecture)' == ''">$(VCToolArchitecture)</BSCMakeToolArchitecture>
+        </PropertyGroup>
+
+        <BSCMake
+          Sources                     ="@(BscMake)"
+          AdditionalOptions           ="%(BscMake.AdditionalOptions)"
+          SuppressStartupBanner       ="%(BscMake.SuppressStartupBanner)"
+          OutputFile                  ="%(BscMake.OutputFile)"
+          PreserveSBR                 ="%(BscMake.PreserveSBR)"
+
+          TrackerLogDirectory         ="%(BscMake.TrackerLogDirectory)"
+          MinimalRebuildFromTracking  ="%(BscMake.MinimalRebuildFromTracking)"
+          ToolArchitecture            ="$(BSCMakeToolArchitecture)"
+          TrackerFrameworkPath        ="$(BSCMakeTrackerFrameworkPath)"
+          TrackerSdkPath              ="$(BSCMakeTrackerSdkPath)"
+
+          TLogReadFiles               ="@(BSCMakeTLogReadFiles)"
+          TLogWriteFiles              ="@(BSCMakeTLogWriteFiles)"
+          ToolExe                     ="$(BSCMakeToolExe)"
+          ToolPath                    ="$(BSCMakeToolPath)"
+          TrackFileAccess             ="$(TrackFileAccess)"
+          TrackedInputFilesToIgnore   ="@(BSCMakeNoDependencies)"
+
+          AcceptableNonZeroExitCodes  ="%(BscMake.AcceptableNonZeroExitCodes)"
+      >
+        </BSCMake>
+    </Target>
+
 </Project>
