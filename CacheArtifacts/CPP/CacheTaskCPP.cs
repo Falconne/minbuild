@@ -77,7 +77,7 @@ namespace MinBuild
                 // Don't discard any intermediate .lib or .pdb files, sometimes they are actual outputs but
                 // not mentioned in the final link.write file.
                 parsedOutputs.AddRange(intermediateOutputs.Where(x => x.EndsWith(".LIB") ||
-                    (x.EndsWith(".PDB") && intermediateOutputFile.ToLower().Contains("cl."))));
+                    (x.EndsWith(".PDB") && intermediateOutputFile.ToLower().Contains("cl.") && !x.Contains("\\VC1"))));
             }
             allInputs.RemoveAll(x => !File.Exists(x));
             allInputs = allInputs.OrderBy(x => x).Distinct().ToList();
