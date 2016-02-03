@@ -12,10 +12,14 @@ namespace MinBuild.Borland
         [Output]
         public string InputHash { get; private set; }
 
+        [Output]
+        public bool RestoreSuccessful { get; private set; }
+
         public override bool Execute()
         {
-            bool dummy;
-            InputHash = RestoreCachedArtifactsIfPossible(ParseInputFiles(), GetOutputFile(), out dummy);
+            bool restoreSucessful;
+            InputHash = RestoreCachedArtifactsIfPossible(ParseInputFiles(), GetOutputFile(), out restoreSucessful);
+            RestoreSuccessful = restoreSucessful;
             LogProjectMessage("InputHash returned: " + InputHash);
 
             return true;
