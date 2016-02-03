@@ -44,6 +44,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Borland\CacheTaskBorland.cs" />
+    <Compile Include="Borland\CheckCompileCacheBorland.cs" />
+    <Compile Include="Borland\CacheArtifactsBorland.cs" />
     <Compile Include="CPP\CacheArtifactsCPP.cs" />
     <Compile Include="CPP\CacheTaskCPP.cs" />
     <Compile Include="CPP\CheckCompileCacheCPP.cs" />
