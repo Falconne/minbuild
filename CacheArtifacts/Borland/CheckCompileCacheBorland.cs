@@ -7,7 +7,7 @@ using Microsoft.Build.Framework;
 
 namespace MinBuild.Borland
 {
-    class CheckCompileCacheBorland : CacheTaskBorland
+    public class CheckCompileCacheBorland : CacheTaskBorland
     {
         [Output]
         public string InputHash { get; private set; }

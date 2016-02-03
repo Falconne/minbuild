@@ -9,10 +9,13 @@ using Microsoft.Build.Framework;
 
 namespace MinBuild.Borland
 {
-    abstract class CacheTaskBorland : CacheTaskParent
+    public abstract class CacheTaskBorland : CacheTaskParent
     {
         [Required]
         public string Makefile { private get; set; }
+
+        [Required]
+        public string WorkDir { private get; set; }
 
         protected override string GetCacheType()
         {
@@ -21,13 +24,16 @@ namespace MinBuild.Borland
 
         protected IList<string> ParseInputFiles()
         {
-            if (!File.Exists(Makefile))
+            LogProjectMessage("WorkDir is " + WorkDir);
+            LogProjectMessage("Makefile is " + Makefile);
+            var mfloc = Path.Combine(WorkDir, Makefile);
+            if (!File.Exists(mfloc))
             {
-                throw new Exception(Makefile + " not found");
+                throw new Exception(mfloc + " not found");
             }
 
-            LogProjectMessage("Reading inputs from " + Makefile);
-            var lines = File.ReadAllLines(Makefile);
+            LogProjectMessage("Reading inputs from " + mfloc);
+            var lines = File.ReadAllLines(mfloc);
             var sourcesFound = false;
             var sources = new List<string>();
             for (var i = 0; i < lines.Count(); i++)
@@ -47,19 +53,25 @@ namespace MinBuild.Borland
 
                 line = line.Replace("\t", "");
 
-                var lineSources = line.Split(' ');
+                var lineSources = line.Split(' ').Where(y => !y.Equals("\\") && !string.IsNullOrWhiteSpace(y)).Select(x => Path.Combine(WorkDir, x));
                 sources.AddRange(lineSources);
             }
 
             if (!sources.Any())
-                throw new Exception("No sources found in " + Makefile);
+                throw new Exception("No sources found in " + mfloc);
 
             LogProjectMessage("Found sources: ");
-            sources.Add(Makefile);
-            foreach (var source in sources.Where(source => !File.Exists(source)))
+            sources.Add(mfloc);
+            foreach (var source in sources)
             {
-                Log.LogError(ProjectName + ": Missing input " + source);
-                File.Create(source);
+                if (!File.Exists(source))
+                {
+                    Log.LogError(ProjectName + ": Missing input " + source);
+                    File.Create(source);
+                    
+                }
+
+                LogProjectMessage(source);
             }
 
             return sources;
@@ -73,8 +85,9 @@ namespace MinBuild.Borland
 
         protected IList<string> GetOutputFile()
         {
-            LogProjectMessage("Reading output from " + Makefile);
-            var lines = File.ReadAllLines(Makefile);
+            var mfloc = Path.Combine(WorkDir, Makefile);
+            LogProjectMessage("Reading output from " + mfloc);
+            var lines = File.ReadAllLines(mfloc);
             foreach (var line in lines)
             {
                 if (!line.StartsWith("TARGET="))
@@ -86,7 +99,7 @@ namespace MinBuild.Borland
                 return parts;
             }
 
-            throw new Exception("Target not found in " + Makefile);
+            throw new Exception("Target not found in " + mfloc);
         }
     }
 }
