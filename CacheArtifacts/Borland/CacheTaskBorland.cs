@@ -24,9 +24,8 @@ namespace MinBuild.Borland
 
         protected IList<string> ParseInputFiles()
         {
-            LogProjectMessage("WorkDir is " + WorkDir);
-            LogProjectMessage("Makefile is " + Makefile);
             var mfloc = Path.Combine(WorkDir, Makefile);
+            LogProjectMessage("Makefile " + mfloc);
             if (!File.Exists(mfloc))
             {
                 throw new Exception(mfloc + " not found");
@@ -34,46 +33,14 @@ namespace MinBuild.Borland
 
             LogProjectMessage("Reading inputs from " + mfloc);
             var lines = File.ReadAllLines(mfloc);
-            var sourcesFound = false;
-            var sources = new List<string>();
-            for (var i = 0; i < lines.Count(); i++)
-            {
-                var line = lines[i];
-                if (!sourcesFound)
-                {
-                    if (!line.StartsWith("SOURCE="))
-                        continue;
-
-                    sourcesFound = true;
-                    line = line.Replace("SOURCE=", "");
-                }
-
-                if (line.Contains("="))
-                    break;
-
-                line = line.Replace("\t", "");
-
-                var lineSources = line.Split(' ').Where(y => !y.Equals("\\") && !string.IsNullOrWhiteSpace(y)).Select(x => Path.Combine(WorkDir, x));
-                sources.AddRange(lineSources);
-            }
-
+            var sources = ParseSourceType("SOURCE=", lines).Where(x => !x.ToLower().EndsWith("_ver.rc")).ToList();
+            sources.AddRange(ParseSourceType("LIBS=", lines));
             if (!sources.Any())
                 throw new Exception("No sources found in " + mfloc);
 
             LogProjectMessage("Found sources: ");
             sources.Add(mfloc);
-            foreach (var source in sources)
-            {
-                if (!File.Exists(source))
-                {
-                    Log.LogError(ProjectName + ": Missing input " + source);
-                    File.Create(source);
-                    
-                }
-
-                LogProjectMessage(source);
-            }
-
+            sources.ForEach(x => LogProjectMessage(x));
             return sources;
         }
 
@@ -100,6 +67,35 @@ namespace MinBuild.Borland
             }
 
             throw new Exception("Target not found in " + mfloc);
+        }
+
+        private List<string> ParseSourceType(string type, IList<string> lines)
+        {
+            var sources = new List<string>();
+            var sourcesFound = false;
+            for (var i = 0; i < lines.Count(); i++)
+            {
+                var line = lines[i];
+                if (!sourcesFound)
+                {
+                    if (!line.StartsWith(type))
+                        continue;
+
+                    sourcesFound = true;
+                    line = line.Replace(type, "");
+                }
+
+                if (line.Contains("="))
+                    break;
+
+                line = line.Replace("\t", "");
+
+                var lineSources = line.Split(' ').Where(y => !y.Equals("\\") && !string.IsNullOrWhiteSpace(y) && !y.Contains("$")).Select(
+                    x => Path.Combine(WorkDir, x)).Where(File.Exists);
+                sources.AddRange(lineSources);
+            }
+
+            return sources;
         }
     }
 }

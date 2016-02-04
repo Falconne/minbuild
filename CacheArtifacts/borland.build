@@ -34,7 +34,7 @@
         </CheckCompileCacheBorland>
         
         <Exec Condition="'$(SkipCompile)' != 'true'"
-              Command="$(bcb6) -f'$(Makefile)'"/>
+              Command="'$(bcb6)' -f'$(Makefile)'"/>
 
         <CacheArtifactsBorland Condition="'$(SkipCompile)' != 'true'"
                                InputHash="$(InputHash)"
