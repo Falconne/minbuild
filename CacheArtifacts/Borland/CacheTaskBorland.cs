@@ -91,8 +91,14 @@ namespace MinBuild.Borland
                 line = line.Replace("\t", "");
 
                 var lineSources = line.Split(' ').Where(y => !y.Equals("\\") && !string.IsNullOrWhiteSpace(y) && !y.Contains("$")).Select(
-                    x => Path.Combine(WorkDir, x)).Where(File.Exists);
-                sources.AddRange(lineSources);
+                    x => Path.Combine(WorkDir, x)).ToList();
+                foreach (var lineSource in lineSources)
+                {
+                    LogProjectMessage("Checking source file " + lineSource);
+                    if (!File.Exists(lineSource))
+                        LogProjectMessage("\tFile not found");
+                }
+                sources.AddRange(lineSources.Where(File.Exists));
             }
 
             return sources;

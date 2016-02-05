@@ -118,7 +118,7 @@ namespace MinBuild
 
             var cacheOutput = Path.Combine(BranchCacheLocation, cacheHash);
             if (string.IsNullOrWhiteSpace(cacheOutput)) return true;
-            LogProjectMessage("Caching artifacts to " + cacheOutput, MessageImportance.High);
+            LogProjectMessage("Caching artifacts to " + cacheOutput);
             if (!Directory.Exists(cacheOutput))
                 Directory.CreateDirectory(cacheOutput);
 
