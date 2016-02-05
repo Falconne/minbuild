@@ -95,8 +95,7 @@ namespace MinBuild.Borland
                 foreach (var lineSource in lineSources)
                 {
                     LogProjectMessage("Checking source file " + lineSource);
-                    if (!File.Exists(lineSource))
-                        LogProjectMessage("\tFile not found");
+                    LogProjectMessage(!File.Exists(lineSource) ? "\tFile not found" : "\tFile exists");
                 }
                 sources.AddRange(lineSources.Where(File.Exists));
             }
