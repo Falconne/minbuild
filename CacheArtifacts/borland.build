@@ -34,6 +34,7 @@
         </CheckCompileCacheBorland>
         
         <Exec Condition="'$(SkipCompile)' != 'true'"
+              WorkingDirectory="$(WorkDir)"
               Command="'$(bcb6)' -f'$(Makefile)'"/>
 
         <CacheArtifactsBorland Condition="'$(SkipCompile)' != 'true'"
