@@ -63,6 +63,7 @@ namespace MinBuild.Borland
                 var cleanLine = line.Replace("\t", "");
                 var parts = cleanLine.Split('=').ToList();
                 parts.RemoveAt(0);
+                parts[0] = Path.Combine(WorkDir, parts[0]);
                 return parts;
             }
 
