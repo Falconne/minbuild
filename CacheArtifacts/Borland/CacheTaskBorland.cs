@@ -39,7 +39,7 @@ namespace MinBuild.Borland
                 throw new Exception("No sources found in " + mfloc);
 
             LogProjectMessage("Found sources: ");
-            sources.Add(mfloc);
+            sources.Add(Path.Combine(WorkDir, ProjectName));
             sources.ForEach(x => LogProjectMessage(x));
             return sources;
         }
