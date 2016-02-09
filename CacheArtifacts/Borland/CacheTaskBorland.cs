@@ -50,7 +50,7 @@ namespace MinBuild.Borland
             return GetHashForFiles(ParseInputFiles());
         }
 
-        protected IList<string> GetOutputFile()
+        protected IList<string> GetOutputFiles()
         {
             var mfloc = Path.Combine(WorkDir, Makefile);
             LogProjectMessage("Reading output from " + mfloc, MessageImportance.Low);
@@ -63,7 +63,26 @@ namespace MinBuild.Borland
                 var cleanLine = line.Replace("\t", "");
                 var parts = cleanLine.Split('=').ToList();
                 parts.RemoveAt(0);
+
+                if (parts[0].ToLower().EndsWith(".dll"))
+                {
+                    // .lib outputs are not properly defined in the Makefile
+                    var moduleName = Path.GetFileNameWithoutExtension(parts[0]);
+                    var libName = moduleName + ".lib";
+                    var libPath = Path.Combine(WorkDir, "Debug_Build", libName);
+                    parts.Add(libPath);
+                }
                 parts[0] = Path.Combine(WorkDir, parts[0]);
+                /*var buildDir = Path.Combine(WorkDir, "Debug_Build");
+                if (Directory.Exists(buildDir))
+                {
+                    var libFiles = Directory.GetFiles(buildDir, "*.lib");
+                    parts.AddRange(libFiles);
+                }*/
+
+                LogProjectMessage("Outputs evaluated as:");
+                parts.ForEach(x => LogProjectMessage("\t" + x));
+
                 return parts;
             }
 

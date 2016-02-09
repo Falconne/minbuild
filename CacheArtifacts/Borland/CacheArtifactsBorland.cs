@@ -14,7 +14,7 @@ namespace MinBuild.Borland
 
         public override bool Execute()
         {
-            return CacheBuildArtifacts(GetOutputFile(), InputHash);
+            return CacheBuildArtifacts(GetOutputFiles(), InputHash);
         }
     }
 }

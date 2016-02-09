@@ -18,7 +18,7 @@ namespace MinBuild.Borland
         public override bool Execute()
         {
             bool restoreSucessful;
-            InputHash = RestoreCachedArtifactsIfPossible(ParseInputFiles(), GetOutputFile(), out restoreSucessful);
+            InputHash = RestoreCachedArtifactsIfPossible(ParseInputFiles(), GetOutputFiles(), out restoreSucessful);
             RestoreSuccessful = restoreSucessful;
             LogProjectMessage("InputHash returned: " + InputHash, MessageImportance.Normal);
 
