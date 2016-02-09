@@ -17,40 +17,35 @@ namespace CacheCleanup
                 cacheRoot = args[0];
 
             logger.Info("Using cache root {0}", cacheRoot);
-            CleanCSharpCache(Path.Combine(cacheRoot, "csharp"));
-        }
-
-        private static void CleanCSharpCache(string cacheLocation)
-        {
-            foreach (var directory in Directory.GetDirectories(cacheLocation))
+            foreach (var type in Directory.GetDirectories(cacheRoot))
             {
-                var di = new DirectoryInfo(directory);
-                if (di.Name == "Precomputed")
-                    continue;
-                logger.Info("Check branch version {0}", directory);
-                CheckAndCleanCsharpVersionDir(directory);
+                foreach (var version in Directory.GetDirectories(type))
+                {
+                    logger.Info("Cleaning cache under: " + version);
+                    CheckAndCleanVersionDir(version);
+                }
             }
         }
 
-        private static void CheckAndCleanCsharpVersionDir(string versionDir)
+        private static void CheckAndCleanVersionDir(string versionDir)
         {
             var now = DateTime.UtcNow;
-            logger.Info("Current time UTC is {0}", now);
+            logger.Debug("Current time UTC is {0}", now);
             var allDirs = Directory.GetDirectories(versionDir);
             foreach (var directory in allDirs)
             {
-                logger.Info("Check {0}", directory);
+                logger.Debug("Check {0}", directory);
                 var completeMarker = Path.Combine(directory, "complete");
                 if (!File.Exists(completeMarker))
                 {
                     // FIXME check if directory is orphaned
-                    logger.Info("Completion marker not found, skipping");
+                    logger.Warn("Completion marker not found, skipping");
                     continue;
                 }
                 var dirTime = new DirectoryInfo(directory).LastWriteTimeUtc;
-                logger.Info("Directory write time is {0}", dirTime);
+                logger.Debug("Directory write time is {0}", dirTime);
                 var diff = now - dirTime;
-                logger.Info("Age in days: " + diff.Days);
+                logger.Debug("Age in days: " + diff.Days);
                 if (diff.Days > 4)
                 {
                     logger.Info("Deleting old directory {0} ", directory);
