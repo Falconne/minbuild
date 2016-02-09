@@ -25,22 +25,22 @@ namespace MinBuild.Borland
         protected IList<string> ParseInputFiles()
         {
             var mfloc = Path.Combine(WorkDir, Makefile);
-            LogProjectMessage("Makefile " + mfloc);
+            LogProjectMessage("Makefile " + mfloc, MessageImportance.Normal);
             if (!File.Exists(mfloc))
             {
                 throw new Exception(mfloc + " not found");
             }
 
-            LogProjectMessage("Reading inputs from " + mfloc);
             var lines = File.ReadAllLines(mfloc);
-            var sources = ParseSourceType("SOURCE=", lines).Where(x => !x.ToLower().EndsWith("_ver.rc")).ToList();
+            var sources = ParseSourceType("SOURCE=", lines).Where(x => !x.ToLower().EndsWith(".rc")).ToList();
             sources.AddRange(ParseSourceType("LIBS=", lines));
             if (!sources.Any())
                 throw new Exception("No sources found in " + mfloc);
 
-            LogProjectMessage("Found sources: ");
+            LogProjectMessage("Found sources: ", MessageImportance.Normal);
             sources.Add(Path.Combine(WorkDir, ProjectName));
-            sources.ForEach(x => LogProjectMessage(x));
+            sources.ForEach(x => LogProjectMessage(x, MessageImportance.Normal));
+
             return sources;
         }
 
@@ -53,7 +53,7 @@ namespace MinBuild.Borland
         protected IList<string> GetOutputFile()
         {
             var mfloc = Path.Combine(WorkDir, Makefile);
-            LogProjectMessage("Reading output from " + mfloc);
+            LogProjectMessage("Reading output from " + mfloc, MessageImportance.Low);
             var lines = File.ReadAllLines(mfloc);
             foreach (var line in lines)
             {

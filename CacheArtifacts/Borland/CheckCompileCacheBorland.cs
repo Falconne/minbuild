@@ -20,7 +20,7 @@ namespace MinBuild.Borland
             bool restoreSucessful;
             InputHash = RestoreCachedArtifactsIfPossible(ParseInputFiles(), GetOutputFile(), out restoreSucessful);
             RestoreSuccessful = restoreSucessful;
-            LogProjectMessage("InputHash returned: " + InputHash);
+            LogProjectMessage("InputHash returned: " + InputHash, MessageImportance.Normal);
 
             return true;
         }
