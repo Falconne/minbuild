@@ -16,7 +16,7 @@ namespace MinBuild
 
         public override bool Execute()
         {
-            LogProjectMessage("Caching after link, if tracking logs found");
+            LogProjectMessage("Caching after link, if tracking logs found", MessageImportance.Normal);
 
             var tlogCacheLocation = GetTLogCacheLocation();
             if (string.IsNullOrWhiteSpace(tlogCacheLocation))
@@ -24,13 +24,13 @@ namespace MinBuild
 
             // Check that tracking logs have been created for this build.
             // LocalTlogLocation is where the build writes the tracking logs.
-            LogProjectMessage("Current directory is " + Directory.GetCurrentDirectory());
-            LogProjectMessage("Looking for built tracking logs in " + LocalTlogLocation);
+            LogProjectMessage("Current directory is " + Directory.GetCurrentDirectory(), MessageImportance.Normal);
+            LogProjectMessage("Looking for built tracking logs in " + LocalTlogLocation, MessageImportance.Normal);
             EvaluateLinkTLogFilename(LocalTlogLocation);
             if (!File.Exists(Path.Combine(LocalTlogLocation, "CL.read.1.tlog"))) return true;
             if (!File.Exists(Path.Combine(LocalTlogLocation, "CL.write.1.tlog"))) return true;
             if (!File.Exists(Path.Combine(LocalTlogLocation, LinkTLogFilename))) return true;
-            LogProjectMessage("Build tracking logs found");
+            LogProjectMessage("Build tracking logs found", MessageImportance.Normal);
 
             // If tracking log cache exists, ready it for resetting
             var completeMarker = Path.Combine(tlogCacheLocation, "complete");

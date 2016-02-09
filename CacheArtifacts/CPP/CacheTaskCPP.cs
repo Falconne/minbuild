@@ -36,7 +36,7 @@ namespace MinBuild
             if (!string.IsNullOrWhiteSpace(actualLinkFile))
                 LinkTLogFilename = Path.GetFileName(actualLinkFile);
 
-            LogProjectMessage("Link tlog evaluated as " + LinkTLogFilename);
+            LogProjectMessage("Link tlog evaluated as " + LinkTLogFilename, MessageImportance.Normal);
         }
 
         protected bool ParseRealInputsAndOutputs(string tlogCacheLocation, 
