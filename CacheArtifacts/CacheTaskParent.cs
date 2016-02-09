@@ -395,7 +395,7 @@ namespace MinBuild
 
             LogProjectMessage("Retrieving cached artifacts from " + cacheOutput);
             // Touch to reset deletion timer
-            File.SetLastWriteTimeUtc(completeMarker, DateTime.UtcNow);
+            Directory.SetLastWriteTimeUtc(cacheOutput, DateTime.UtcNow);
 
             return cacheOutput;
         }
