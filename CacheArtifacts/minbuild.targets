@@ -63,7 +63,7 @@
         <CacheRoot Condition=" '$(CacheRoot)' == '' ">c:\temp\minbuild</CacheRoot>
         <ShowRecompileReason Condition=" '$(ShowRecompileReason)' == '' ">true</ShowRecompileReason>
         <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">false</ShowContentHashes>
-        <AlwaysRestoreCache Condition=" '$(AlwaysRestoreCache)' == '' ">true</AlwaysRestoreCache>
+        <AlwaysRestoreCache Condition=" '$(AlwaysRestoreCache)' == '' ">false</AlwaysRestoreCache>
         <SkipCompile>false</SkipCompile>
     </PropertyGroup>
 
