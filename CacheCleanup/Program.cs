@@ -46,7 +46,7 @@ namespace CacheCleanup
                 logger.Debug("Directory write time is {0}", dirTime);
                 var diff = now - dirTime;
                 logger.Debug("Age in days: " + diff.Days);
-                if (diff.Days > 4)
+                if (diff.Days > 1)
                 {
                     logger.Info("Deleting old directory {0} ", directory);
                     try
