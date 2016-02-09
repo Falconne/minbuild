@@ -16,7 +16,7 @@ namespace CacheCleanup
             if (args.Length > 0)
                 cacheRoot = args[0];
 
-            logger.Info("Using cache root {0}", cacheRoot);
+            logger.Info("Cleaning up cache root {0}", cacheRoot);
             foreach (var type in Directory.GetDirectories(cacheRoot))
             {
                 foreach (var version in Directory.GetDirectories(type))
