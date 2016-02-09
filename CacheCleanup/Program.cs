@@ -60,7 +60,7 @@ namespace CacheCleanup
                 }
                 else
                 {
-                    logger.Info("Directory is still current");
+                    logger.Debug("Directory is still current");
                 }
             }
         }
