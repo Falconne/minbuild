@@ -26,11 +26,6 @@
             CheckCompileCacheBeforeCompileCSharp
         </CoreCompileDependsOn>
 
-        <AfterLinkTargets>
-            $(AfterLinkTargets);
-            CacheArtifactsAfterCompileCPP
-        </AfterLinkTargets>
-
         <AfterLibTargets>
             $(AfterLibTargets);
             CacheArtifactsAfterCompileCPP
@@ -129,6 +124,7 @@
     </Target>
 
     <Target Name="CacheArtifactsAfterCompileCPP"
+            AfterTargets="BuildLink"
             Condition="'$(SkipCompile)' != 'true'">
         <CacheArtifactsCPP
             LocalTlogLocation="$(TLogLocation)"
