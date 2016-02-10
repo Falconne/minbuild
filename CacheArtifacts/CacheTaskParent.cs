@@ -214,8 +214,28 @@ namespace MinBuild
                     LogProjectMessage(string.Format("\t\tCache file {0} missing, recompiling...", filename));
                     return inputHash;
                 }
-                if (File.Exists(outputFile))
-                    File.Delete(outputFile);
+
+                while (true)
+                {
+                    if (File.Exists(outputFile))
+                    {
+                        try
+                        {
+                            File.Delete(outputFile);
+                            break;
+                        }
+                        catch (IOException e)
+                        {
+                            Log.LogWarning(string.Format("Can't delete {0}, retrying...", e.Message));
+                            Thread.Sleep(100);
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
                 LogProjectMessage("Restoring cached file to " + outputFile);
                 File.Copy(src, outputFile);
                 File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
