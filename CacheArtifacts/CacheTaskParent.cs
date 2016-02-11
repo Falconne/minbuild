@@ -217,26 +217,11 @@ namespace MinBuild
 
                 while (true)
                 {
-                    // Putting check inside while in case file has disappeared when a retry starts
-                    if (!File.Exists(outputFile))
-                        break;
-
                     try
                     {
-                        File.Delete(outputFile);
-                        break;
-                    }
-                    catch (IOException e)
-                    {
-                        Log.LogWarning(string.Format("Can't delete {0}, retrying...", e.Message));
-                        Thread.Sleep(100);
-                    }
-                }
+                        if (File.Exists(outputFile))
+                            File.Delete(outputFile);
 
-                while (true)
-                {
-                    try
-                    {
                         LogProjectMessage("Restoring cached file to " + outputFile);
                         File.Copy(src, outputFile);
                         File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
