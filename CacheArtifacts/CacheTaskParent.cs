@@ -217,25 +217,34 @@ namespace MinBuild
 
                 while (true)
                 {
-                    if (File.Exists(outputFile))
-                    {
-                        try
-                        {
-                            File.Delete(outputFile);
-                            LogProjectMessage("Restoring cached file to " + outputFile);
-                            File.Copy(src, outputFile);
-                            File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
-                            break;
-                        }
-                        catch (IOException e)
-                        {
-                            Log.LogWarning(string.Format("Can't delete {0}, retrying...", e.Message));
-                            Thread.Sleep(100);
-                        }
-                    }
-                    else
-                    {
+                    // Putting check inside while in case file has disappeared when a retry starts
+                    if (!File.Exists(outputFile))
                         break;
+
+                    try
+                    {
+                        File.Delete(outputFile);
+                        break;
+                    }
+                    catch (IOException e)
+                    {
+                        Log.LogWarning(string.Format("Can't delete {0}, retrying...", e.Message));
+                        Thread.Sleep(100);
+                    }
+                }
+
+                while (true)
+                {
+                    try
+                    {
+                        LogProjectMessage("Restoring cached file to " + outputFile);
+                        File.Copy(src, outputFile);
+                        File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
+                    }
+                    catch (IOException e)
+                    {
+                        Log.LogWarning(string.Format("Can't modify {0}, retrying...", e.Message));
+                        Thread.Sleep(100);
                     }
                 }
             }
