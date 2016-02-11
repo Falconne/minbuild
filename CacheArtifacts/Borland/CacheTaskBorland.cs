@@ -69,7 +69,8 @@ namespace MinBuild.Borland
                     // .lib outputs are not properly defined in the Makefile
                     var moduleName = Path.GetFileNameWithoutExtension(parts[0]);
                     var libName = moduleName + ".lib";
-                    var libPath = Path.Combine(WorkDir, "Debug_Build", libName);
+                    var targetPath = Path.GetDirectoryName(parts[0]);
+                    var libPath = Path.Combine(targetPath, libName);
                     parts.Add(libPath);
                 }
                 parts[0] = Path.Combine(WorkDir, parts[0]);
@@ -89,7 +90,7 @@ namespace MinBuild.Borland
             throw new Exception("Target not found in " + mfloc);
         }
 
-        private List<string> ParseSourceType(string type, IList<string> lines)
+        private IEnumerable<string> ParseSourceType(string type, IList<string> lines)
         {
             var sources = new List<string>();
             var sourcesFound = false;
