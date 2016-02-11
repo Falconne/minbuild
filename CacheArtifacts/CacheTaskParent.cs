@@ -222,6 +222,9 @@ namespace MinBuild
                         try
                         {
                             File.Delete(outputFile);
+                            LogProjectMessage("Restoring cached file to " + outputFile);
+                            File.Copy(src, outputFile);
+                            File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
                             break;
                         }
                         catch (IOException e)
@@ -235,10 +238,6 @@ namespace MinBuild
                         break;
                     }
                 }
-
-                LogProjectMessage("Restoring cached file to " + outputFile);
-                File.Copy(src, outputFile);
-                File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
             }
 
             restoreSuccessful = true;
