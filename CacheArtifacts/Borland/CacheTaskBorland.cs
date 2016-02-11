@@ -66,12 +66,16 @@ namespace MinBuild.Borland
 
                 if (parts[0].ToLower().EndsWith(".dll"))
                 {
-                    // .lib outputs are not properly defined in the Makefile
-                    var moduleName = Path.GetFileNameWithoutExtension(parts[0]);
-                    var libName = moduleName + ".lib";
-                    var targetPath = Path.GetDirectoryName(parts[0]);
-                    var libPath = Path.Combine(WorkDir, targetPath, libName);
-                    parts.Add(libPath);
+                    // .lib output is not properly defined in the Makefile
+                    var lflags = ParseSourceType("LFLAGS=", lines).ToList();
+                    if (lflags.Any() && lflags.Contains("-Gi"))
+                    {
+                        var moduleName = Path.GetFileNameWithoutExtension(parts[0]);
+                        var libName = moduleName + ".lib";
+                        var targetPath = Path.GetDirectoryName(parts[0]);
+                        var libPath = Path.Combine(WorkDir, targetPath, libName);
+                        parts.Add(libPath);
+                    }
                 }
                 parts[0] = Path.Combine(WorkDir, parts[0]);
                 /*var buildDir = Path.Combine(WorkDir, "Debug_Build");
