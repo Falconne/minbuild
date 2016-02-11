@@ -70,7 +70,7 @@ namespace MinBuild.Borland
                     var moduleName = Path.GetFileNameWithoutExtension(parts[0]);
                     var libName = moduleName + ".lib";
                     var targetPath = Path.GetDirectoryName(parts[0]);
-                    var libPath = Path.Combine(targetPath, libName);
+                    var libPath = Path.Combine(WorkDir, targetPath, libName);
                     parts.Add(libPath);
                 }
                 parts[0] = Path.Combine(WorkDir, parts[0]);
