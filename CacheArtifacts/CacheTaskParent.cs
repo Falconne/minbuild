@@ -225,6 +225,7 @@ namespace MinBuild
                         LogProjectMessage("Restoring cached file to " + outputFile);
                         File.Copy(src, outputFile);
                         File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
+                        break;
                     }
                     catch (IOException e)
                     {
