@@ -68,12 +68,15 @@ namespace MinBuild.Borland
                 {
                     // .lib output is not properly defined in the Makefile
                     var lflags = ParseSourceType("LFLAGS=", lines).ToList();
+                    LogProjectMessage("Found linker flags:");
+                    lflags.ForEach(x => LogProjectMessage(x));
                     if (lflags.Any() && lflags.Contains("-Gi"))
                     {
                         var moduleName = Path.GetFileNameWithoutExtension(parts[0]);
                         var libName = moduleName + ".lib";
                         var targetPath = Path.GetDirectoryName(parts[0]);
                         var libPath = Path.Combine(WorkDir, targetPath, libName);
+                        LogProjectMessage("Adding libpath: " + libPath);
                         parts.Add(libPath);
                     }
                 }
