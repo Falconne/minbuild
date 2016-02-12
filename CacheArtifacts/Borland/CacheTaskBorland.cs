@@ -55,6 +55,12 @@ namespace MinBuild.Borland
             var mfloc = Path.Combine(WorkDir, Makefile);
             LogProjectMessage("Reading output from " + mfloc, MessageImportance.Low);
             var lines = File.ReadAllLines(mfloc);
+
+            var lflags = ParseMakeVariable("LFLAGS=", lines).ToList();
+            LogProjectMessage("Found linker flags:");
+            lflags.ForEach(x => LogProjectMessage(x));
+            var importLibExists = (lflags.Any() && lflags.Contains("-Gi"));
+
             foreach (var line in lines)
             {
                 if (!line.StartsWith("TARGET="))
@@ -64,21 +70,15 @@ namespace MinBuild.Borland
                 var parts = cleanLine.Split('=').ToList();
                 parts.RemoveAt(0);
 
-                if (parts[0].ToLower().EndsWith(".dll"))
+                if (parts[0].ToLower().EndsWith(".dll") && importLibExists)
                 {
                     // .lib output is not properly defined in the Makefile
-                    var lflags = ParseSourceType("LFLAGS=", lines).ToList();
-                    LogProjectMessage("Found linker flags:");
-                    lflags.ForEach(x => LogProjectMessage(x));
-                    if (lflags.Any() && lflags.Contains("-Gi"))
-                    {
-                        var moduleName = Path.GetFileNameWithoutExtension(parts[0]);
-                        var libName = moduleName + ".lib";
-                        var targetPath = Path.GetDirectoryName(parts[0]);
-                        var libPath = Path.Combine(WorkDir, targetPath, libName);
-                        LogProjectMessage("Adding libpath: " + libPath);
-                        parts.Add(libPath);
-                    }
+                    var moduleName = Path.GetFileNameWithoutExtension(parts[0]);
+                    var libName = moduleName + ".lib";
+                    var targetPath = Path.GetDirectoryName(parts[0]);
+                    var libPath = Path.Combine(WorkDir, targetPath, libName);
+                    LogProjectMessage("Adding libpath: " + libPath);
+                    parts.Add(libPath);
                 }
                 parts[0] = Path.Combine(WorkDir, parts[0]);
                 /*var buildDir = Path.Combine(WorkDir, "Debug_Build");
@@ -97,7 +97,7 @@ namespace MinBuild.Borland
             throw new Exception("Target not found in " + mfloc);
         }
 
-        private IEnumerable<string> ParseSourceType(string type, IList<string> lines)
+        private IEnumerable<string> ParseMakeVariable(string type, IList<string> lines)
         {
             var sources = new List<string>();
             var sourcesFound = false;
@@ -118,13 +118,18 @@ namespace MinBuild.Borland
 
                 line = line.Replace("\t", "");
 
-                var lineSources = Regex.Matches(line, @"[\""].+?[\""]|[^ ]+").Cast<Match>().Select(m => m.Value).Where(
-                    y => !y.Equals("\\") && !string.IsNullOrWhiteSpace(y) && !y.Contains("$")).Select(q => q.Replace("\"", ""));
-
-                sources.AddRange(lineSources.Select(x => Path.Combine(WorkDir, x)).Where(File.Exists));
+                sources.AddRange(Regex.Matches(line, @"[\""].+?[\""]|[^ ]+").Cast<Match>().Select(m => m.Value).Where(
+                    y => !y.Equals("\\") && !string.IsNullOrWhiteSpace(y) && !y.Contains("$"))
+                    .Select(q => q.Replace("\"", "")));
             }
 
             return sources;
         }
+
+        private IEnumerable<string> ParseSourceType(string type, IList<string> lines)
+        {
+            return ParseMakeVariable(type, lines).Select(x => Path.Combine(WorkDir, x)).Where(File.Exists);
+        }
+
     }
 }
