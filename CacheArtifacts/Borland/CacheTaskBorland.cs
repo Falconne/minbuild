@@ -81,12 +81,6 @@ namespace MinBuild.Borland
                     parts.Add(libPath);
                 }
                 parts[0] = Path.Combine(WorkDir, parts[0]);
-                /*var buildDir = Path.Combine(WorkDir, "Debug_Build");
-                if (Directory.Exists(buildDir))
-                {
-                    var libFiles = Directory.GetFiles(buildDir, "*.lib");
-                    parts.AddRange(libFiles);
-                }*/
 
                 LogProjectMessage("Outputs evaluated as:");
                 parts.ForEach(x => LogProjectMessage("\t" + x));
