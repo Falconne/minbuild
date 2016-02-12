@@ -151,9 +151,8 @@ namespace MinBuild
 
             if (outputFiles == null || outputFiles.Count == 0)
                 throw new Exception("Cache restore called with no output files");
-            LogProjectMessage("Recompile requested, checking for cached artifacts", recompileReasonPriority);
-            LogProjectMessage("Build configuration: " + BuildConfig, recompileReasonPriority);
-            LogProjectMessage("\tRecompile reason:", recompileReasonPriority);
+            LogProjectMessage("Recompile requested: " + BuildConfig);
+            LogProjectMessage("\tRecompile reason:", MessageImportance.Normal);
             var missingOutputFiles = outputFiles.Where(x => !File.Exists(x)).ToList();
             if (missingOutputFiles.Any())
             {

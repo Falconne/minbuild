@@ -16,8 +16,7 @@ namespace MinBuild
 
         public override bool Execute()
         {
-            LogProjectMessage("Recompile requested, checking for cached artifacts");
-            LogProjectMessage("Build configuration: " + BuildConfig);
+            LogProjectMessage("Recompile requested: " + BuildConfig);
 
             var tlogCacheLocation = GetTLogCacheLocation();
             if (string.IsNullOrWhiteSpace(tlogCacheLocation)) return true;
