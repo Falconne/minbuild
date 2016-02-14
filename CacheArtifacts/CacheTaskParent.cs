@@ -221,6 +221,10 @@ namespace MinBuild
                         if (File.Exists(outputFile))
                             File.Delete(outputFile);
 
+                        var outputDir = Path.GetDirectoryName(outputFile);
+                        if (!Directory.Exists(outputDir))
+                            Directory.CreateDirectory(outputDir);
+
                         LogProjectMessage("Restoring cached file to " + outputFile);
                         File.Copy(src, outputFile);
                         File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
