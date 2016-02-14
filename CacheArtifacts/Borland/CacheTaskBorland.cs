@@ -80,7 +80,7 @@ namespace MinBuild.Borland
                     var libPath = Path.Combine(WorkDir, targetPath, libName);
                     LogProjectMessage("Adding libpath: " + libPath);
                     parts.Add(libPath);
-                    if (target.EndsWith(".bpl"))
+                    if (target.EndsWith(".bpl") && lflags.Contains("-Gl"))
                     {
                         libName = moduleName + ".bpi";
                         libPath = Path.Combine(WorkDir, targetPath, libName);
