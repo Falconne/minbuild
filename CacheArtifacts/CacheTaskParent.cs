@@ -168,20 +168,20 @@ namespace MinBuild
                     LogProjectMessage("\t\t\t" + Path.GetFullPath(outputFile), MessageImportance.Normal);
                 }
 
-                LogProjectMessage("\t\tOne or more inputs may have changed:", recompileReasonPriority);
+                LogProjectMessage("\t\tOne or more inputs may have changed.", recompileReasonPriority);
                 var outputFileInfos = outputFiles.Select(x => new FileInfo(x)).ToList();
                 var oldestOutputFile = outputFileInfos.OrderBy(x => x.LastWriteTime).First();
                 var oldestOutputTime = oldestOutputFile.LastWriteTime;
-                LogProjectMessage("Oldest output file is " + oldestOutputFile);
+                LogProjectMessage("\t\tOldest output file is " + oldestOutputFile);
 
                 var hasInputChanged = false;
                 foreach (var inputFile in inputFiles)
                 {
                     var fi = new FileInfo(inputFile);
                     if (fi.LastWriteTime < oldestOutputTime) continue;
-                    LogProjectMessage("\t\t\t" + Path.GetFullPath(inputFile), recompileReasonPriority);
+                    LogProjectMessage("\t\t\tChanged input: " + Path.GetFullPath(inputFile), recompileReasonPriority);
                     hasInputChanged = true;
-                    LogProjectMessage("\t\t\tNot checking for any more changed inputs", recompileReasonPriority);
+                    LogProjectMessage("\t\t\tNot checking for any more changed inputs", MessageImportance.Normal);
                     break;
                 }
 
