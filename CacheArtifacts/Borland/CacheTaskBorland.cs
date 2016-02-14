@@ -75,12 +75,18 @@ namespace MinBuild.Borland
                 {
                     // .lib output is not properly defined in the Makefile
                     var moduleName = Path.GetFileNameWithoutExtension(parts[0]);
-                    var libName = moduleName +
-                        ((target.EndsWith(".dll")) ? ".lib" : ".bpi");
+                    var libName = moduleName +".lib";
                     var targetPath = Path.GetDirectoryName(parts[0]);
                     var libPath = Path.Combine(WorkDir, targetPath, libName);
                     LogProjectMessage("Adding libpath: " + libPath);
                     parts.Add(libPath);
+                    if (target.EndsWith(".bpl"))
+                    {
+                        libName = moduleName + ".bpi";
+                        libPath = Path.Combine(WorkDir, targetPath, libName);
+                        LogProjectMessage("Adding libpath: " + libPath);
+                        parts.Add(libPath);
+                    }
                 }
                 parts[0] = Path.Combine(WorkDir, parts[0]);
 
