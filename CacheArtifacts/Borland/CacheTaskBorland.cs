@@ -57,10 +57,7 @@ namespace MinBuild.Borland
             var lines = File.ReadAllLines(mfloc);
 
             var lflags = ParseMakeVariable("LFLAGS=", lines).ToList();
-            LogProjectMessage("Found linker flags:");
-            lflags.ForEach(x => LogProjectMessage(x));
             var importLibExists = (lflags.Any() && lflags.Contains("-Gi"));
-
             foreach (var line in lines)
             {
                 if (!line.StartsWith("TARGET="))
