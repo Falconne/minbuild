@@ -53,7 +53,19 @@ namespace MinBuild
                 LocalTlogLocation, tlogCacheLocation));
             foreach (var buildTLogFile in buildTLogFiles)
             {
-                LogProjectMessage(string.Format("Copy built log {0} to {1}", buildTLogFile, tlogCacheLocation), 
+                LogProjectMessage(string.Format("Removing absolute paths in {0}:", buildTLogFile), MessageImportance.Low);
+                var sourceLines = File.ReadAllLines(buildTLogFile);
+                List<string> cleanedLines = null;
+                if (!string.IsNullOrWhiteSpace(RootDir))
+                {
+                    if (!RootDir.EndsWith("\\"))
+                        RootDir += "\\";
+                    LogProjectMessage("RootDir is " + RootDir);
+                    cleanedLines = sourceLines.Select(x => x.Replace(RootDir.ToUpper(), "")).ToList();
+                    cleanedLines.ForEach(x => LogProjectMessage(x, MessageImportance.Low));
+                }
+
+                LogProjectMessage(string.Format("Writing cleaned tlog {0}", tlogCacheLocation), 
                     MessageImportance.Low);
                 var destination = Path.Combine(tlogCacheLocation, Path.GetFileName(buildTLogFile));
                 try
@@ -62,7 +74,8 @@ namespace MinBuild
                         Directory.CreateDirectory(tlogCacheLocation);
                     if (File.Exists(destination))
                         File.Delete(destination);
-                    File.Copy(buildTLogFile, destination);
+
+                    File.WriteAllLines(destination, cleanedLines);
                 }
                 catch (Exception e)
                 {

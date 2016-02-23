@@ -13,6 +13,8 @@ namespace MinBuild
         [Required]
         public string Inputs { protected get; set; }
 
+        public string RootDir { protected get; set; }
+
         protected override string GetCacheType()
         {
             return "cpp";
@@ -65,7 +67,7 @@ namespace MinBuild
             allInputs.ForEach(x => LogProjectMessage("\t" + x, MessageImportance.Low));
 
             // Real inputs are our source files and linker inputs minus objects from our own
-            // compile (i.e.  other libs).
+            // compile (i.e. other libs).
             var intermediateOutputFiles = Directory.GetFiles(tlogCacheLocation, "*.write.*.tlog").Where(
                 x => !x.Contains("link.write.")).ToList();
             var parsedOutputs = new List<string>();
@@ -80,16 +82,17 @@ namespace MinBuild
                     (x.EndsWith(".PDB") && intermediateOutputFile.ToLower().Contains("cl.") && !x.Contains("\\VC1"))));
             }
             allInputs.RemoveAll(x => !File.Exists(x));
-            allInputs = allInputs.OrderBy(x => x).Distinct().ToList();
-
-            LogProjectMessage("All inputs after filter:", MessageImportance.Low);
-            allInputs.ForEach(x => LogProjectMessage("\t" + x, MessageImportance.Low));
             if (allInputs.Count == 0) return false;
-            realInputs = allInputs;
 
             parsedOutputs.AddRange(ReadTlogFile(Path.Combine(tlogCacheLocation, LinkTLogFilename)).ToList());
             if (parsedOutputs.Count == 0) return false;
-            
+
+            allInputs.RemoveAll(x => parsedOutputs.Contains(x));
+            allInputs = allInputs.OrderBy(x => x).Distinct().ToList();
+            LogProjectMessage("All inputs after filter:", MessageImportance.Low);
+            allInputs.ForEach(x => LogProjectMessage("\t" + x, MessageImportance.Low));
+            realInputs = allInputs;
+
             LogProjectMessage("Real Outputs:", MessageImportance.Low);
             realOutputs = parsedOutputs.OrderBy(x => x).Distinct().ToList();
             foreach (var realOutput in realOutputs)
@@ -118,6 +121,7 @@ namespace MinBuild
             var filteredLines = ignoreComments ?
                 lines.Where(x => !x.StartsWith("^")) :
                 lines.Select(x => x.Replace("^", ""));
+            filteredLines = filteredLines.Where(x => !x.StartsWith("#"));
 
             var windowsDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows).ToUpper();
             var pfDir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToUpper();
@@ -135,6 +139,9 @@ namespace MinBuild
                 !x.EndsWith(".OBJ"));
 
             filteredLines = filteredLines.OrderBy(x => x).Distinct();
+            if (!string.IsNullOrWhiteSpace(RootDir))
+                filteredLines = filteredLines.Select(x => Path.Combine(RootDir, x));
+
             LogProjectMessage("Content from " + tlog, MessageImportance.Low);
             var result = filteredLines.ToList();
             foreach (var filteredLine in result)
