@@ -60,7 +60,7 @@ namespace MinBuild
                 {
                     if (!RootDir.EndsWith("\\"))
                         RootDir += "\\";
-                    LogProjectMessage("RootDir is " + RootDir);
+                    LogProjectMessage("RootDir is " + RootDir, MessageImportance.Low);
                     cleanedLines = sourceLines.Select(x => x.Replace(RootDir.ToUpper(), "")).ToList();
                     cleanedLines.ForEach(x => LogProjectMessage(x, MessageImportance.Low));
                 }
