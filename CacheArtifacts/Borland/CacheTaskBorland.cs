@@ -34,6 +34,7 @@ namespace MinBuild.Borland
             var lines = File.ReadAllLines(mfloc);
             var sources = ParseSourceType("SOURCE=", lines).Where(x => !x.ToLower().EndsWith(".rc")).ToList();
             sources.AddRange(ParseSourceType("LIBS=", lines));
+            sources.AddRange(ParseSourceType("RES_DEPENDS=", lines));
             if (!sources.Any())
                 throw new Exception("No sources found in " + mfloc);
 
