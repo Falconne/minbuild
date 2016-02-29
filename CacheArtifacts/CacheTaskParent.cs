@@ -34,6 +34,8 @@ namespace MinBuild
 
         [Required]
         public string BuildConfig { protected get; set; }
+
+        public string SkipCacheForProjects { private get; set; }
         
 
         protected IList<string> ParseFileList(string raw)
@@ -83,12 +85,23 @@ namespace MinBuild
 
         protected bool ShouldSkipCache(IEnumerable<string> outputFiles)
         {
-            var hashset = new HashSet<string>();
-            if (outputFiles.Any(file => !hashset.Add(Path.GetFileName(file))))
+            if (outputFiles != null)
             {
-                Log.LogWarning("Cache cannot be used with duplicate output files:");
-                var duplicates = outputFiles.Where(file => !hashset.Add(Path.GetFileName(file))).ToList();
-                duplicates.ForEach(x => Log.LogWarning("\t" + x));
+                var hashset = new HashSet<string>();
+                if (outputFiles.Any(file => !hashset.Add(Path.GetFileName(file))))
+                {
+                    Log.LogWarning("Cache cannot be used with duplicate output files:");
+                    var duplicates = outputFiles.Where(file => !hashset.Add(Path.GetFileName(file))).ToList();
+                    duplicates.ForEach(x => Log.LogWarning("\t" + x));
+                    return true;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(SkipCacheForProjects))
+            {
+                if (!SkipCacheForProjects.Split('#').Any(s => ProjectName.ToLower().Contains(s.ToLower()))) return false;
+
+                LogProjectMessage("Skipping project due to ignore pattern: " + ProjectName);
                 return true;
             }
 

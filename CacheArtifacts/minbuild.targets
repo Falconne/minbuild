@@ -74,6 +74,7 @@
             Inputs="$(InputFilesCSharp)"
             Outputs="$(OutputFilesCSharp)"
             BuildConfig="$(ConfigurationName)|$(PlatformName)"
+            SkipCacheForProjects="$(SkipCacheForProjects)"
             ProjectName="$(ProjectName)">
 
             <Output TaskParameter="InputHash" PropertyName="InputHash"/>
@@ -92,6 +93,7 @@
             AlwaysRestoreCache="$(AlwaysRestoreCache)"
             Outputs="$(OutputFilesCSharp)"
             BuildConfig="$(ConfigurationName)|$(PlatformName)"
+            SkipCacheForProjects="$(SkipCacheForProjects)"
             ProjectName="$(ProjectName)" />
     </Target>
 
@@ -113,6 +115,7 @@
             AlwaysRestoreCache="$(AlwaysRestoreCache)"
             BuildConfig="$(Configuration)|$(PlatformName)"
             RootDir="$(RootDir)"
+            SkipCacheForProjects="$(SkipCacheForProjects)"
             Inputs="$(InputFilesCPP)">
 
             <Output TaskParameter="RestoreSuccessful" PropertyName="RestoreSuccessful"/>
@@ -137,6 +140,7 @@
             ShowRecompileReason="$(ShowRecompileReason)"
             AlwaysRestoreCache="$(AlwaysRestoreCache)"
             BuildConfig="$(Configuration)|$(PlatformName)"
+            SkipCacheForProjects="$(SkipCacheForProjects)"
             ProjectName="$(ProjectName)" />
     </Target>
 
