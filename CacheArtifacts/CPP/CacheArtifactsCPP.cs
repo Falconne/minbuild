@@ -64,7 +64,7 @@ namespace MinBuild
                 }
 
                 LogProjectMessage(string.Format("Writing cleaned tlog {0} to {1}", buildTLogFile, tlogCacheLocation), 
-                    MessageImportance.High);
+                    MessageImportance.Low);
                 var destination = Path.Combine(tlogCacheLocation, Path.GetFileName(buildTLogFile));
                 try
                 {
