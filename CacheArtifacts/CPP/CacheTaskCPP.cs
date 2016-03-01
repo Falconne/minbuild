@@ -56,12 +56,6 @@ namespace MinBuild
             foreach (var inputTLogFile in inputTLogFiles)
             {
                 var inputs = ReadTlogFile(inputTLogFile);
-                if (inputs.Any(x => x.ToLower().StartsWith(@"c:\buildagent")))
-                {
-                    LogProjectMessage("Ignoring existing tlog with absolute paths");
-                    return false;
-                }
-
                 if (inputs == null)
                     continue;
                 allInputs.AddRange(inputs);
@@ -92,12 +86,6 @@ namespace MinBuild
 
             parsedOutputs.AddRange(ReadTlogFile(Path.Combine(tlogCacheLocation, LinkTLogFilename)).ToList());
             if (parsedOutputs.Count == 0) return false;
-
-            if (parsedOutputs.Any(x => x.ToLower().StartsWith(@"c:\buildagent")))
-            {
-                LogProjectMessage("Ignoring existing tlog with absolute paths");
-                return false;
-            }
 
             allInputs.RemoveAll(x => parsedOutputs.Contains(x));
             allInputs = allInputs.OrderBy(x => x).Distinct().ToList();
