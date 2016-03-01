@@ -93,6 +93,12 @@ namespace MinBuild
             parsedOutputs.AddRange(ReadTlogFile(Path.Combine(tlogCacheLocation, LinkTLogFilename)).ToList());
             if (parsedOutputs.Count == 0) return false;
 
+            if (parsedOutputs.Any(x => x.ToLower().StartsWith(@"c:\buildagent")))
+            {
+                LogProjectMessage("Ignoring existing tlog with absolute paths");
+                return false;
+            }
+
             allInputs.RemoveAll(x => parsedOutputs.Contains(x));
             allInputs = allInputs.OrderBy(x => x).Distinct().ToList();
             LogProjectMessage("All inputs after filter:", MessageImportance.Low);
