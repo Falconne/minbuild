@@ -87,7 +87,7 @@ namespace MinBuild
 
             // Parse real inputs and outputs
             IList<string> realInputs, realOutputs;
-            if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs))
+            if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs, false))
                 return true;
 
             var inputFilesHash = GetHashForFiles(realInputs);

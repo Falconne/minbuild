@@ -43,8 +43,7 @@ namespace MinBuild
             LogProjectMessage("Link tlog evaluated as " + LinkTLogFilename, MessageImportance.Normal);
         }
 
-        protected bool ParseRealInputsAndOutputs(string tlogCacheLocation, 
-            out IList<string> realInputs, out IList<string> realOutputs)
+        protected bool ParseRealInputsAndOutputs(string tlogCacheLocation, out IList<string> realInputs, out IList<string> realOutputs, bool discardFullPaths)
         {
             realInputs = null;
             realOutputs = null;
@@ -57,7 +56,7 @@ namespace MinBuild
             var inputTLogFiles = Directory.GetFiles(tlogCacheLocation, "*.read.*.tlog");
             foreach (var inputTLogFile in inputTLogFiles)
             {
-                var inputs = ReadTlogFile(inputTLogFile);
+                var inputs = ReadTlogFile(inputTLogFile, discardFullPaths);
                 if (inputs == null)
                     continue;
                 allInputs.AddRange(inputs);
@@ -75,7 +74,7 @@ namespace MinBuild
             var parsedOutputs = new List<string>();
             foreach (var intermediateOutputFile in intermediateOutputFiles)
             {
-                var intermediateOutputs = ReadTlogFile(intermediateOutputFile);
+                var intermediateOutputs = ReadTlogFile(intermediateOutputFile, discardFullPaths);
                 allInputs.RemoveAll(x => intermediateOutputs.Contains(x));
 
                 // Don't discard any intermediate .lib or .pdb files, sometimes they are actual outputs but
@@ -86,7 +85,7 @@ namespace MinBuild
             allInputs.RemoveAll(x => !File.Exists(x));
             if (allInputs.Count == 0) return false;
 
-            parsedOutputs.AddRange(ReadTlogFile(Path.Combine(tlogCacheLocation, LinkTLogFilename)).ToList());
+            parsedOutputs.AddRange(ReadTlogFile(Path.Combine(tlogCacheLocation, LinkTLogFilename), discardFullPaths).ToList());
             if (parsedOutputs.Count == 0) return false;
 
             allInputs.RemoveAll(x => parsedOutputs.Contains(x));
@@ -107,7 +106,7 @@ namespace MinBuild
 
         protected string LinkTLogFilename;
 
-        private IList<string> ReadTlogFile(string tlog)
+        private IList<string> ReadTlogFile(string tlog, bool discardFullPaths)
         {
             if (!File.Exists(tlog))
             {
@@ -130,6 +129,13 @@ namespace MinBuild
             pfDir = pfDir.Replace(" (X86)", "");
 
             filteredLines = filteredLines.Select(x => x.Trim().ToUpper());
+            if (discardFullPaths)
+            {
+                if (filteredLines.Any(x => x.StartsWith(@"C:\BUILDAGENT")))
+                {
+                    throw new Exception("Skip tlog with full path");
+                }
+            }
             filteredLines = filteredLines.Where(x =>
                 !x.EndsWith(".ASSEMBLYATTRIBUTES.CPP") &&
                 !x.Contains("|") &&

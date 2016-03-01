@@ -32,16 +32,16 @@ namespace MinBuild
 
             EvaluateLinkTLogFilename(tlogCacheLocation);
             IList<string> realInputs, realOutputs;
-            if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs))
-                return true;
-
-            if ((realOutputs != null && realOutputs.Any(x => x.ToLower().StartsWith(@"c:\buildagent")))
-                || (realInputs != null && realInputs.Any(x => x.ToLower().StartsWith(@"c:\buildagent"))))
+            try
+            {
+                if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs, true))
+                    return true;
+            }
+            catch (Exception)
             {
                 LogProjectMessage("Ignoring existing tlog with absolute paths");
                 return true;
             }
-
 
             bool restoreSuccessful;
             RestoreCachedArtifactsIfPossible(realInputs, realOutputs, out restoreSuccessful);
