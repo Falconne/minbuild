@@ -35,7 +35,8 @@ namespace MinBuild
             if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs))
                 return true;
 
-            if (realOutputs.Any(x => x.ToLower().StartsWith(@"c:\buildagent")) || realInputs.Any(x => x.ToLower().StartsWith(@"c:\buildagent")))
+            if ((realOutputs != null && realOutputs.Any(x => x.ToLower().StartsWith(@"c:\buildagent")))
+                || (realInputs != null && realInputs.Any(x => x.ToLower().StartsWith(@"c:\buildagent"))))
             {
                 LogProjectMessage("Ignoring existing tlog with absolute paths");
                 return false;
