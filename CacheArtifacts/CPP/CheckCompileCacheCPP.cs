@@ -39,7 +39,7 @@ namespace MinBuild
                 || (realInputs != null && realInputs.Any(x => x.ToLower().StartsWith(@"c:\buildagent"))))
             {
                 LogProjectMessage("Ignoring existing tlog with absolute paths");
-                return false;
+                return true;
             }
 
 
