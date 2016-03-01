@@ -54,19 +54,17 @@ namespace MinBuild
             foreach (var buildTLogFile in buildTLogFiles)
             {
                 LogProjectMessage(string.Format("Removing absolute paths in {0}:", buildTLogFile), MessageImportance.Low);
-                var sourceLines = File.ReadAllLines(buildTLogFile);
-                List<string> cleanedLines = null;
+                var sourceLines = File.ReadAllLines(buildTLogFile).ToList();
                 if (!string.IsNullOrWhiteSpace(RootDir))
                 {
                     if (!RootDir.EndsWith("\\"))
                         RootDir += "\\";
                     LogProjectMessage("RootDir is " + RootDir, MessageImportance.Low);
-                    cleanedLines = sourceLines.Select(x => x.Replace(RootDir.ToUpper(), "")).ToList();
-                    cleanedLines.ForEach(x => LogProjectMessage(x, MessageImportance.Low));
+                    sourceLines = sourceLines.Select(x => x.Replace(RootDir.ToUpper(), "")).ToList();
                 }
 
-                LogProjectMessage(string.Format("Writing cleaned tlog {0}", tlogCacheLocation), 
-                    MessageImportance.Low);
+                LogProjectMessage(string.Format("Writing cleaned tlog {0} to {1}", buildTLogFile, tlogCacheLocation), 
+                    MessageImportance.High);
                 var destination = Path.Combine(tlogCacheLocation, Path.GetFileName(buildTLogFile));
                 try
                 {
@@ -75,12 +73,13 @@ namespace MinBuild
                     if (File.Exists(destination))
                         File.Delete(destination);
 
-                    File.WriteAllLines(destination, cleanedLines);
+                    File.WriteAllLines(destination, sourceLines);
                 }
                 catch (Exception e)
                 {
                     Log.LogWarning("Cannot copy to " + tlogCacheLocation + " skipping cache");
                     Log.LogWarning("Reason: " + e.Message);
+                    Log.LogWarning(e.StackTrace);
                     return true;
                 }
             }
