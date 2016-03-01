@@ -22,12 +22,14 @@ namespace MinBuild
 
         protected string GetTLogCacheLocation()
         {
-            LogProjectMessage("Calculating tlog cache location from inputs");
             var inputFiles = ParseFileList(Inputs);
             CheckForMissingInputs(inputFiles);
             var cppInputHash = GetHashForFiles(inputFiles);
             cppInputHash = GetHashForContent(cppInputHash + BuildConfig);
-            return GetCacheDirForHash(cppInputHash);
+            var loc = GetCacheDirForHash(cppInputHash);
+            LogProjectMessage("Tlog cache location: " + loc);
+
+            return loc;
         }
 
         // Link TLog is different for .exe builds and .lib builds
