@@ -54,7 +54,7 @@ namespace MinBuild
             foreach (var buildTLogFile in buildTLogFiles)
             {
                 LogProjectMessage(string.Format("Removing absolute paths in {0}:", buildTLogFile), MessageImportance.Low);
-                var sourceLines = File.ReadAllLines(buildTLogFile).ToList();
+                var sourceLines = File.ReadAllLines(buildTLogFile).Select(x => x.ToUpper()).ToList();
                 if (!string.IsNullOrWhiteSpace(RootDir))
                 {
                     if (!RootDir.EndsWith("\\"))
