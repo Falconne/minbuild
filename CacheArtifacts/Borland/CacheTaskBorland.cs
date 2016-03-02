@@ -42,6 +42,18 @@ namespace MinBuild.Borland
             sources.Add(Path.Combine(WorkDir, ProjectName));
             sources.ForEach(x => LogProjectMessage(x, MessageImportance.Normal));
 
+            var headers = new List<string>();
+            var includes = ParseSourceType("CPP_INCLUDE_PATH=", lines).Where(x => !x.Contains("$")).Select(y => Path.Combine(WorkDir, y)).ToList();
+            includes.Add(WorkDir);
+            foreach (var source in sources)
+            {
+                ParseHeadersIn(source, includes, headers);
+            }
+
+            LogProjectMessage("Found total headers:");
+            headers.ForEach(x => LogProjectMessage(x));
+            sources.AddRange(headers);
+
             return sources;
         }
 
@@ -139,5 +151,47 @@ namespace MinBuild.Borland
             return ParseMakeVariable(type, lines).Select(x => Path.Combine(WorkDir, x)).Where(File.Exists);
         }
 
+        private void ParseHeadersIn(string source, IList<string> includePaths, IList<string> foundHeaders)
+        {
+            source = source.ToLower();
+            if (foundHeaders.Contains(source))
+                return;
+
+            if (!File.Exists(source))
+            {
+                LogProjectMessage("WARNING: Source file not found: " + source);
+                return;
+            }
+
+            foundHeaders.Add(source);
+            
+            LogProjectMessage("Finding headers in " + source);
+            var lines = File.ReadAllLines(source).Where(x => x.Trim().StartsWith("#include"));
+            var regex = new Regex("[<\"](.+)[>\"]");
+            var sourceFileDir = Path.GetDirectoryName(source);
+            foreach (var line in lines)
+            {
+                var m = regex.Match(line);
+                if (!m.Success)
+                    throw new Exception("Cannot parse header name in " + line);
+
+                var headerPath = m.Groups[0].ToString().ToLower();
+                LogProjectMessage(string.Format("Searching for header {0} in line {1}", headerPath, line));
+                var tryPath = Path.Combine(sourceFileDir, headerPath);
+                if (File.Exists(tryPath))
+                {
+                    ParseHeadersIn(tryPath, includePaths, foundHeaders);
+                    continue;
+                }
+
+                foreach (var includePath in includePaths)
+                {
+                    tryPath = Path.Combine(includePath, headerPath);
+                    if (!File.Exists(tryPath)) continue;
+                    ParseHeadersIn(tryPath, includePaths, foundHeaders);
+                    break;
+                }
+            }
+        }
     }
 }
