@@ -175,7 +175,7 @@ namespace MinBuild.Borland
                 if (!m.Success)
                     throw new Exception("Cannot parse header name in " + line);
 
-                var headerPath = m.Groups[0].ToString().ToLower();
+                var headerPath = m.Groups[1].ToString().ToLower();
                 LogProjectMessage(string.Format("Searching for header {0} in line {1}", headerPath, line));
                 var tryPath = Path.Combine(sourceFileDir, headerPath);
                 if (File.Exists(tryPath))
