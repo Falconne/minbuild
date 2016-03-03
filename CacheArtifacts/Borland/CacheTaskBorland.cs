@@ -169,7 +169,7 @@ namespace MinBuild.Borland
 
             foundHeaders.Add(source);
             
-            LogProjectMessage("Finding headers in " + source);
+            LogProjectMessage("Finding headers in " + source, MessageImportance.Low);
             var lines = File.ReadAllLines(source).Where(x => x.Trim().StartsWith("#include"));
             var regex = new Regex("[<\"](.+?)[>\"]");
             var sourceFileDir = Path.GetDirectoryName(source);
@@ -189,7 +189,7 @@ namespace MinBuild.Borland
                 }
 
                 var headerPath = m.Groups[1].ToString().ToLower();
-                LogProjectMessage("Searching for header " + headerPath);
+                LogProjectMessage("Searching for header " + headerPath, MessageImportance.Low);
                 var tryPath = Path.Combine(sourceFileDir, headerPath);
                 if (File.Exists(tryPath))
                 {
