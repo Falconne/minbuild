@@ -171,12 +171,13 @@ namespace MinBuild.Borland
             var sourceFileDir = Path.GetDirectoryName(source);
             foreach (var line in lines)
             {
+                LogProjectMessage("Checking line for headers: " + line);
                 var m = regex.Match(line);
                 if (!m.Success)
                     throw new Exception("Cannot parse header name in " + line);
 
                 var headerPath = m.Groups[1].ToString().ToLower();
-                LogProjectMessage(string.Format("Searching for header {0} in line {1}", headerPath, line));
+                LogProjectMessage("Searching for header " + headerPath);
                 var tryPath = Path.Combine(sourceFileDir, headerPath);
                 if (File.Exists(tryPath))
                 {
@@ -187,6 +188,7 @@ namespace MinBuild.Borland
                 foreach (var includePath in includePaths)
                 {
                     tryPath = Path.Combine(includePath, headerPath);
+                    LogProjectMessage("\tChecking in " + tryPath);
                     if (!File.Exists(tryPath)) continue;
                     ParseHeadersIn(tryPath, includePaths, foundHeaders);
                     break;
