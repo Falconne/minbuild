@@ -177,10 +177,18 @@ namespace MinBuild.Borland
             var sourceFileDir = Path.GetDirectoryName(source);
             foreach (var line in lines)
             {
+                if (!line.Contains("\"") && !line.Contains("<"))
+                {
+                    LogProjectMessage("Skipping #include MACRO: " + line);
+                    continue;
+                }
+
                 LogProjectMessage("Checking line for headers: " + line, MessageImportance.Low);
                 var m = regex.Match(line);
                 if (!m.Success)
+                {
                     throw new Exception("Cannot parse header name in " + line);
+                }
 
                 var headerPath = m.Groups[1].ToString().ToLower();
                 LogProjectMessage("Searching for header " + headerPath);
