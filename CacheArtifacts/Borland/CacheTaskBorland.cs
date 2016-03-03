@@ -45,6 +45,8 @@ namespace MinBuild.Borland
             var headers = new List<string>();
             var includes = ParseSourceType("CPP_INCLUDE_PATH=", lines).Where(x => !x.Contains("$")).Select(y => Path.Combine(WorkDir, y)).ToList();
             includes.Add(WorkDir);
+            LogProjectMessage("Include paths to check:");
+            includes.ForEach(x => LogProjectMessage(x));
             foreach (var source in sources)
             {
                 ParseHeadersIn(source, includes, headers);
