@@ -159,7 +159,7 @@ namespace MinBuild.Borland
 
         private void ParseHeadersIn(string source, IList<string> includePaths, IList<string> foundHeaders)
         {
-            source = source.ToLower();
+            source = Path.GetFullPath(source).ToLower();
             if (foundHeaders.Contains(source))
                 return;
 
