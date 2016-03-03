@@ -47,7 +47,6 @@ namespace MinBuild.Borland
             if (includes.Count == 0)
             {
                 Log.LogError("Not enough include paths found");
-                throw new Exception("Not enough include paths found");
             }
             includes.Add(WorkDir);
             LogProjectMessage("Include paths to check:");
