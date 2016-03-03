@@ -32,17 +32,16 @@ namespace MinBuild.Borland
             }
 
             var lines = File.ReadAllLines(mfloc);
-            var sources = ParseSourceType("SOURCE=", lines).Where(x => !x.ToLower().EndsWith(".rc")).ToList();
-            sources.AddRange(ParseSourceType("LIBS=", lines));
-            sources.AddRange(ParseSourceType("RES_DEPENDS=", lines));
-            if (!sources.Any())
+            var cppSources = ParseSourceType("SOURCE=", lines).Where(x => !x.ToLower().EndsWith(".rc")).ToList();
+            cppSources.AddRange(ParseSourceType("LIBS=", lines));
+            cppSources.AddRange(ParseSourceType("RES_DEPENDS=", lines));
+            if (!cppSources.Any())
                 throw new Exception("No sources found in " + mfloc);
 
-            LogProjectMessage("Found sources: ", MessageImportance.Normal);
-            sources.Add(Path.Combine(WorkDir, ProjectName));
-            sources.ForEach(x => LogProjectMessage(x, MessageImportance.Normal));
+            cppSources.Add(Path.Combine(WorkDir, ProjectName));
+            cppSources.ForEach(x => LogProjectMessage(x, MessageImportance.Normal));
 
-            var headers = new List<string>();
+            var allSources = new List<string>();
             var includes = ParseMakeVariable("CPP_INCLUDE_PATH = ", lines).Select(y => Path.GetFullPath(Path.Combine(WorkDir, y))).ToList();
             if (includes.Count == 0)
             {
@@ -51,16 +50,15 @@ namespace MinBuild.Borland
             includes.Add(WorkDir);
             LogProjectMessage("Include paths to check:");
             includes.ForEach(x => LogProjectMessage(x));
-            foreach (var source in sources)
+            foreach (var source in cppSources)
             {
-                ParseHeadersIn(source, includes, headers);
+                ParseHeadersIn(source, includes, allSources);
             }
 
-            LogProjectMessage("Found total headers:");
-            headers.ForEach(x => LogProjectMessage(x));
-            sources.AddRange(headers);
+            LogProjectMessage("Found total sources:");
+            allSources.ForEach(x => LogProjectMessage(x));
 
-            return sources;
+            return allSources;
         }
 
         protected string GetInputHash()
@@ -212,7 +210,7 @@ namespace MinBuild.Borland
                 if (!headerFound && line.Contains("\""))
                 {
                     // System headers can be ignored but all local headers should be checked.
-                    throw new Exception("Header not found: " + headerPath);
+                    Log.LogError("Header not found: " + headerPath);
                 }
             }
         }
