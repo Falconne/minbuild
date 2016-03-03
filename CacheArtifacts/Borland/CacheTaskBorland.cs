@@ -199,12 +199,20 @@ namespace MinBuild.Borland
                     continue;
                 }
 
+                var headerFound = false;
                 foreach (var includePath in includePaths)
                 {
                     tryPath = Path.Combine(includePath, headerPath);
                     if (!File.Exists(tryPath)) continue;
                     ParseHeadersIn(tryPath, includePaths, foundHeaders);
+                    headerFound = true;
                     break;
+                }
+
+                if (!headerFound && line.Contains("\""))
+                {
+                    // System headers can be ignored but all local headers should be checked.
+                    throw new Exception("Header not found: " + headerPath);
                 }
             }
         }
