@@ -43,7 +43,7 @@ namespace MinBuild.Borland
             sources.ForEach(x => LogProjectMessage(x, MessageImportance.Normal));
 
             var headers = new List<string>();
-            var includes = ParseSourceType("CPP_INCLUDE_PATH = ", lines).Select(y => Path.Combine(WorkDir, y)).ToList();
+            var includes = ParseMakeVariable("CPP_INCLUDE_PATH = ", lines).Select(y => Path.Combine(WorkDir, y)).ToList();
             if (includes.Count == 0)
             {
                 Log.LogError("Not enough include paths found");
