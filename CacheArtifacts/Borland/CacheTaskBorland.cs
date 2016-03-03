@@ -167,7 +167,7 @@ namespace MinBuild.Borland
             
             LogProjectMessage("Finding headers in " + source);
             var lines = File.ReadAllLines(source).Where(x => x.Trim().StartsWith("#include"));
-            var regex = new Regex("[<\"](.+)[>\"]");
+            var regex = new Regex("[<\"](.+?)[>\"]");
             var sourceFileDir = Path.GetDirectoryName(source);
             foreach (var line in lines)
             {
