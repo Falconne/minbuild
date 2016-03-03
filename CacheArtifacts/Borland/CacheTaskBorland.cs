@@ -138,7 +138,7 @@ namespace MinBuild.Borland
 
                 line = line.Replace("\t", "");
 
-                sources.AddRange(Regex.Matches(line, @"[\""].+?[\""]|[^ ]+").Cast<Match>().Select(m => m.Value).Where(
+                sources.AddRange(Regex.Matches(line, @"[\""].+?[\""]|[^ ;]+").Cast<Match>().Select(m => m.Value).Where(
                     y => !y.Equals("\\") && !string.IsNullOrWhiteSpace(y) && !y.Contains("$"))
                     .Select(q => q.Replace("\"", "")));
             }
