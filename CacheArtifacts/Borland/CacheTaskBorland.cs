@@ -210,7 +210,7 @@ namespace MinBuild.Borland
                 if (!headerFound && line.Contains("\""))
                 {
                     // System headers can be ignored but all local headers should be checked.
-                    Log.LogError("Header not found: " + headerPath);
+                    Log.LogError("Header not found: " + headerPath + " in " + source);
                 }
             }
         }
