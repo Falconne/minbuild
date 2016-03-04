@@ -55,8 +55,8 @@ namespace MinBuild.Borland
                 ParseHeadersIn(source, includes, allSources);
             }
 
-            LogProjectMessage("Found total sources:");
-            allSources.ForEach(x => LogProjectMessage(x));
+            LogProjectMessage("Found total sources:", MessageImportance.Low);
+            allSources.ForEach(x => LogProjectMessage(x, MessageImportance.Low));
 
             return allSources;
         }
