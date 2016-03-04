@@ -128,7 +128,7 @@ namespace MinBuild
             var pfDir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToUpper();
             pfDir = pfDir.Replace(" (X86)", "");
 
-            filteredLines = filteredLines.Select(x => x.Trim().ToUpper());
+            filteredLines = filteredLines.Select(x => x.Trim().ToUpper()).Where(y => !y.Contains(@"C:\BUILDAGENT\TEMP"));
             if (discardFullPaths)
             {
                 if (filteredLines.Any(x => x.StartsWith(@"C:\BUILDAGENT")))
