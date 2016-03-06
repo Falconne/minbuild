@@ -48,8 +48,8 @@ namespace MinBuild.Borland
                 Log.LogError("Not enough include paths found");
             }
             includes.Add(WorkDir);
-            LogProjectMessage("Include paths to check:");
-            includes.ForEach(x => LogProjectMessage(x));
+            LogProjectMessage("Include paths to check:", MessageImportance.Low);
+            includes.ForEach(x => LogProjectMessage(x, MessageImportance.Low));
             foreach (var source in cppSources)
             {
                 ParseHeadersIn(source, includes, allSources);
