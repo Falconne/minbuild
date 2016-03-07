@@ -142,6 +142,8 @@ namespace MinBuild
                 !x.EndsWith(".TLOG") &&
                 !x.EndsWith(".METAGEN") &&
                 !x.EndsWith(".RC") &&
+                !x.EndsWith(".TLH") &&
+                !x.EndsWith(".TLI") &&
                 !x.StartsWith(windowsDir) &&
                 !x.StartsWith(pfDir) &&
                 !x.EndsWith(".OBJ"));
