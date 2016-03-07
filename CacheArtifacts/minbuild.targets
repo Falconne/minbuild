@@ -59,10 +59,12 @@
         <ShowRecompileReason Condition=" '$(ShowRecompileReason)' == '' ">true</ShowRecompileReason>
         <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">false</ShowContentHashes>
         <AlwaysRestoreCache Condition=" '$(AlwaysRestoreCache)' == '' ">false</AlwaysRestoreCache>
+        <SignAssembly Condition="'$(SignAssembly)' == ''">false</SignAssembly>
         <SkipCompile>false</SkipCompile>
     </PropertyGroup>
 
     <Target Name="CheckCompileCacheBeforeCompileCSharp"
+        Condition="$(SignAssembly) !='true'"
         Inputs="$(InputFilesCSharp)"
         Outputs="$(OutputFilesCSharp)">
         <CheckCompileCacheCSharp
@@ -83,7 +85,7 @@
     </Target>
 
     <Target Name="CacheArtifactsAfterCompileCSharp"
-        Condition="'$(InputHash)' != 'SKIP'">
+        Condition="'$(InputHash)' != 'SKIP' and $(SignAssembly) !='true'">
         <CacheArtifactsCSharp
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
