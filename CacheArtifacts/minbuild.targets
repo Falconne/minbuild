@@ -85,7 +85,7 @@
     </Target>
 
     <Target Name="CacheArtifactsAfterCompileCSharp"
-        Condition="'$(InputHash)' != 'SKIP' and $(SignAssembly) !='true'">
+        Condition="'$(InputHash)' != '' and '$(InputHash)' != 'SKIP' and $(SignAssembly) !='true'">
         <CacheArtifactsCSharp
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
