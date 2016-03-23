@@ -14,7 +14,9 @@ namespace MinBuild
 
         public override bool Execute()
         {
+            var inputFiles = ParseFileList(Inputs);
             var outputFiles = ParseFileList(Outputs);
+            WriteSourceMapFile(inputFiles, outputFiles);
             return CacheBuildArtifacts(outputFiles, InputHash);
         }
     }

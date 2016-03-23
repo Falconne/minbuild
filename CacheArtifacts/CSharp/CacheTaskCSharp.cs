@@ -12,6 +12,8 @@ namespace MinBuild
         [Required]
         public string Outputs { get; set; }
 
+        [Required]
+        public string Inputs { protected get; set; }
 
         protected override string GetCacheType()
         {

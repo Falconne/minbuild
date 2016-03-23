@@ -251,6 +251,29 @@ namespace MinBuild
                 }
             }
 
+            // If source mapping files exist in cache, copy them to primary output directory
+            var inputMapFile = Path.Combine(cacheOutput, "inputs.mapped");
+            var outputMapFile = Path.Combine(cacheOutput, "outputs.mapped");
+            LogProjectMessage("Checking for mapped file " + inputMapFile + " and " + outputMapFile);
+            if (File.Exists(inputMapFile) && File.Exists(outputMapFile))
+            {
+                var primaryOutput = outputFiles.FirstOrDefault();
+                var outDir = Path.GetDirectoryName(primaryOutput) ?? "";
+                LogProjectMessage("Primary output dir is " + outDir);
+                var inputMapFileDest = Path.Combine(outDir, "inputs.mapped");
+                var outputMapFileDest = Path.Combine(outDir, "outputs.mapped");
+
+                if (File.Exists(inputMapFileDest))
+                    File.Delete(inputMapFileDest);
+                if (File.Exists(outputMapFileDest))
+                    File.Delete(outputMapFileDest);
+
+                LogProjectMessage("Copying " + inputMapFile + " to " + inputMapFileDest);
+                File.Copy(inputMapFile, inputMapFileDest);
+                LogProjectMessage("Copying " + outputMapFile + " to " + outputMapFileDest);
+                File.Copy(outputMapFile, outputMapFileDest);
+            }
+
             restoreSuccessful = true;
             return inputHash;
         }
@@ -428,6 +451,26 @@ namespace MinBuild
             Directory.SetLastWriteTimeUtc(cacheOutput, DateTime.UtcNow);
 
             return cacheOutput;
+        }
+
+        protected void WriteSourceMapFile(IList<string> inputs, IList<string> outputs)
+        {
+            if (inputs.Count == 0 || outputs.Count == 0)
+                return;
+            var primaryOutput = outputs.FirstOrDefault();
+            var outDir = Path.GetDirectoryName(primaryOutput) ?? "";
+            LogProjectMessage("Primary output dir is " + outDir);
+
+            var inputsFile = Path.Combine(outDir, "inputs.mapped");
+            var outputsFile = Path.Combine(outDir, "outputs.mapped");
+
+            LogProjectMessage(string.Format("Inputs: {0}   Outputs: {1}", inputsFile, outputsFile));
+
+            File.WriteAllLines(inputsFile, inputs);
+            File.WriteAllLines(outputsFile, outputs);
+
+            outputs.Add(inputsFile);
+            outputs.Add(outputsFile);
         }
 
         private const long ERROR_SHARING_VIOLATION = 0x20;

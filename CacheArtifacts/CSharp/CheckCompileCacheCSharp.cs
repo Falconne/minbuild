@@ -14,9 +14,6 @@ namespace MinBuild
 {
     public class CheckCompileCacheCSharp : CacheTaskCSharp
     {
-        [Required]
-        public string Inputs { private get; set; }
-
         [Output]
         public string InputHash { get; private set; }
 
@@ -34,7 +31,7 @@ namespace MinBuild
 
             bool dummy;
             InputHash = RestoreCachedArtifactsIfPossible(inputFiles, outputFiles, out dummy);
-            LogProjectMessage("InputHash returned: " + InputHash, MessageImportance.High);
+            LogProjectMessage("InputHash returned: " + InputHash, MessageImportance.Low);
 
             return true;
         }

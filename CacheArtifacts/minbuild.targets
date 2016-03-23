@@ -93,6 +93,7 @@
             ShowContentHashes="$(ShowContentHashes)"
             ShowRecompileReason="$(ShowRecompileReason)"
             AlwaysRestoreCache="$(AlwaysRestoreCache)"
+            Inputs="$(InputFilesCSharp)"
             Outputs="$(OutputFilesCSharp)"
             BuildConfig="$(ConfigurationName)|$(PlatformName)"
             SkipCacheForProjects="$(SkipCacheForProjects)"
