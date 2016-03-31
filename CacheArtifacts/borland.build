@@ -43,6 +43,7 @@
                                ProjectName="$(ProjectName)"
                                BuildConfig="Debug"
                                CacheRoot="$(CacheRoot)"
+                               RootDir="$(RootDir)"
                                ShowRecompileReason="$(ShowRecompileReason)"
                                ShowContentHashes="$(ShowContentHashes)"
                                AlwaysRestoreCache="$(AlwaysRestoreCache)"

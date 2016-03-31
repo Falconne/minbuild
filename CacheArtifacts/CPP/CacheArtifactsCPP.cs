@@ -90,7 +90,7 @@ namespace MinBuild
             if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs, false))
                 return true;
 
-            WriteSourceMapFile(realInputs, realOutputs);
+            WriteSourceMapFile(realInputs, realOutputs, Directory.GetCurrentDirectory());
 
             var inputFilesHash = GetHashForFiles(realInputs);
             // Must not mix caches across different build configs

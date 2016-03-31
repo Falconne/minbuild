@@ -35,6 +35,8 @@ namespace MinBuild
         [Required]
         public string BuildConfig { protected get; set; }
 
+        public string RootDir { protected get; set; }
+
         public string SkipCacheForProjects { private get; set; }
         
 
@@ -453,10 +455,14 @@ namespace MinBuild
             return cacheOutput;
         }
 
-        protected void WriteSourceMapFile(IList<string> inputs, IList<string> outputs)
+        protected void WriteSourceMapFile(IList<string> inputs, IList<string> outputs, string WorkDir)
         {
+            if (string.IsNullOrWhiteSpace(RootDir))
+                return;
+
             if (inputs.Count == 0 || outputs.Count == 0)
                 return;
+
             var primaryOutput = outputs.FirstOrDefault();
             var outDir = Path.GetDirectoryName(primaryOutput) ?? "";
             LogProjectMessage("Primary output dir is " + outDir);
@@ -466,7 +472,9 @@ namespace MinBuild
 
             LogProjectMessage(string.Format("Inputs: {0}   Outputs: {1}", inputsFile, outputsFile));
 
-            File.WriteAllLines(inputsFile, inputs);
+            var generalInputs = inputs.Select(x => Path.Combine(WorkDir, x)).Select(y => y.ToLower().Replace(RootDir.ToLower(), ""));
+
+            File.WriteAllLines(inputsFile, generalInputs);
             File.WriteAllLines(outputsFile, outputs);
 
             outputs.Add(inputsFile);

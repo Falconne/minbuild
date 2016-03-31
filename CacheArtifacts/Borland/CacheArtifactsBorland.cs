@@ -16,7 +16,7 @@ namespace MinBuild.Borland
         {
             var inputFiles = ParseInputFiles();
             var outputFiles = GetOutputFiles();
-            WriteSourceMapFile(inputFiles, outputFiles);
+            WriteSourceMapFile(inputFiles, outputFiles, WorkDir);
             return CacheBuildArtifacts(outputFiles, InputHash);
         }
     }

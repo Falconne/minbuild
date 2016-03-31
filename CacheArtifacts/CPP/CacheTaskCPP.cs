@@ -13,8 +13,6 @@ namespace MinBuild
         [Required]
         public string Inputs { protected get; set; }
 
-        public string RootDir { protected get; set; }
-
         protected override string GetCacheType()
         {
             return "cpp";

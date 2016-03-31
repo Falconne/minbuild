@@ -15,7 +15,7 @@ namespace MinBuild.Borland
         public string Makefile { private get; set; }
 
         [Required]
-        public string WorkDir { private get; set; }
+        public string WorkDir { protected get; set; }
 
         protected override string GetCacheType()
         {
