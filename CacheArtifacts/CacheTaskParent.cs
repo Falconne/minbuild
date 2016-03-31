@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -460,6 +461,10 @@ namespace MinBuild
             if (string.IsNullOrWhiteSpace(RootDir))
                 return;
 
+            var rootDirSub = RootDir.ToLower();
+            if (!rootDirSub.EndsWith("\\"))
+                rootDirSub += "\\";
+
             if (inputs.Count == 0 || outputs.Count == 0)
                 return;
 
@@ -472,10 +477,11 @@ namespace MinBuild
 
             LogProjectMessage(string.Format("Inputs: {0}   Outputs: {1}", inputsFile, outputsFile));
 
-            var generalInputs = inputs.Select(x => Path.Combine(WorkDir, x)).Select(y => y.ToLower().Replace(RootDir.ToLower(), ""));
+            var generalInputs = inputs.Select(x => Path.Combine(WorkDir, x)).Select(y => y.ToLower().Replace(rootDirSub, ""));
+            var generalOutputs = outputs.Select(x => Regex.Replace(x, @".*\\", ""));
 
             File.WriteAllLines(inputsFile, generalInputs);
-            File.WriteAllLines(outputsFile, outputs);
+            File.WriteAllLines(outputsFile, generalOutputs);
 
             outputs.Add(inputsFile);
             outputs.Add(outputsFile);
