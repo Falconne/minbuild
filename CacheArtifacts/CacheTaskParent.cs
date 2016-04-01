@@ -254,27 +254,20 @@ namespace MinBuild
                 }
             }
 
-            // If source mapping files exist in cache, copy them to primary output directory
-            var inputMapFile = Path.Combine(cacheOutput, "inputs.mapped");
-            var outputMapFile = Path.Combine(cacheOutput, "outputs.mapped");
-            LogProjectMessage("Checking for mapped file " + inputMapFile + " and " + outputMapFile);
-            if (File.Exists(inputMapFile) && File.Exists(outputMapFile))
+            // If source mapping file exist in cache, copy to primary output directory
+            var mapFile = Directory.GetFiles(cacheOutput, "*.mapped").FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(mapFile))
             {
+                LogProjectMessage("Map file found: " + mapFile);
                 var primaryOutput = outputFiles.FirstOrDefault();
                 var outDir = Path.GetDirectoryName(primaryOutput) ?? "";
                 LogProjectMessage("Primary output dir is " + outDir);
-                var inputMapFileDest = Path.Combine(outDir, "inputs.mapped");
-                var outputMapFileDest = Path.Combine(outDir, "outputs.mapped");
+                var mapFileDest = Path.Combine(outDir, Path.GetFileName(mapFile));
 
-                if (File.Exists(inputMapFileDest))
-                    File.Delete(inputMapFileDest);
-                if (File.Exists(outputMapFileDest))
-                    File.Delete(outputMapFileDest);
+                Directory.GetFiles(outDir, "*.mapped").ToList().ForEach((File.Delete));
 
-                LogProjectMessage("Copying " + inputMapFile + " to " + inputMapFileDest);
-                File.Copy(inputMapFile, inputMapFileDest);
-                LogProjectMessage("Copying " + outputMapFile + " to " + outputMapFileDest);
-                File.Copy(outputMapFile, outputMapFileDest);
+                LogProjectMessage("Copying " + mapFile + " to " + mapFileDest);
+                File.Copy(mapFile, mapFileDest);
             }
 
             restoreSuccessful = true;
@@ -461,6 +454,7 @@ namespace MinBuild
             if (string.IsNullOrWhiteSpace(RootDir))
                 return;
 
+            var ignoredOutputs = new[] { ".pdb", ".map", ".cs" };
             var rootDirSub = RootDir.ToLower();
             if (!rootDirSub.EndsWith("\\"))
                 rootDirSub += "\\";
@@ -472,19 +466,15 @@ namespace MinBuild
             var outDir = Path.GetDirectoryName(primaryOutput) ?? "";
             LogProjectMessage("Primary output dir is " + outDir);
 
-            var inputsFile = Path.Combine(outDir, "inputs.mapped");
-            var outputsFile = Path.Combine(outDir, "outputs.mapped");
+            var mapFile = Path.Combine(outDir, Guid.NewGuid() + ".mapped");
 
-            LogProjectMessage(string.Format("Inputs: {0}   Outputs: {1}", inputsFile, outputsFile));
+            var generalInputs = inputs.Select(x => Path.Combine(WorkDir, x)).Select(y => y.ToLower().Replace(rootDirSub, "")).Select(z => "INP:" + z);
+            var generalOutputs = outputs.Where(y => !ignoredOutputs.Contains(Path.GetExtension(y).ToLower())).Select(x => Regex.Replace(x, @".*\\", "")).Select(z => "OUT:" + z);
 
-            var generalInputs = inputs.Select(x => Path.Combine(WorkDir, x)).Select(y => y.ToLower().Replace(rootDirSub, ""));
-            var generalOutputs = outputs.Select(x => Regex.Replace(x, @".*\\", ""));
+            File.WriteAllLines(mapFile, generalInputs);
+            File.AppendAllLines(mapFile, generalOutputs);
 
-            File.WriteAllLines(inputsFile, generalInputs);
-            File.WriteAllLines(outputsFile, generalOutputs);
-
-            outputs.Add(inputsFile);
-            outputs.Add(outputsFile);
+            outputs.Add(mapFile);
         }
 
         private const long ERROR_SHARING_VIOLATION = 0x20;
