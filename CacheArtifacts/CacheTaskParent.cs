@@ -148,7 +148,7 @@ namespace MinBuild
                     File.Delete(dst);
                 }
 
-                File.Copy(outputFile, dst);
+                CopyWithRetry(outputFile, dst);
             }
 
             var completeMarker = Path.Combine(cacheOutput, "complete");
@@ -242,7 +242,7 @@ namespace MinBuild
                             Directory.CreateDirectory(outputDir);
 
                         LogProjectMessage("Restoring cached file to " + outputFile);
-                        File.Copy(src, outputFile);
+                        CopyWithRetry(src, outputFile);
                         File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
                         break;
                     }
@@ -267,11 +267,29 @@ namespace MinBuild
                 Directory.GetFiles(outDir, "*.mapped").ToList().ForEach((File.Delete));
 
                 LogProjectMessage("Copying " + mapFile + " to " + mapFileDest);
-                File.Copy(mapFile, mapFileDest);
+                CopyWithRetry(mapFile, mapFileDest);
             }
 
             restoreSuccessful = true;
             return inputHash;
+        }
+
+        private void CopyWithRetry(string src, string dest)
+        {
+            while (true)
+            {
+                try
+                {
+                    File.Copy(src, dest);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    Log.LogWarning("Error writing to " + dest + ", will retry:");
+                    Log.LogWarning(e.Message);
+                    Thread.Sleep(1000);
+                }
+            }
         }
 
         // Content hash is the hash of each input file's content, concatenanted then rehashed
@@ -471,9 +489,21 @@ namespace MinBuild
             var generalInputs = inputs.Select(x => Path.Combine(WorkDir, x)).Select(y => y.ToLower().Replace(rootDirSub, "")).Select(z => "INP:" + z);
             var generalOutputs = outputs.Where(y => !ignoredOutputs.Contains(Path.GetExtension(y).ToLower())).Select(x => Regex.Replace(x, @".*\\", "")).Select(z => "OUT:" + z);
 
-            File.WriteAllLines(mapFile, generalInputs);
-            File.AppendAllLines(mapFile, generalOutputs);
-
+            while (true)
+            {
+                try
+                {
+                    File.WriteAllLines(mapFile, generalInputs);
+                    File.AppendAllLines(mapFile, generalOutputs);
+                    break;
+                }
+                catch (IOException e)
+                {
+                    Log.LogWarning("Error writing to " + mapFile + ", will retry:");
+                    Log.LogWarning(e.Message);
+                    Thread.Sleep(1000);
+                }
+            }
             outputs.Add(mapFile);
         }
 
