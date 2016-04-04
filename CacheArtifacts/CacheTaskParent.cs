@@ -265,8 +265,6 @@ namespace MinBuild
                 LogProjectMessage("Primary output dir is " + outDir);
                 var mapFileDest = Path.Combine(outDir, Path.GetFileName(mapFile));
 
-                Directory.GetFiles(outDir, "*.mapped").ToList().ForEach((File.Delete));
-
                 CopyWithRetry(mapFile, mapFileDest);
             }
 
