@@ -136,7 +136,14 @@ namespace MinBuild
             if (string.IsNullOrWhiteSpace(cacheOutput)) return true;
             LogProjectMessage("Caching artifacts to " + cacheOutput);
             if (!Directory.Exists(cacheOutput))
+            {
                 Directory.CreateDirectory(cacheOutput);
+            }
+            else
+            {
+                LogProjectMessage("Removing existing cache dir");
+                Directory.Delete(cacheOutput, true);
+            }
 
             foreach (var outputFile in outputFiles)
             {
