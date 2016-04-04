@@ -291,19 +291,22 @@ namespace MinBuild
 
         private void CopyWithRetry(string src, string dst)
         {
-            LogProjectMessage("Copying " + src + " to " + dst);
             var retries = 600;
             while (true)
             {
                 try
                 {
                     if (File.Exists(dst))
+                    {
+                        LogProjectMessage("Deleting existing file " + dst);
                         File.Delete(dst);
+                    }
 
+                    LogProjectMessage("Copying " + src + " to " + dst);
                     File.Copy(src, dst);
                     return;
                 }
-                catch (Exception e)
+                catch (IOException e)
                 {
                     Log.LogWarning("Error writing to " + dst);
                     Log.LogWarning(e.Message);
