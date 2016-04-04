@@ -246,28 +246,14 @@ namespace MinBuild
                     return inputHash;
                 }
 
-                while (true)
-                {
-                    try
-                    {
-                        if (File.Exists(outputFile))
-                            File.Delete(outputFile);
+                var outputDir = Path.GetDirectoryName(outputFile);
+                if (!Directory.Exists(outputDir))
+                    Directory.CreateDirectory(outputDir);
 
-                        var outputDir = Path.GetDirectoryName(outputFile);
-                        if (!Directory.Exists(outputDir))
-                            Directory.CreateDirectory(outputDir);
-
-                        LogProjectMessage("Restoring cached file to " + outputFile);
-                        CopyWithRetry(src, outputFile);
-                        File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
-                        break;
-                    }
-                    catch (IOException e)
-                    {
-                        Log.LogWarning(string.Format("Can't modify {0}, retrying...", e.Message));
-                        Thread.Sleep(100);
-                    }
-                }
+                LogProjectMessage("Restoring cached file to " + outputFile);
+                CopyWithRetry(src, outputFile);
+                File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
+                break;
             }
 
             // If source mapping file exist in cache, copy to primary output directory
