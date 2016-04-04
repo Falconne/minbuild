@@ -253,7 +253,6 @@ namespace MinBuild
                 LogProjectMessage("Restoring cached file to " + outputFile);
                 CopyWithRetry(src, outputFile);
                 File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
-                break;
             }
 
             // If source mapping file exist in cache, copy to primary output directory
