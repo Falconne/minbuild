@@ -296,6 +296,7 @@ namespace MinBuild
                 {
                     Log.LogWarning("Error writing to " + dst);
                     Log.LogWarning(e.Message);
+                    Log.LogWarning(e.StackTrace);
                     if (--retries <= 0)
                     {
                         Log.LogError("Stopping build");
