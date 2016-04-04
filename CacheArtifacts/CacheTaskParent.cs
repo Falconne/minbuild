@@ -135,11 +135,7 @@ namespace MinBuild
             var cacheOutput = Path.Combine(BranchCacheLocation, cacheHash);
             if (string.IsNullOrWhiteSpace(cacheOutput)) return;
             LogProjectMessage("Caching artifacts to " + cacheOutput);
-            if (!Directory.Exists(cacheOutput))
-            {
-                Directory.CreateDirectory(cacheOutput);
-            }
-            else
+            if (Directory.Exists(cacheOutput))
             {
                 LogProjectMessage("Removing existing cache dir");
                 var retries = 10;
@@ -164,7 +160,8 @@ namespace MinBuild
                     }
                 }
             }
-
+            Directory.CreateDirectory(cacheOutput);
+            
             foreach (var outputFile in outputFiles)
             {
                 LogProjectMessage("\t" + outputFile);
