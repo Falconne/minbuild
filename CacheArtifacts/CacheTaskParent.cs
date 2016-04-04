@@ -126,14 +126,14 @@ namespace MinBuild
 
         protected string PrecomputedCacheLocation { get { return Path.Combine(CacheLocation, "Precomputed"); } }
 
-        // Copy the built output files to the appropriate cache directory based on the input hash
-        protected bool CacheBuildArtifacts(IList<string> outputFiles, string cacheHash)
+        // Copy the built output files to the appropriate cache directory based on the input hash.
+        protected void CacheBuildArtifacts(IList<string> outputFiles, string cacheHash)
         {
             if (ShouldSkipCache(outputFiles))
-                return true;
+                return;
 
             var cacheOutput = Path.Combine(BranchCacheLocation, cacheHash);
-            if (string.IsNullOrWhiteSpace(cacheOutput)) return true;
+            if (string.IsNullOrWhiteSpace(cacheOutput)) return;
             LogProjectMessage("Caching artifacts to " + cacheOutput);
             if (!Directory.Exists(cacheOutput))
             {
@@ -142,7 +142,27 @@ namespace MinBuild
             else
             {
                 LogProjectMessage("Removing existing cache dir");
-                Directory.Delete(cacheOutput, true);
+                var retries = 10;
+                while (true)
+                {
+                    try
+                    {
+                        Directory.Delete(cacheOutput, true);
+                        break;
+                    }
+                    catch (IOException e)
+                    {
+                        Log.LogWarning("Cannot delete " + cacheOutput);
+                        if (--retries <= 10)
+                        {
+                            Log.LogWarning("Aborting cache");
+                            return;
+                        }
+
+                        Log.LogWarning("Will retry");
+                        Thread.Sleep(1000);
+                    }
+                }
             }
 
             foreach (var outputFile in outputFiles)
@@ -154,8 +174,6 @@ namespace MinBuild
 
             var completeMarker = Path.Combine(cacheOutput, "complete");
             File.Create(completeMarker).Close();
-
-            return true;
         }
 
         protected string RestoreCachedArtifactsIfPossible(IList<string> inputFiles, IList<string> outputFiles,

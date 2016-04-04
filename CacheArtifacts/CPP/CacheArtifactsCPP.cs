@@ -97,7 +97,8 @@ namespace MinBuild
             inputFilesHash = GetHashForContent(inputFilesHash + BuildConfig);
 
             // Cache the actual built binaries
-            return CacheBuildArtifacts(realOutputs, inputFilesHash);
+            CacheBuildArtifacts(realOutputs, inputFilesHash);
+            return true;
         }
     }
 }
