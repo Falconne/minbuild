@@ -142,12 +142,6 @@ namespace MinBuild
             {
                 LogProjectMessage("\t" + outputFile);
                 var dst = Path.Combine(cacheOutput, Path.GetFileName(outputFile));
-                if (File.Exists(dst))
-                {
-                    Log.LogWarning(ProjectName + ": Overwriting cached file " + dst);
-                    File.Delete(dst);
-                }
-
                 CopyWithRetry(outputFile, dst);
             }
 
@@ -266,7 +260,6 @@ namespace MinBuild
 
                 Directory.GetFiles(outDir, "*.mapped").ToList().ForEach((File.Delete));
 
-                LogProjectMessage("Copying " + mapFile + " to " + mapFileDest);
                 CopyWithRetry(mapFile, mapFileDest);
             }
 
@@ -274,19 +267,31 @@ namespace MinBuild
             return inputHash;
         }
 
-        private void CopyWithRetry(string src, string dest)
+        private void CopyWithRetry(string src, string dst)
         {
+            LogProjectMessage("Copying " + src + " to " + dst);
+            var retries = 600;
             while (true)
             {
                 try
                 {
-                    File.Copy(src, dest);
+                    if (File.Exists(dst))
+                        File.Delete(dst);
+
+                    File.Copy(src, dst);
                     return;
                 }
                 catch (Exception e)
                 {
-                    Log.LogWarning("Error writing to " + dest + ", will retry:");
+                    Log.LogWarning("Error writing to " + dst);
                     Log.LogWarning(e.Message);
+                    if (--retries <= 0)
+                    {
+                        Log.LogError("Stopping build");
+                        throw;
+                    }
+
+                    Log.LogWarning("Will retry");
                     Thread.Sleep(1000);
                 }
             }
