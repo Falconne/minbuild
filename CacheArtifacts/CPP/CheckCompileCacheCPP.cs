@@ -28,7 +28,7 @@ namespace MinBuild
             }
 
             // Reset deletion timer on tlog cache directory
-            File.SetLastWriteTimeUtc(completeMarker, DateTime.UtcNow);
+            TouchFileWithRetry(completeMarker, DateTime.UtcNow);
 
             EvaluateLinkTLogFilename(tlogCacheLocation);
             IList<string> realInputs, realOutputs;

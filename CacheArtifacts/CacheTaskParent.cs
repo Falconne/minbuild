@@ -252,7 +252,7 @@ namespace MinBuild
 
                 LogProjectMessage("Restoring cached file to " + outputFile);
                 CopyWithRetry(src, outputFile);
-                File.SetLastWriteTimeUtc(outputFile, DateTime.UtcNow);
+                TouchFileWithRetry(outputFile, DateTime.UtcNow);
             }
 
             // If source mapping file exist in cache, copy to primary output directory
@@ -293,7 +293,32 @@ namespace MinBuild
                 {
                     Log.LogWarning("Error writing to " + dst);
                     Log.LogWarning(e.Message);
-                    Log.LogWarning(e.StackTrace);
+                    if (--retries <= 0)
+                    {
+                        Log.LogError("Stopping build");
+                        throw;
+                    }
+
+                    Log.LogWarning("Will retry");
+                    Thread.Sleep(1000);
+                }
+            }
+        }
+
+        protected void TouchFileWithRetry(string file, DateTime newTimeUTC)
+        {
+            var retries = 600;
+            while (true)
+            {
+                try
+                {
+                    File.SetLastWriteTimeUtc(file, newTimeUTC);
+                    return;
+                }
+                catch (IOException e)
+                {
+                    Log.LogWarning("Error touching " + file);
+                    Log.LogWarning(e.Message);
                     if (--retries <= 0)
                     {
                         Log.LogError("Stopping build");
@@ -440,15 +465,8 @@ namespace MinBuild
                 return hash;
             }
 
-            try
-            {
-                // Used to ensure we recompute if the source file is modified
-                File.SetLastWriteTime(newHashFile, fi.LastWriteTime);
-            }
-            catch (IOException)
-            {
-                Log.LogWarning("Cannot set last modified time on " + newHashFile);
-            }
+            // Used to ensure we recompute if the source file is modified
+            TouchFileWithRetry(newHashFile, fi.LastWriteTimeUtc);
 
             return hash;
         }
@@ -476,7 +494,7 @@ namespace MinBuild
 
             LogProjectMessage("Retrieving cached artifacts from " + cacheOutput);
             // Touch to reset deletion timer
-            Directory.SetLastWriteTimeUtc(cacheOutput, DateTime.UtcNow);
+            TouchFileWithRetry(cacheOutput, DateTime.UtcNow);
 
             return cacheOutput;
         }
