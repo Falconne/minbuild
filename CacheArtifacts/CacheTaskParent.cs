@@ -494,8 +494,14 @@ namespace MinBuild
 
             LogProjectMessage("Retrieving cached artifacts from " + cacheOutput);
             // Touch to reset deletion timer
-            TouchFileWithRetry(cacheOutput, DateTime.UtcNow);
-
+            try
+            {
+                Directory.SetLastWriteTimeUtc(cacheOutput, DateTime.UtcNow);
+            }
+            catch (IOException e)
+            {
+                Log.LogError("Cannot update cache timestamp on " + cacheOutput);
+            }
             return cacheOutput;
         }
 
