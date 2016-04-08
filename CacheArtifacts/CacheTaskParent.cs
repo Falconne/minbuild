@@ -39,7 +39,7 @@ namespace MinBuild
         public string RootDir { protected get; set; }
 
         public string SkipCacheForProjects { private get; set; }
-        
+
 
         protected IList<string> ParseFileList(string raw)
         {
@@ -111,7 +111,7 @@ namespace MinBuild
             return false;
         }
 
-        protected void LogProjectMessage(string message, 
+        protected void LogProjectMessage(string message,
             MessageImportance importance = MessageImportance.High)
         {
             Log.LogMessage(importance, string.Format("{0}: {1}", ProjectName, message));
@@ -146,7 +146,7 @@ namespace MinBuild
                         Directory.Delete(cacheOutput, true);
                         break;
                     }
-                    catch (IOException e)
+                    catch (Exception e)
                     {
                         Log.LogWarning("Cannot delete " + cacheOutput);
                         if (--retries <= 10)
@@ -161,7 +161,7 @@ namespace MinBuild
                 }
             }
             Directory.CreateDirectory(cacheOutput);
-            
+
             foreach (var outputFile in outputFiles)
             {
                 LogProjectMessage("\t" + outputFile);
@@ -289,8 +289,11 @@ namespace MinBuild
                     File.Copy(src, dst);
                     return;
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
+                    if (!(e is IOException || e is UnauthorizedAccessException))
+                        throw;
+
                     Log.LogWarning("Error writing to " + dst);
                     Log.LogWarning(e.Message);
                     if (--retries <= 0)
@@ -315,8 +318,11 @@ namespace MinBuild
                     File.SetLastWriteTimeUtc(file, newTimeUTC);
                     return;
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
+                    if (!(e is IOException || e is UnauthorizedAccessException))
+                        throw;
+
                     Log.LogWarning("Error touching " + file);
                     Log.LogWarning(e.Message);
                     if (--retries <= 0)
@@ -498,7 +504,7 @@ namespace MinBuild
             {
                 Directory.SetLastWriteTimeUtc(cacheOutput, DateTime.UtcNow);
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 Log.LogError("Cannot update cache timestamp on " + cacheOutput);
             }
@@ -535,8 +541,11 @@ namespace MinBuild
                     File.AppendAllLines(mapFile, generalOutputs);
                     break;
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
+                    if (!(e is IOException || e is UnauthorizedAccessException))
+                        throw;
+
                     Log.LogWarning("Error writing to " + mapFile + ", will retry:");
                     Log.LogWarning(e.Message);
                     Thread.Sleep(1000);
