@@ -86,7 +86,7 @@ namespace MinBuild
             }
         }
 
-        protected bool ShouldSkipCache(IEnumerable<string> outputFiles)
+        protected bool ShouldSkipCache(IList<string> outputFiles)
         {
             if (outputFiles != null)
             {
@@ -98,6 +98,11 @@ namespace MinBuild
                     duplicates.ForEach(x => Log.LogWarning("\t" + x));
                     return true;
                 }
+
+                // TODO move to custom assembly
+                // TouchPoint branding is used for version display on splash screens
+                if (outputFiles.Any(file => file.ToLower().Contains("touchpoint.branding")))
+                    return true;
             }
 
             if (!string.IsNullOrWhiteSpace(SkipCacheForProjects))
@@ -146,7 +151,7 @@ namespace MinBuild
                         Directory.Delete(cacheOutput, true);
                         break;
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         Log.LogWarning("Cannot delete " + cacheOutput);
                         if (--retries <= 10)
