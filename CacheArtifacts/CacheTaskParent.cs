@@ -509,7 +509,7 @@ namespace MinBuild
             {
                 Directory.SetLastWriteTimeUtc(cacheOutput, DateTime.UtcNow);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Log.LogError("Cannot update cache timestamp on " + cacheOutput);
             }

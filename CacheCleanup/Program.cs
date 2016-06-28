@@ -38,13 +38,6 @@ namespace CacheCleanup
             foreach (var directory in allDirs)
             {
                 logger.Debug("Check {0}", directory);
-                var completeMarker = Path.Combine(directory, "complete");
-                if (!File.Exists(completeMarker))
-                {
-                    // FIXME check if directory is orphaned
-                    logger.Warn("Completion marker not found, skipping");
-                    continue;
-                }
                 var dirTime = new DirectoryInfo(directory).LastWriteTimeUtc;
                 logger.Debug("Directory write time is {0}", dirTime);
                 var diff = now - dirTime;
