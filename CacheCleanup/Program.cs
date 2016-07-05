@@ -24,7 +24,7 @@ namespace CacheCleanup
             {
                 foreach (var version in Directory.GetDirectories(type))
                 {
-                    logger.Info("Cleaning cache under: " + version);
+                    logger.Debug("Cleaning cache under: " + version);
                     CheckAndCleanVersionDir(version);
                 }
             }
