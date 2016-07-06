@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NLog;
 
 namespace CacheCleanup
@@ -44,7 +40,7 @@ namespace CacheCleanup
                 logger.Debug("Age in days: " + diff.Days);
                 if (diff.Days > 1)
                 {
-                    logger.Info("Deleting old directory {0} ", directory);
+                    logger.Debug("Deleting old directory {0} ", directory);
                     try
                     {
                         Directory.Delete(directory, true);
