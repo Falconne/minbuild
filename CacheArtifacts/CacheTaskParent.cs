@@ -127,9 +127,9 @@ namespace MinBuild
         // We use a separate cache for each major version so we don't have to worry about version info.
         // That is, a cached file from any branch in this major version is ok to use.
         // TODO Rename Branch to Release
-        protected string BranchCacheLocation { get { return Path.Combine(CacheLocation, BranchVersion); } }
+        protected string BranchCacheLocation => Path.Combine(CacheLocation, BranchVersion);
 
-        protected string PrecomputedCacheLocation { get { return Path.Combine(CacheLocation, "Precomputed"); } }
+        protected string PrecomputedCacheLocation => Path.Combine(CacheLocation, "Precomputed");
 
         // Copy the built output files to the appropriate cache directory based on the input hash.
         protected void CacheBuildArtifacts(IList<string> outputFiles, string cacheHash)
@@ -172,6 +172,14 @@ namespace MinBuild
                 LogProjectMessage("\t" + outputFile);
                 var dst = Path.Combine(cacheOutput, Path.GetFileName(outputFile));
                 CopyWithRetry(outputFile, dst);
+            }
+
+            var branchName = Environment.GetEnvironmentVariable("CURRENT_BRANCH");
+            if (branchName != null)
+            {
+                var branchNameDst = Path.Combine(cacheOutput, "original_branch_name.txt");
+                Log.LogMessage($"Writing branchname {branchName} to {branchNameDst}");
+                File.WriteAllText(branchNameDst, branchName);
             }
 
             var completeMarker = Path.Combine(cacheOutput, "complete");
@@ -247,7 +255,7 @@ namespace MinBuild
                 var src = Path.Combine(cacheOutput, filename);
                 if (!File.Exists(src))
                 {
-                    LogProjectMessage(string.Format("\t\tCache file {0} missing, recompiling...", filename));
+                    LogProjectMessage($"\t\tCache file {filename} missing, recompiling...");
                     return inputHash;
                 }
 
@@ -271,6 +279,14 @@ namespace MinBuild
                 var mapFileDest = Path.Combine(outDir, Path.GetFileName(mapFile));
 
                 CopyWithRetry(mapFile, mapFileDest);
+            }
+
+            var originalBranchFile = Path.Combine(cacheOutput, "original_branch_name.txt");
+            if (File.Exists(originalBranchFile))
+            {
+                Log.LogMessage($"Reading original branch name from {originalBranchFile}");
+                var originalBranchName = File.ReadAllText(originalBranchFile);
+                Log.LogMessage($"Original branch: {originalBranchName}");
             }
 
             restoreSuccessful = true;
