@@ -49,11 +49,10 @@ namespace MinBuild
 
             // Copy built tracking logs to tlog cache directory
             var buildTLogFiles = Directory.GetFiles(LocalTlogLocation, "*.tlog");
-            LogProjectMessage(string.Format("Copying built tlogs from {0} to {1}", 
-                LocalTlogLocation, tlogCacheLocation));
+            LogProjectMessage($"Copying built tlogs from {LocalTlogLocation} to {tlogCacheLocation}");
             foreach (var buildTLogFile in buildTLogFiles)
             {
-                LogProjectMessage(string.Format("Removing absolute paths in {0}:", buildTLogFile), MessageImportance.Low);
+                LogProjectMessage($"Removing absolute paths in {buildTLogFile}:", MessageImportance.Low);
                 var sourceLines = File.ReadAllLines(buildTLogFile).Select(x => x.ToUpper()).ToList();
                 if (!string.IsNullOrWhiteSpace(RootDir))
                 {
@@ -63,7 +62,7 @@ namespace MinBuild
                     sourceLines = sourceLines.Select(x => x.Replace(RootDir.ToUpper(), "")).ToList();
                 }
 
-                LogProjectMessage(string.Format("Writing cleaned tlog {0} to {1}", buildTLogFile, tlogCacheLocation), 
+                LogProjectMessage($"Writing cleaned tlog {buildTLogFile} to {tlogCacheLocation}", 
                     MessageImportance.Low);
                 var destination = Path.Combine(tlogCacheLocation, Path.GetFileName(buildTLogFile));
                 try
