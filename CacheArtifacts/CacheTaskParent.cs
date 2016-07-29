@@ -366,8 +366,8 @@ namespace MinBuild
         protected string GetHashForFiles(IList<string> files)
         {
             var sb = new StringBuilder(48 * (files.Count() + 5));
-            var priority = (ShowContentHashes) ? MessageImportance.High : MessageImportance.Low;
-            LogProjectMessage(string.Format("Generating hashes for {0} files", files.Count), priority);
+            var priority = MessageImportance.High; //(ShowContentHashes) ? MessageImportance.High : MessageImportance.Low;
+            LogProjectMessage($"Generating hashes for {files.Count} files", priority);
             foreach (var file in files)
             {
                 LogProjectMessage("\t\t\tInput: " + file, priority);
