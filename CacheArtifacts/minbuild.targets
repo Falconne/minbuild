@@ -105,8 +105,7 @@
         <PropertyGroup>
             <RestoreSuccessful>False</RestoreSuccessful>
             <InputFilesCPP>
-                @(CLCompile);
-                $(ProjectPath)
+                @(CLCompile)
             </InputFilesCPP>
         </PropertyGroup>
 
@@ -120,6 +119,7 @@
             BuildConfig="$(Configuration)|$(PlatformName)"
             RootDir="$(RootDir)"
             SkipCacheForProjects="$(SkipCacheForProjects)"
+            ProjectPath="$(ProjectPath)"
             Inputs="$(InputFilesCPP)">
 
             <Output TaskParameter="RestoreSuccessful" PropertyName="RestoreSuccessful"/>
@@ -145,6 +145,7 @@
             AlwaysRestoreCache="$(AlwaysRestoreCache)"
             BuildConfig="$(Configuration)|$(PlatformName)"
             SkipCacheForProjects="$(SkipCacheForProjects)"
+            ProjectPath="$(ProjectPath)"
             ProjectName="$(ProjectName)" />
     </Target>
 

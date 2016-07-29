@@ -13,6 +13,9 @@ namespace MinBuild
         [Required]
         public string Inputs { protected get; set; }
 
+        [Required]
+        public string ProjectPath { protected get; set; }
+
         protected override string GetCacheType()
         {
             return "cpp";
@@ -21,6 +24,7 @@ namespace MinBuild
         protected string GetTLogCacheLocation()
         {
             var inputFiles = ParseFileList(Inputs);
+            inputFiles.Add(ProjectPath);
             LogProjectMessage("Parsed Inputs:");
             foreach (var inputFile in inputFiles)
             {
@@ -47,6 +51,7 @@ namespace MinBuild
             LogProjectMessage("Link tlog evaluated as " + LinkTLogFilename, MessageImportance.Normal);
         }
 
+        // TLOGs are weird. They need creative parsing.
         protected bool ParseRealInputsAndOutputs(string tlogCacheLocation, out IList<string> realInputs, out IList<string> realOutputs, bool discardFullPaths)
         {
             realInputs = null;
@@ -56,7 +61,7 @@ namespace MinBuild
                 return false;
 
             LogProjectMessage("Parsing real inputs and outputs from tlogs.", MessageImportance.Low);
-            var allInputs = new List<string>();
+            var allInputs = new List<string> {ProjectPath};
             var inputTLogFiles = Directory.GetFiles(tlogCacheLocation, "*.read.*.tlog");
             foreach (var inputTLogFile in inputTLogFiles)
             {
