@@ -288,6 +288,10 @@ namespace MinBuild
                 var originalBranchName = File.ReadAllText(originalBranchFile);
                 Log.LogMessage($"Original branch: {originalBranchName}");
             }
+            else
+            {
+                LogProjectMessage("Original branch name not found at " + originalBranchFile);
+            }
 
             restoreSuccessful = true;
             return inputHash;

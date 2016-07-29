@@ -20,7 +20,14 @@ namespace MinBuild
 
         protected string GetTLogCacheLocation()
         {
+            LogProjectMessage("Raw Inputs: " + Inputs);
             var inputFiles = ParseFileList(Inputs);
+            LogProjectMessage("Parsed Inputs:");
+            foreach (var inputFile in inputFiles)
+            {
+                LogProjectMessage(inputFile);
+            }
+
             CheckForMissingInputs(inputFiles);
             var cppInputHash = GetHashForFiles(inputFiles);
             cppInputHash = GetHashForContent(cppInputHash + BuildConfig);
