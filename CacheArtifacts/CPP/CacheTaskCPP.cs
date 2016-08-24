@@ -119,7 +119,7 @@ namespace MinBuild
         {
             if (!File.Exists(tlog))
             {
-                LogProjectMessage(tlog + " not found, recompiling...");
+                LogProjectMessage(tlog + " not found.");
                 return null;
             }
 
@@ -137,6 +137,7 @@ namespace MinBuild
             var pfDir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToUpper();
             pfDir = pfDir.Replace(" (X86)", "");
 
+            // FIXME use TEMP env variable
             filteredLines = filteredLines.Select(x => x.Trim().ToUpper()).Where(y => !y.Contains(@"\BUILDAGENT\TEMP"));
             if (discardFullPaths)
             {
@@ -153,6 +154,8 @@ namespace MinBuild
                 !x.EndsWith(".RC") &&
                 !x.EndsWith(".TLH") &&
                 !x.EndsWith(".TLI") &&
+                !x.EndsWith(".TRN") &&
+                !x.Contains("\\APPLICATIONINSIGHTS\\") &&
                 !x.StartsWith(windowsDir) &&
                 !x.StartsWith(pfDir) &&
                 !x.EndsWith(".OBJ"));
