@@ -155,7 +155,10 @@ namespace MinBuild
                 !x.EndsWith(".TLH") &&
                 !x.EndsWith(".TLI") &&
                 !x.EndsWith(".TRN") &&
+                !x.EndsWith(".TMP") &&
                 !x.Contains("\\APPLICATIONINSIGHTS\\") &&
+                !x.Contains("\\APPDATA\\ROAMING\\MICROSOFT\\") && // FIXME use env vars
+                !x.Contains("\\APPDATA\\LOCAL\\MICROSOFT\\") && // FIXME use env vars
                 !x.StartsWith(windowsDir) &&
                 !x.StartsWith(pfDir) &&
                 !x.EndsWith(".OBJ"));
