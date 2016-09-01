@@ -119,18 +119,7 @@ namespace MinBuild
         protected void LogProjectMessage(string message,
             MessageImportance importance = MessageImportance.High)
         {
-            try
-            {
-                Log.LogMessage(importance, string.Format("{0}: {1}", ProjectName, message));
-            }
-            catch (Exception e)
-            {
-                Console.Error.WriteLine("Loggin error");
-                Console.Error.WriteLine(e.StackTrace);
-                Log.LogMessage(MessageImportance.High, "Logging error:");
-                Log.LogMessage(MessageImportance.High, e.StackTrace);
-                throw;
-            }
+            Log.LogMessage(importance, string.Format("{0}: {1}", ProjectName, message));
         }
 
         protected abstract string GetCacheType();
