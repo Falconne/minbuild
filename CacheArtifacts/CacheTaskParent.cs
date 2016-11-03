@@ -272,7 +272,7 @@ namespace MinBuild
             var mapFile = Directory.GetFiles(cacheOutput, "*.mapped").FirstOrDefault();
             if (!string.IsNullOrWhiteSpace(mapFile))
             {
-                LogProjectMessage("Map file found: " + mapFile);
+                LogProjectMessage("Map file found: " + mapFile, MessageImportance.Low);
                 var primaryOutput = outputFiles.FirstOrDefault();
                 var outDir = Path.GetDirectoryName(primaryOutput) ?? "";
                 LogProjectMessage("Primary output dir is " + outDir);
@@ -284,9 +284,10 @@ namespace MinBuild
             var originalBranchFile = Path.Combine(cacheOutput, "original_branch_name.txt");
             if (File.Exists(originalBranchFile))
             {
-                Log.LogMessage($"Reading original branch name from {originalBranchFile}");
+                LogProjectMessage($"Reading original branch name from {originalBranchFile}", 
+                    MessageImportance.Low);
                 var originalBranchName = File.ReadAllText(originalBranchFile);
-                Log.LogMessage($"Original branch: {originalBranchName}");
+                LogProjectMessage($"Original branch: {originalBranchName}");
             }
             else
             {
