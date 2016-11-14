@@ -47,11 +47,11 @@ namespace MinBuild
             var pfDir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToLower();
             pfDir = pfDir.Replace(" (x86)", "");
 
-            var inputFiles =
+            var files =
                 raw.Split(';').Where(x =>
                     !string.IsNullOrWhiteSpace(x)).Select(x => x.ToLower().Trim());
 
-            var uniqueFiles = inputFiles.Where(x =>
+            var uniqueFiles = files.Where(x =>
                 !x.StartsWith(pfDir) &&
                 !x.EndsWith("assemblyattributes.cs") &&
                 !x.EndsWith("assemblyinfo.cs") &&
