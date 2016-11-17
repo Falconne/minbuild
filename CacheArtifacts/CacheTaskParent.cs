@@ -54,7 +54,6 @@ namespace MinBuild
             var uniqueFiles = files.Where(x =>
                 !x.StartsWith(pfDir) &&
                 !x.EndsWith("assemblyattributes.cs") &&
-                !x.EndsWith("assemblyinfo.cs") &&
                 !x.StartsWith(windowsDir) &&
                 !x.EndsWith(".rc")).ToList();
 
@@ -409,7 +408,31 @@ namespace MinBuild
             }
 
             var bytes = GetBytesWithRetry(file);
-            return GetHashForContent(bytes);
+
+            if (!file.ToLower().EndsWith("\\assemblyinfo.cs"))
+                return GetHashForContent(bytes);
+
+            // Ignore version number changes
+            var versionLineKeys = new[]
+            {
+                "assemblyversion",
+                "assemblyfileversion",
+                "assemblyinformationalversion"
+            };
+
+            // TODO Firgure out actual encoding
+            var content = Encoding.UTF8.GetString(bytes).Split(new[] { "\r\n", "\n" }, 
+                StringSplitOptions.None);
+            var filteredContent = new List<string>();
+            foreach (var line in content)
+            {
+                var lineAsLower = line.ToLower();
+                if (versionLineKeys.Any(key => lineAsLower.Contains(key)))
+                    continue;
+                filteredContent.Add(line);
+            }
+
+            return GetHashForContent(string.Join(Environment.NewLine, filteredContent));
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage(
