@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using Microsoft.Build.Framework;
-using Microsoft.Build.Framework.XamlTypes;
+﻿using Microsoft.Build.Framework;
 
 namespace MinBuild
 {
