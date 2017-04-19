@@ -54,8 +54,7 @@ namespace MinBuild
             var uniqueFiles = files.Where(x =>
                 !x.StartsWith(pfDir) &&
                 !x.EndsWith("assemblyattributes.cs") &&
-                !x.StartsWith(windowsDir) &&
-                !x.EndsWith(".rc")).ToList();
+                !x.StartsWith(windowsDir)).ToList();
 
             // Generated project names are random, so don't include them in the sorting. They would move
             // around from build to build and change the content hash.
@@ -365,7 +364,7 @@ namespace MinBuild
         // Content hash is the hash of each input file's content, concatenanted then rehashed
         protected string GetHashForFiles(IList<string> files)
         {
-            var sb = new StringBuilder(48 * (files.Count() + 5));
+            var sb = new StringBuilder(48 * (files.Count + 5));
             var priority = ShowContentHashes ? MessageImportance.High : MessageImportance.Low;
             LogProjectMessage($"Generating hashes for {files.Count} files", priority);
             foreach (var file in files)
@@ -409,16 +408,27 @@ namespace MinBuild
 
             var bytes = GetBytesWithRetry(file);
 
-            if (!file.ToLower().EndsWith("\\assemblyinfo.cs"))
+            var filename = Path.GetFileName(file).ToLower();
+            if (!filename.EndsWith("assemblyinfo.cs") &&
+                !filename.EndsWith(".rc") &&
+                !filename.EndsWith(".rc2"))
+            {
                 return GetHashForContent(bytes);
+            }
 
             // Ignore version number changes
             var versionLineKeys = new[]
             {
-                "assemblyversion",
-                "assemblyfileversion",
-                "assemblyinformationalversion"
-            };
+                "AssemblyVersion",
+                "AssemblyFileVersion",
+                "AssemblyInformationalversion",
+                "AssemblyCompany",
+                "AssemblyCopyright",
+                "FILEVERSION",
+                "PRODUCTVERSION",
+                "CompanyName",
+                "LegalCopyright"
+            }.Select(x => x.ToLower()).ToList();
 
             // TODO Firgure out actual encoding
             var content = Encoding.UTF8.GetString(bytes).Split(new[] { "\r\n", "\n" }, 
