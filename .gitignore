@@ -104,3 +104,5 @@ emake*
 *.ecmak_check
 *.ectmp
 NTiTy/Pabx/Load/ScriptAllocation.xml
+
+.vs/
