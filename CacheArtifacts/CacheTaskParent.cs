@@ -54,6 +54,7 @@ namespace MinBuild
             var uniqueFiles = files.Where(x =>
                 !x.StartsWith(pfDir) &&
                 !x.EndsWith("assemblyattributes.cs") &&
+                !x.EndsWith(".corecompileinputs.cache") &&
                 !x.StartsWith(windowsDir)).ToList();
 
             // Generated project names are random, so don't include them in the sorting. They would move
@@ -282,7 +283,7 @@ namespace MinBuild
             var originalBranchFile = Path.Combine(cacheOutput, "original_branch_name.txt");
             if (File.Exists(originalBranchFile))
             {
-                LogProjectMessage($"Reading original branch name from {originalBranchFile}", 
+                LogProjectMessage($"Reading original branch name from {originalBranchFile}",
                     MessageImportance.Low);
                 var originalBranchName = File.ReadAllText(originalBranchFile);
                 LogProjectMessage($"Original branch: {originalBranchName}");
@@ -431,7 +432,7 @@ namespace MinBuild
             }.Select(x => x.ToLower()).ToList();
 
             // TODO Firgure out actual encoding
-            var content = Encoding.UTF8.GetString(bytes).Split(new[] { "\r\n", "\n" }, 
+            var content = Encoding.UTF8.GetString(bytes).Split(new[] { "\r\n", "\n" },
                 StringSplitOptions.None);
             var filteredContent = new List<string>();
             foreach (var line in content)
