@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>MinBuild</id>
+    <version>$version$</version>
+    <authors>Anuradha Dissanayake</authors>
+    <owners>Anuradha Dissanayake</owners>
+    <projectUrl>https://github.com/Falconne/minbuild</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>msbuild task to cache build outputs of C# and C++ projects, for reuse when when the same source is rebuilt</description>
+  </metadata>
+  <files>
+    <file src="bin\*.exe" target="tools" />
+    <file src="bin\*.dll" target="tools" />
+    <file src="bin\*.config" target="tools" />
+  </files>
+</package>
