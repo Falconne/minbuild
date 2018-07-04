@@ -197,6 +197,11 @@ namespace MinBuild
                 throw new Exception("Cache restore called with no output files");
             LogProjectMessage("Recompile requested: " + BuildConfig);
             LogProjectMessage("\tRecompile reason:", MessageImportance.Normal);
+
+            var inputHash = GetHashForFiles(inputFiles);
+            inputHash = GetHashForContent(inputHash + BuildConfig);
+            var cacheOutput = GetExistingCacheDirForHash(inputHash);
+
             var missingOutputFiles = outputFiles.Where(x => !File.Exists(x)).ToList();
             if (missingOutputFiles.Any())
             {
@@ -241,9 +246,6 @@ namespace MinBuild
                 }
             }
 
-            var inputHash = GetHashForFiles(inputFiles);
-            inputHash = GetHashForContent(inputHash + BuildConfig);
-            var cacheOutput = GetExistingCacheDirForHash(inputHash);
             if (string.IsNullOrWhiteSpace(cacheOutput)) return inputHash;
 
             foreach (var outputFile in outputFiles)
