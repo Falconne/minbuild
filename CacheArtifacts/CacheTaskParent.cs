@@ -40,6 +40,7 @@ namespace MinBuild
 
         public string SkipCacheForProjects { private get; set; }
 
+        private IList<string> _versionKeywordsToIgnore;
 
         protected IList<string> ParseFileList(string raw)
         {
@@ -410,28 +411,10 @@ namespace MinBuild
             }
 
             var bytes = GetBytesWithRetry(file);
-
-            var filename = Path.GetFileName(file).ToLower();
-            if (!filename.EndsWith("assemblyinfo.cs") &&
-                !filename.EndsWith(".rc") &&
-                !filename.EndsWith(".rc2"))
+            if (!IsVersionableFile(file))
             {
                 return GetHashForContent(bytes);
             }
-
-            // Ignore version number changes
-            var versionLineKeys = new[]
-            {
-                "AssemblyVersion",
-                "AssemblyFileVersion",
-                "AssemblyInformationalversion",
-                "AssemblyCompany",
-                "AssemblyCopyright",
-                "FILEVERSION",
-                "PRODUCTVERSION",
-                "CompanyName",
-                "LegalCopyright"
-            }.Select(x => x.ToLower()).ToList();
 
             // TODO Firgure out actual encoding
             var content = Encoding.UTF8.GetString(bytes).Split(new[] { "\r\n", "\n" },
@@ -440,7 +423,7 @@ namespace MinBuild
             foreach (var line in content)
             {
                 var lineAsLower = line.ToLower();
-                if (versionLineKeys.Any(key => lineAsLower.Contains(key)))
+                if (GetListOfVersionKeywordsToIgnore().Any(key => lineAsLower.Contains(key)))
                     continue;
                 filteredContent.Add(line);
             }
@@ -624,5 +607,38 @@ namespace MinBuild
             get { return Path.Combine(CacheRoot, GetCacheType()); }
         }
 
+        private bool IsVersionableFile(string file)
+        {
+            var filename = Path.GetFileName(file).ToLower();
+            return filename.EndsWith("assemblyinfo.cs")
+                   || filename.EndsWith(".csproj")
+                   || filename.EndsWith(".rc")
+                   || filename.EndsWith(".rc2");
+        }
+
+        private IEnumerable<string> GetListOfVersionKeywordsToIgnore()
+        {
+            if (_versionKeywordsToIgnore == null)
+            {
+                _versionKeywordsToIgnore = new List<string>
+                {
+                    "AssemblyVersion",
+                    "AssemblyFileVersion",
+                    "AssemblyInformationalversion",
+                    "AssemblyCompany",
+                    "AssemblyCopyright",
+                    "FILEVERSION",
+                    "PRODUCTVERSION",
+                    "CompanyName",
+                    "LegalCopyright",
+                    "<FileVersion>",
+                    "<Version>",
+                    "<AssemblyVersion>",
+                    "<InformationalVersion>"
+                }.Select(x => x.ToLower()).ToList();
+
+            }
+            return _versionKeywordsToIgnore;
+        }
     }
 }
