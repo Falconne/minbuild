@@ -219,7 +219,12 @@ namespace MinBuild
                 LogProjectMessage("\t\tOutput files are:", MessageImportance.Normal);
                 foreach (var outputFile in outputFiles)
                 {
-                    LogProjectMessage("\t\t\t" + Path.GetFullPath(outputFile), MessageImportance.Normal);
+                    var outputFilePath = Path.GetFullPath(outputFile);
+                    LogProjectMessage($"\t\t\t{outputFilePath}", MessageImportance.Normal);
+                    if (ShowContentHashes)
+                    {
+                        GetHashForContent(outputFilePath);
+                    }
                 }
 
                 LogProjectMessage("\t\tOne or more inputs may have changed.", recompileReasonPriority);
