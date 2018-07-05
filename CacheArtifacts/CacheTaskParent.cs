@@ -170,6 +170,10 @@ namespace MinBuild
             foreach (var outputFile in outputFiles)
             {
                 LogProjectMessage("\t" + outputFile);
+                if (ShowContentHashes)
+                {
+                    LogProjectMessage($"Hash: {GetHashForContent(outputFile)}");
+                }
                 var dst = Path.Combine(cacheOutput, Path.GetFileName(outputFile));
                 CopyWithRetry(outputFile, dst);
             }
