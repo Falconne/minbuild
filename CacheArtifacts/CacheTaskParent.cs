@@ -172,7 +172,7 @@ namespace MinBuild
                 LogProjectMessage("\t" + outputFile);
                 if (ShowContentHashes)
                 {
-                    LogProjectMessage($"Hash: {GetHashForContent(outputFile)}");
+                    GetHashForContent(outputFile);
                 }
                 var dst = Path.Combine(cacheOutput, Path.GetFileName(outputFile));
                 CopyWithRetry(outputFile, dst);
@@ -270,6 +270,10 @@ namespace MinBuild
                     Directory.CreateDirectory(outputDir);
 
                 LogProjectMessage("Restoring cached file to " + outputFile);
+                if (ShowContentHashes)
+                {
+                    GetHashForContent(src);
+                }
                 CopyWithRetry(src, outputFile);
                 TouchFileWithRetry(outputFile, DateTime.UtcNow);
             }
