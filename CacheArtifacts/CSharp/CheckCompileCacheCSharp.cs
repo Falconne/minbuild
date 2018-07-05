@@ -24,6 +24,8 @@ namespace MinBuild
 
             InputHash = RestoreCachedArtifactsIfPossible(inputFiles, outputFiles, out var restoreSuccessful);
             RestoreSuccessful = restoreSuccessful;
+            LogProjectMessage($"RestoreSuccessful : {RestoreSuccessful}", MessageImportance.Normal);
+
             LogProjectMessage("InputHash returned: " + InputHash, MessageImportance.Low);
 
             return true;
