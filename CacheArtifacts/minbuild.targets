@@ -80,6 +80,7 @@
             ProjectName="$(ProjectName)">
 
             <Output TaskParameter="InputHash" PropertyName="InputHash"/>
+            <Output TaskParameter="RestoreSuccessful" PropertyName="RestoreSuccessful"/>
         </CheckCompileCacheCSharp>
 
     </Target>
