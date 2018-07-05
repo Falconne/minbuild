@@ -43,8 +43,7 @@ namespace MinBuild
                 return true;
             }
 
-            bool restoreSuccessful;
-            RestoreCachedArtifactsIfPossible(realInputs, realOutputs, out restoreSuccessful);
+            RestoreCachedArtifactsIfPossible(realInputs, realOutputs, out var restoreSuccessful);
             RestoreSuccessful = restoreSuccessful;
 
             return true;

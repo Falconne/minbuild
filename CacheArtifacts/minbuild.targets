@@ -85,7 +85,7 @@
     </Target>
 
     <Target Name="CacheArtifactsAfterCompileCSharp"
-        Condition="'$(InputHash)' != '' and '$(InputHash)' != 'SKIP' and $(SignAssembly) !='true'">
+        Condition="'$(InputHash)' != '' and $(RestoreSuccessful) != 'true' and '$(InputHash)' != 'SKIP' and $(SignAssembly) !='true'">
         <CacheArtifactsCSharp
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
@@ -133,7 +133,7 @@
 
     <Target Name="CacheArtifactsAfterCompileCPP"
             AfterTargets="BuildLink"
-            Condition="'$(SkipCompile)' != 'true'">
+            Condition="'$(SkipCompile)' != 'true' and $(RestoreSuccessful) != 'true'">
         <CacheArtifactsCPP
             LocalTlogLocation="$(TLogLocation)"
             Inputs="$(InputFilesCPP)"

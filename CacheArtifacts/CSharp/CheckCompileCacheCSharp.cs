@@ -7,6 +7,9 @@ namespace MinBuild
         [Output]
         public string InputHash { get; private set; }
 
+        [Output]
+        public bool RestoreSuccessful { get; private set; }
+
         public override bool Execute()
         {
             var outputFiles = ParseFileList(Outputs);
@@ -19,8 +22,8 @@ namespace MinBuild
             var inputFiles = ParseFileList(Inputs);
             CheckForMissingInputs(inputFiles);
 
-            bool dummy;
-            InputHash = RestoreCachedArtifactsIfPossible(inputFiles, outputFiles, out dummy);
+            InputHash = RestoreCachedArtifactsIfPossible(inputFiles, outputFiles, out var restoreSuccessful);
+            RestoreSuccessful = restoreSuccessful;
             LogProjectMessage("InputHash returned: " + InputHash, MessageImportance.Low);
 
             return true;

@@ -14,6 +14,7 @@
     <file src="CacheArtifacts\bin\Release\*.dll" target="tools\CacheArtifacts" />
     <file src="CacheArtifacts\bin\Release\*.config" target="tools\CacheArtifacts" />
     <file src="CacheArtifacts\bin\Release\*.targets" target="tools\CacheArtifacts" />
+    <file src="CacheArtifacts\bin\Release\*.build" target="tools\CacheArtifacts" />
     <file src="CacheCleanup\bin\Release\*.exe" target="tools\CacheCleanup" />
     <file src="CacheCleanup\bin\Release\*.dll" target="tools\CacheCleanup" />
     <file src="CacheCleanup\bin\Release\*.config" target="tools\CacheCleanup" />
