@@ -81,6 +81,9 @@
 
             <Output TaskParameter="InputHash" PropertyName="InputHash"/>
             <Output TaskParameter="RestoreSuccessful" PropertyName="RestoreSuccessful"/>
+            <PropertyGroup>
+                <GenerateAssemblyInfo Condition="$(RestoreSuccessful)">false</GenerateAssemblyInfo>
+            </PropertyGroup>
         </CheckCompileCacheCSharp>
 
     </Target>
