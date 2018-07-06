@@ -81,11 +81,12 @@
 
             <Output TaskParameter="InputHash" PropertyName="InputHash"/>
             <Output TaskParameter="RestoreSuccessful" PropertyName="RestoreSuccessful"/>
-            <PropertyGroup>
-                <GenerateAssemblyInfo Condition="$(RestoreSuccessful)">false</GenerateAssemblyInfo>
-            </PropertyGroup>
         </CheckCompileCacheCSharp>
 
+        <Message Importance="High" Condition="$(RestoreSuccessful)" Text="Artifacts restored, cancelling compile" />
+        <PropertyGroup>
+            <GenerateAssemblyInfo Condition="$(RestoreSuccessful)">false</GenerateAssemblyInfo>
+        </PropertyGroup>
     </Target>
 
     <Target Name="CacheArtifactsAfterCompileCSharp"
