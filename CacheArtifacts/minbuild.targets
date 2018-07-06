@@ -93,7 +93,7 @@
         <PropertyGroup>
             <GenerateAssemblyInfo Condition="$(RestoreSuccessful)">false</GenerateAssemblyInfo>
         </PropertyGroup>
-    </TargetName>
+    </Target>
 
     <Target Name="CacheArtifactsAfterCompileCSharp"
         Condition="'$(InputHash)' != '' and $(RestoreSuccessful) != 'true' and '$(InputHash)' != 'SKIP' and $(SignAssembly) !='true'">
