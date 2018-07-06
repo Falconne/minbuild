@@ -170,12 +170,13 @@ namespace MinBuild
             foreach (var outputFile in outputFiles)
             {
                 LogProjectMessage("\t" + outputFile);
-                if (ShowContentHashes)
-                {
-                    GetHashForContent(outputFile);
-                }
                 var dst = Path.Combine(cacheOutput, Path.GetFileName(outputFile));
                 CopyWithRetry(outputFile, dst);
+                if (ShowContentHashes)
+                {
+                    LogProjectMessage($"Hash of {dst}:");
+                    GetHashForContent(dst);
+                }
             }
 
             var branchName = Environment.GetEnvironmentVariable("CURRENT_BRANCH");
