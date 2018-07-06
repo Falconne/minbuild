@@ -63,10 +63,16 @@
         <SkipCompile>false</SkipCompile>
     </PropertyGroup>
 
-    <Target Name="CheckCompileCacheBeforeCompileCSharp"
+    <Target
+        Name="CheckCompileCacheBeforeCompileCSharp"
         Condition="$(SignAssembly) !='true'"
         Inputs="$(InputFilesCSharp)"
         Outputs="$(OutputFilesCSharp)">
+
+        <PropertyGroup>
+            <RestoreSuccessful>False</RestoreSuccessful>
+        </PropertyGroup>
+
         <CheckCompileCacheCSharp
             BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
@@ -87,7 +93,7 @@
         <PropertyGroup>
             <GenerateAssemblyInfo Condition="$(RestoreSuccessful)">false</GenerateAssemblyInfo>
         </PropertyGroup>
-    </Target>
+    </TargetName>
 
     <Target Name="CacheArtifactsAfterCompileCSharp"
         Condition="'$(InputHash)' != '' and $(RestoreSuccessful) != 'true' and '$(InputHash)' != 'SKIP' and $(SignAssembly) !='true'">
