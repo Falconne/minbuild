@@ -15,6 +15,7 @@ namespace MinBuild
             var outputFiles = ParseFileList(Outputs);
             if (ShouldSkipCache(outputFiles))
             {
+                RestoreSuccessful = false;
                 InputHash = "SKIP";
                 return true;
             }

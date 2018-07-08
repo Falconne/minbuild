@@ -70,7 +70,7 @@
         Outputs="$(OutputFilesCSharp)">
 
         <PropertyGroup>
-            <RestoreSuccessful>False</RestoreSuccessful>
+            <RestoreSuccessful>True</RestoreSuccessful>
         </PropertyGroup>
 
         <CheckCompileCacheCSharp
@@ -114,7 +114,7 @@
 
     <Target Name="CheckCompileCacheBeforeCompileCPP" BeforeTargets="BeforeClCompile">
         <PropertyGroup>
-            <RestoreSuccessful>False</RestoreSuccessful>
+            <RestoreSuccessful>True</RestoreSuccessful>
             <InputFilesCPP>
                 @(CLCompile)
             </InputFilesCPP>
