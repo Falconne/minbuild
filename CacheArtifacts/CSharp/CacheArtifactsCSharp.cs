@@ -17,7 +17,7 @@ namespace MinBuild
             var inputFiles = ParseFileList(Inputs);
             var outputFiles = ParseFileList(Outputs);
             WriteSourceMapFile(inputFiles, outputFiles, Directory.GetCurrentDirectory());
-            CacheBuildArtifacts(outputFiles, InputHash);
+            CacheBuildArtifacts(inputFiles, outputFiles, InputHash);
             return true;
         }
     }

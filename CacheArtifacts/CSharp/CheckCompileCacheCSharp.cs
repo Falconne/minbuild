@@ -13,14 +13,14 @@ namespace MinBuild
         public override bool Execute()
         {
             var outputFiles = ParseFileList(Outputs);
-            if (ShouldSkipCache(outputFiles))
+            var inputFiles = ParseFileList(Inputs);
+            if (ShouldSkipCache(inputFiles, outputFiles))
             {
                 RestoreSuccessful = false;
                 InputHash = "SKIP";
                 return true;
             }
 
-            var inputFiles = ParseFileList(Inputs);
             CheckForMissingInputs(inputFiles);
 
             InputHash = RestoreCachedArtifactsIfPossible(inputFiles, outputFiles, out var restoreSuccessful);

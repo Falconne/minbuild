@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -86,18 +87,12 @@ namespace MinBuild
             }
         }
 
-        protected bool ShouldSkipCache(IList<string> outputFiles)
+        protected bool ShouldSkipCache(IList<string> inputFiles, IList<string> outputFiles)
         {
             if (outputFiles != null)
             {
-                var hashset = new HashSet<string>();
-                if (outputFiles.Any(file => !hashset.Add(Path.GetFileName(file))))
-                {
-                    Log.LogWarning("Cache cannot be used with duplicate output files:");
-                    var duplicates = outputFiles.Where(file => !hashset.Add(Path.GetFileName(file))).ToList();
-                    duplicates.ForEach(x => Log.LogWarning("\t" + x));
+                if (IsAnyOutputDuplicated(outputFiles))
                     return true;
-                }
 
                 // TODO move to custom assembly
                 // TouchPoint branding is used for version display on splash screens
@@ -105,15 +100,52 @@ namespace MinBuild
                     return true;
             }
 
-            if (!string.IsNullOrWhiteSpace(SkipCacheForProjects))
-            {
-                if (!SkipCacheForProjects.Split('#').Any(s => ProjectName.ToLower().Contains(s.ToLower()))) return false;
-
-                LogProjectMessage("Skipping project due to ignore pattern: " + ProjectName);
+            if (inputFiles != null && IsAnyInputAnInterop(inputFiles))
                 return true;
+
+            if (string.IsNullOrWhiteSpace(SkipCacheForProjects))
+                return false;
+
+            if (!SkipCacheForProjects.Split('#').Any(s => ProjectName.ToLower().Contains(s.ToLower())))
+                return false;
+
+            LogProjectMessage("Skipping project due to ignore pattern: " + ProjectName);
+            return true;
+
+        }
+
+        private bool IsAnyOutputDuplicated(IList<string> outputFiles)
+        {
+            var duplicatesDetector = new HashSet<string>();
+            // If any output filename is duplicated, the duplicates won't get added to a hashset
+            if (outputFiles.All(file => duplicatesDetector.Add(Path.GetFileName(file))))
+                return false;
+
+            Log.LogWarning("Cache cannot be used with duplicate output files:");
+            var duplicates = outputFiles.Where(file => !duplicatesDetector.Add(Path.GetFileName(file))).ToList();
+            duplicates.ForEach(x => Log.LogWarning($"\t{x}"));
+            return true;
+        }
+
+        private bool IsAnyInputAnInterop(IList<string> inputFiles)
+        {
+            bool IsInterop(string filename)
+            {
+                return filename.StartsWith("interop.") && filename.EndsWith(".dll");
             }
 
-            return false;
+            if (!inputFiles.Any(file => IsInterop(Path.GetFileName(file)?.ToLower())))
+                return false;
+
+            Log.LogWarning("Cache cannot be used with COM interop DLLs:");
+            foreach (var file in inputFiles)
+            {
+                if (!IsInterop(Path.GetFileName(file)?.ToLower()))
+                    continue;
+                Log.LogWarning($"\t{file}");
+            }
+
+            return true;
         }
 
         protected void LogProjectMessage(string message,
@@ -132,9 +164,9 @@ namespace MinBuild
         protected string PrecomputedCacheLocation => Path.Combine(CacheLocation, "Precomputed");
 
         // Copy the built output files to the appropriate cache directory based on the input hash.
-        protected void CacheBuildArtifacts(IList<string> outputFiles, string cacheHash)
+        protected void CacheBuildArtifacts(IList<string> inputFiles, IList<string> outputFiles, string cacheHash)
         {
-            if (ShouldSkipCache(outputFiles))
+            if (ShouldSkipCache(inputFiles, outputFiles))
                 return;
 
             var cacheOutput = Path.Combine(BranchCacheLocation, cacheHash);

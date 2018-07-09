@@ -62,7 +62,7 @@ namespace MinBuild
                     sourceLines = sourceLines.Select(x => x.Replace(RootDir.ToUpper(), "")).ToList();
                 }
 
-                LogProjectMessage($"Writing cleaned tlog {buildTLogFile} to {tlogCacheLocation}", 
+                LogProjectMessage($"Writing cleaned tlog {buildTLogFile} to {tlogCacheLocation}",
                     MessageImportance.Low);
                 var destination = Path.Combine(tlogCacheLocation, Path.GetFileName(buildTLogFile));
                 try
@@ -85,8 +85,7 @@ namespace MinBuild
             File.Create(completeMarker).Close();
 
             // Parse real inputs and outputs
-            IList<string> realInputs, realOutputs;
-            if (!ParseRealInputsAndOutputs(tlogCacheLocation, out realInputs, out realOutputs, false))
+            if (!ParseRealInputsAndOutputs(tlogCacheLocation, out var realInputs, out var realOutputs, false))
                 return true;
 
             WriteSourceMapFile(realInputs, realOutputs, Directory.GetCurrentDirectory());
@@ -96,7 +95,7 @@ namespace MinBuild
             inputFilesHash = GetHashForContent(inputFilesHash + BuildConfig);
 
             // Cache the actual built binaries
-            CacheBuildArtifacts(realOutputs, inputFilesHash);
+            CacheBuildArtifacts(realInputs, realOutputs, inputFilesHash);
             return true;
         }
     }
