@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -87,7 +85,7 @@ namespace MinBuild
             }
         }
 
-        protected bool ShouldSkipCache(IList<string> inputFiles, IList<string> outputFiles)
+        protected bool ShouldSkipCache(IList<string> outputFiles)
         {
             if (outputFiles != null)
             {
@@ -99,9 +97,6 @@ namespace MinBuild
                 if (outputFiles.Any(file => file.ToLower().Contains("touchpoint.branding")))
                     return true;
             }
-
-            if (inputFiles != null && IsAnyInputAnInterop(inputFiles))
-                return true;
 
             if (string.IsNullOrWhiteSpace(SkipCacheForProjects))
                 return false;
@@ -127,27 +122,6 @@ namespace MinBuild
             return true;
         }
 
-        private bool IsAnyInputAnInterop(IList<string> inputFiles)
-        {
-            bool IsInterop(string filename)
-            {
-                return filename.StartsWith("interop.") && filename.EndsWith(".dll");
-            }
-
-            if (!inputFiles.Any(file => IsInterop(Path.GetFileName(file)?.ToLower())))
-                return false;
-
-            Log.LogWarning("Cache cannot be used with COM interop DLLs:");
-            foreach (var file in inputFiles)
-            {
-                if (!IsInterop(Path.GetFileName(file)?.ToLower()))
-                    continue;
-                Log.LogWarning($"\t{file}");
-            }
-
-            return true;
-        }
-
         protected void LogProjectMessage(string message,
             MessageImportance importance = MessageImportance.High)
         {
@@ -166,7 +140,7 @@ namespace MinBuild
         // Copy the built output files to the appropriate cache directory based on the input hash.
         protected void CacheBuildArtifacts(IList<string> inputFiles, IList<string> outputFiles, string cacheHash)
         {
-            if (ShouldSkipCache(inputFiles, outputFiles))
+            if (ShouldSkipCache(outputFiles))
                 return;
 
             var cacheOutput = Path.Combine(BranchCacheLocation, cacheHash);
@@ -199,6 +173,8 @@ namespace MinBuild
             }
             Directory.CreateDirectory(cacheOutput);
 
+            var interopFiles = GetInputInteropFiles(inputFiles);
+
             foreach (var outputFile in outputFiles)
             {
                 LogProjectMessage("\t" + outputFile);
@@ -209,6 +185,14 @@ namespace MinBuild
                     LogProjectMessage($"Hash of {dst}:");
                     GetHashForFile(dst);
                 }
+
+                var outputDir = Path.GetDirectoryName(outputFile);
+                if (string.IsNullOrEmpty(outputDir))
+                    continue;
+
+                // If this output file's directory contains a COM interop file, cache
+                // that as well, because they seem to change with every build.
+                CopyInteropFiles(interopFiles, outputDir, cacheOutput);
             }
 
             var branchName = Environment.GetEnvironmentVariable("CURRENT_BRANCH");
@@ -223,6 +207,15 @@ namespace MinBuild
             File.Create(completeMarker).Close();
         }
 
+        private static List<string> GetInputInteropFiles(IList<string> inputFiles)
+        {
+            var interopFiles = inputFiles
+                .Where(IsInteropFile)
+                .Select(Path.GetFileName)
+                .ToList();
+            return interopFiles;
+        }
+
         protected string RestoreCachedArtifactsIfPossible(IList<string> inputFiles, IList<string> outputFiles,
             out bool restoreSuccessful)
         {
@@ -233,6 +226,7 @@ namespace MinBuild
 
             if (outputFiles == null || outputFiles.Count == 0)
                 throw new Exception("Cache restore called with no output files");
+
             LogProjectMessage("Recompile requested: " + BuildConfig);
             LogProjectMessage("\tRecompile reason:", MessageImportance.Normal);
 
@@ -289,7 +283,10 @@ namespace MinBuild
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(cacheOutput)) return inputHash;
+            if (string.IsNullOrWhiteSpace(cacheOutput))
+                return inputHash;
+
+            var interopFiles = GetInputInteropFiles(inputFiles);
 
             foreach (var outputFile in outputFiles)
             {
@@ -314,6 +311,10 @@ namespace MinBuild
                 }
                 CopyWithRetry(src, outputFile);
                 TouchFileWithRetry(outputFile, DateTime.UtcNow);
+
+                // Copy any COM interop DLLs to all output folders, as we don't know where
+                // they need to go.
+                CopyInteropFiles(interopFiles, cacheOutput, outputDir);
             }
 
             // If source mapping file exist in cache, copy to primary output directory
@@ -344,6 +345,21 @@ namespace MinBuild
 
             restoreSuccessful = true;
             return inputHash;
+        }
+
+        private void CopyInteropFiles(IEnumerable<string> interopFiles, string srcDir, string destDir)
+        {
+            foreach (var file in interopFiles)
+            {
+                var possibleInteropLocation = Path.Combine(srcDir, file);
+                LogProjectMessage($"Checking for possible interop {possibleInteropLocation}");
+                if (!File.Exists(possibleInteropLocation))
+                    continue;
+
+                LogProjectMessage($"Copying interop {possibleInteropLocation} -> {destDir}");
+                var interopDestination = Path.Combine(destDir, file);
+                CopyWithRetry(possibleInteropLocation, interopDestination);
+            }
         }
 
         private void CopyWithRetry(string src, string dst)
@@ -456,6 +472,11 @@ namespace MinBuild
                 }
             }
 
+            if (IsInteropFile(file))
+            {
+                return "inerop";
+            }
+
             var bytes = GetBytesWithRetry(file);
             if (!IsVersionableFile(file))
             {
@@ -476,6 +497,15 @@ namespace MinBuild
 
             return GetHashForContent(string.Join(Environment.NewLine, filteredContent));
         }
+
+        private static bool IsInteropFile(string file)
+        {
+            var filenameLower = Path.GetFileName(file)?.ToLower();
+            if (filenameLower == null)
+                return false;
+            return filenameLower.StartsWith("interop.") && filenameLower.EndsWith(".dll");
+        }
+
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage(
             "Microsoft.Interoperability", "CA1404:CallGetLastErrorImmediatelyAfterPInvoke")]
