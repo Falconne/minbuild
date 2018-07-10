@@ -63,6 +63,7 @@ namespace MinBuild
             if (!string.IsNullOrWhiteSpace(tmpProj))
             {
                 LogProjectMessage("Moving temporary project to end of list: " + tmpProj);
+                LogProjectMessage(File.ReadAllText(tmpProj));
                 uniqueFiles = uniqueFiles.Where(x => x != tmpProj).ToList();
             }
 
