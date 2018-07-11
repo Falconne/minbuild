@@ -695,10 +695,7 @@ namespace MinBuild
         private const long ERROR_SHARING_VIOLATION = 0x20;
         private const long ERROR_LOCK_VIOLATION = 0x21;
 
-        private string CacheLocation
-        {
-            get { return Path.Combine(CacheRoot, GetCacheType()); }
-        }
+        private string CacheLocation => Path.Combine(CacheRoot, GetCacheType());
 
         private bool IsVersionableFile(string file)
         {
