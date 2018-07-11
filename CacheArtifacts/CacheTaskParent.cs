@@ -41,40 +41,57 @@ namespace MinBuild
 
         private IList<string> _versionKeywordsToIgnore;
 
-        protected IList<string> ParseFileList(string raw)
+        protected IList<string> ParseFileList(string rawFileList)
         {
             var windowsDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows).ToLower();
             var pfDir = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles).ToLower();
             pfDir = pfDir.Replace(" (x86)", "");
 
-            var files =
-                raw.Split(';').Where(x =>
-                    !string.IsNullOrWhiteSpace(x)).Select(x => x.ToLower().Trim());
+            var files = rawFileList
+                .Split(';')
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.ToLower().Trim())
+                .Where(x =>
+                    !x.StartsWith(pfDir) &&
+                    !x.EndsWith("assemblyattributes.cs") &&
+                    !x.EndsWith(".corecompileinputs.cache") &&
+                    !x.StartsWith(windowsDir))
+                .Distinct();
 
-            var uniqueFiles = files.Where(x =>
-                !x.StartsWith(pfDir) &&
-                !x.EndsWith("assemblyattributes.cs") &&
-                !x.EndsWith(".corecompileinputs.cache") &&
-                !x.StartsWith(windowsDir)).ToList();
+            var result = GetFileListWithoutGeneratedProjects(files);
+            result.Sort();
 
-            // Generated project names are random, so don't include them in the sorting. They would move
-            // around from build to build and change the content hash.
-            var tmpProj = uniqueFiles.FirstOrDefault(x => x.EndsWith(".tmp_proj"));
-            if (!string.IsNullOrWhiteSpace(tmpProj))
+            return result;
+        }
+
+        // xaml compile creates generated csproj projects that have non-deterministic
+        // content that makes content hashing less useful. Just use the original csproj
+        // instead, as that is good enough to know if makefile content has changed.
+        private List<string> GetFileListWithoutGeneratedProjects(IEnumerable<string> files)
+        {
+            var result = files.ToList();
+            var tmpProj = result.FirstOrDefault(x => x.EndsWith(".tmp_proj"));
+            if (string.IsNullOrWhiteSpace(tmpProj))
+                return result;
+
+            LogProjectMessage($"Replacing xaml generated project {tmpProj} with original");
+
+            var directory = Path.GetDirectoryName(tmpProj);
+            if (string.IsNullOrWhiteSpace(directory))
+                return result;
+
+            var csproj = Path.Combine(directory, $"{ProjectName}.csproj");
+            if (!File.Exists(csproj))
             {
-                LogProjectMessage("Moving temporary project to end of list: " + tmpProj);
-                LogProjectMessage(File.ReadAllText(tmpProj));
-                uniqueFiles = uniqueFiles.Where(x => x != tmpProj).ToList();
+                LogProjectMessage($"WARNING: Original csproj for {tmpProj}, thought to be {csproj}, was not found");
+                return result;
             }
 
-            uniqueFiles = uniqueFiles.OrderBy(z => z).Distinct().ToList();
+            result = result.Where(x => x != tmpProj).ToList();
+            LogProjectMessage($"Original project is {csproj}");
+            result.Add(csproj);
 
-            if (!string.IsNullOrWhiteSpace(tmpProj))
-            {
-                uniqueFiles.Add(tmpProj);
-            }
-
-            return uniqueFiles;
+            return result;
         }
 
         protected void CheckForMissingInputs(IList<string> inputFiles)
@@ -123,10 +140,9 @@ namespace MinBuild
             return true;
         }
 
-        protected void LogProjectMessage(string message,
-            MessageImportance importance = MessageImportance.High)
+        protected void LogProjectMessage(string message, MessageImportance importance = MessageImportance.High)
         {
-            Log.LogMessage(importance, string.Format("{0}: {1}", ProjectName, message));
+            Log.LogMessage(importance, $"{ProjectName}: {message}");
         }
 
         protected abstract string GetCacheType();
