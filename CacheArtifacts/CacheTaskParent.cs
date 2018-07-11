@@ -76,20 +76,28 @@ namespace MinBuild
 
             LogProjectMessage($"Replacing xaml generated project {tmpProj} with original");
 
-            var directory = Path.GetDirectoryName(tmpProj);
-            if (string.IsNullOrWhiteSpace(directory))
+            var projectDirectory = Path.GetDirectoryName(tmpProj);
+            if (string.IsNullOrWhiteSpace(projectDirectory))
                 return result;
 
-            var csproj = Path.Combine(directory, $"{ProjectName}.csproj");
-            if (!File.Exists(csproj))
+            var csprojFilesInProjectDirectory = Directory.GetFiles(projectDirectory, "*.csproj");
+            if (csprojFilesInProjectDirectory.Length == 0)
             {
-                LogProjectMessage($"WARNING: Original csproj for {tmpProj}, thought to be {csproj}, was not found");
+                LogProjectMessage($"WARNING: Original csproj for {tmpProj}, not found in {csprojFilesInProjectDirectory}");
                 return result;
             }
 
+            if (csprojFilesInProjectDirectory.Length > 1)
+            {
+                LogProjectMessage($"WARNING: Multiple csproj files found in {csprojFilesInProjectDirectory}, so original for {tmpProj} cannot be determined");
+                return result;
+            }
+
+            var originalProject = csprojFilesInProjectDirectory.First();
+
             result = result.Where(x => x != tmpProj).ToList();
-            LogProjectMessage($"Original project is {csproj}");
-            result.Add(csproj);
+            LogProjectMessage($"Original project is {originalProject}");
+            result.Add(originalProject);
 
             return result;
         }
