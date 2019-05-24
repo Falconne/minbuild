@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.Build.Framework;
+using System;
 using System.IO;
 using System.Linq;
-using Microsoft.Build.Framework;
 
 namespace MinBuild
 {
@@ -22,10 +22,17 @@ namespace MinBuild
             // LocalTlogLocation is where the build writes the tracking logs.
             LogProjectMessage("Current directory is " + Directory.GetCurrentDirectory(), MessageImportance.Normal);
             LogProjectMessage("Looking for built tracking logs in " + LocalTlogLocation, MessageImportance.Normal);
+
             EvaluateLinkTLogFilename(LocalTlogLocation);
-            if (!File.Exists(Path.Combine(LocalTlogLocation, "CL.read.1.tlog"))) return true;
-            if (!File.Exists(Path.Combine(LocalTlogLocation, "CL.write.1.tlog"))) return true;
-            if (!File.Exists(Path.Combine(LocalTlogLocation, LinkTLogFilename))) return true;
+            if (!File.Exists(Path.Combine(LocalTlogLocation, LinkTLogFilename)))
+                return true;
+
+            if (Directory.GetFiles(LocalTlogLocation, "CL*.read.*.tlog").Length > 0)
+                return true;
+
+            if (Directory.GetFiles(LocalTlogLocation, "CL*.write.*.tlog").Length > 0)
+                return true;
+
             LogProjectMessage("Build tracking logs found", MessageImportance.Normal);
 
             // If tracking log cache exists, ready it for resetting
