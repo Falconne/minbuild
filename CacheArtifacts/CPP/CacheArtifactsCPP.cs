@@ -27,10 +27,10 @@ namespace MinBuild
             if (!File.Exists(Path.Combine(LocalTlogLocation, LinkTLogFilename)))
                 return true;
 
-            if (Directory.GetFiles(LocalTlogLocation, "CL*.read.*.tlog").Length > 0)
+            if (Directory.GetFiles(LocalTlogLocation, "CL*.read.*.tlog").Length == 0)
                 return true;
 
-            if (Directory.GetFiles(LocalTlogLocation, "CL*.write.*.tlog").Length > 0)
+            if (Directory.GetFiles(LocalTlogLocation, "CL*.write.*.tlog").Length == 0)
                 return true;
 
             LogProjectMessage("Build tracking logs found", MessageImportance.Normal);
@@ -85,6 +85,9 @@ namespace MinBuild
                     return true;
                 }
             }
+
+            LogProjectMessage($"Writing {completeMarker}");
+
             File.Create(completeMarker).Close();
 
             // Parse real inputs and outputs
