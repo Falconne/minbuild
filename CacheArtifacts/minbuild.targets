@@ -54,7 +54,6 @@
             @(CustomAdditionalCompileOutputs)
         </OutputFilesCSharp>
 
-        <BranchVersion Condition=" '$(BranchVersion)' == '' ">0</BranchVersion>
         <CacheRoot Condition=" '$(CacheRoot)' == '' ">c:\temp\minbuild</CacheRoot>
         <ShowRecompileReason Condition=" '$(ShowRecompileReason)' == '' ">true</ShowRecompileReason>
         <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">false</ShowContentHashes>
@@ -74,7 +73,6 @@
         </PropertyGroup>
 
         <CheckCompileCacheCSharp
-            BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
             ShowRecompileReason="$(ShowRecompileReason)"
             ShowContentHashes="$(ShowContentHashes)"
@@ -98,7 +96,6 @@
     <Target Name="CacheArtifactsAfterCompileCSharp"
         Condition="'$(InputHash)' != '' and $(RestoreSuccessful) != 'true' and '$(InputHash)' != 'SKIP' and $(SignAssembly) !='true'">
         <CacheArtifactsCSharp
-            BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
             InputHash="$(InputHash)"
             ShowContentHashes="$(ShowContentHashes)"
@@ -121,7 +118,6 @@
         </PropertyGroup>
 
         <CheckCompileCacheCPP
-            BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
             ProjectName="$(ProjectName)"
             ShowContentHashes="$(ShowContentHashes)"
@@ -148,7 +144,6 @@
         <CacheArtifactsCPP
             LocalTlogLocation="$(TLogLocation)"
             Inputs="$(InputFilesCPP)"
-            BranchVersion="$(BranchVersion)"
             CacheRoot="$(CacheRoot)"
             RootDir="$(RootDir)"
             ShowContentHashes="$(ShowContentHashes)"

@@ -12,12 +12,11 @@ namespace MinBuild.Tests
         {
             var builder = new CheckCompileCacheCSharp();
             builder.BuildEngine = new MockedBuildEngine();
-            builder.Inputs = Path.Combine(Directory.GetCurrentDirectory(), 
+            builder.Inputs = Path.Combine(Directory.GetCurrentDirectory(),
                 "resources\\AssemblyInfo.cs");
             builder.Outputs = "foo";
             builder.CacheRoot = Path.Combine(Path.GetTempPath(), "MinBuildTestCache");
             builder.ProjectName = "Test";
-            builder.BranchVersion = "1.0";
             builder.ShowContentHashes = false;
             builder.ShowRecompileReason = false;
             builder.AlwaysRestoreCache = false;

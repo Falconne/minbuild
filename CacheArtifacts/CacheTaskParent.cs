@@ -18,9 +18,6 @@ namespace MinBuild
         public string ProjectName { get; set; }
 
         [Required]
-        public string BranchVersion { get; set; }
-
-        [Required]
         public string CacheRoot { get; set; }
 
         [Required]
@@ -160,7 +157,7 @@ namespace MinBuild
         // We use a separate cache for each major version so we don't have to worry about version info.
         // That is, a cached file from any branch in this major version is ok to use.
         // TODO Rename Branch to Release
-        protected string BranchCacheLocation => Path.Combine(CacheLocation, BranchVersion);
+        protected string BranchCacheLocation => CacheLocation;
 
         protected string PrecomputedCacheLocation => Path.Combine(CacheLocation, "Precomputed");
 

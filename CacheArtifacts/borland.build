@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
          DefaultTargets="DoBorlandBuild">
-    
+
     <UsingTask TaskName="MinBuild.Borland.CheckCompileCacheBorland"
                AssemblyFile="$(MSBuildThisFileDirectory)CacheArtifacts.dll" />
 
@@ -9,7 +9,6 @@
 
 
     <PropertyGroup>
-        <BranchVersion Condition=" '$(BranchVersion)' == '' ">0</BranchVersion>
         <CacheRoot Condition=" '$(CacheRoot)' == '' ">c:\temp\minbuild</CacheRoot>
         <ShowRecompileReason Condition=" '$(ShowRecompileReason)' == '' ">true</ShowRecompileReason>
         <ShowContentHashes Condition=" '$(ShowContentHashes)' == '' ">false</ShowContentHashes>
@@ -18,7 +17,7 @@
     </PropertyGroup>
 
     <Target Name="DoBorlandBuild">
-        <CheckCompileCacheBorland 
+        <CheckCompileCacheBorland
             Makefile="$(Makefile)"
             ProjectName="$(ProjectName)"
             BuildConfig="Debug"
@@ -26,13 +25,12 @@
             ShowRecompileReason="$(ShowRecompileReason)"
             ShowContentHashes="$(ShowContentHashes)"
             AlwaysRestoreCache="$(AlwaysRestoreCache)"
-            BranchVersion="$(BranchVersion)"
             WorkDir="$(WorkDir)"
             >
             <Output TaskParameter="InputHash" PropertyName="InputHash"/>
             <Output TaskParameter="RestoreSuccessful" PropertyName="SkipCompile"/>
         </CheckCompileCacheBorland>
-        
+
         <Exec Condition="'$(SkipCompile)' != 'true'"
               WorkingDirectory="$(WorkDir)"
               Command="&quot;$(bcb6)&quot; -f$(Makefile)" />
@@ -47,9 +45,8 @@
                                ShowRecompileReason="$(ShowRecompileReason)"
                                ShowContentHashes="$(ShowContentHashes)"
                                AlwaysRestoreCache="$(AlwaysRestoreCache)"
-                               BranchVersion="$(BranchVersion)"
                                WorkDir="$(WorkDir)"
                                />
-        
+
     </Target>
 </Project>
