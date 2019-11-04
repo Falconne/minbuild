@@ -129,6 +129,7 @@
             RootDir="$(RootDir)"
             SkipCacheForProjects="$(SkipCacheForProjects)"
             ProjectPath="$(ProjectPath)"
+            NuGetPackageRoot="NULL"
             Inputs="$(InputFilesCPP)">
 
             <Output TaskParameter="RestoreSuccessful" PropertyName="RestoreSuccessful"/>
@@ -154,6 +155,7 @@
             BuildConfig="$(Configuration)|$(PlatformName)"
             SkipCacheForProjects="$(SkipCacheForProjects)"
             ProjectPath="$(ProjectPath)"
+            NuGetPackageRoot="NULL"
             ProjectName="$(ProjectName)" />
     </Target>
 
