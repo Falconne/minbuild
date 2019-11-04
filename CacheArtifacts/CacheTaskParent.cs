@@ -21,6 +21,9 @@ namespace MinBuild
         public string CacheRoot { get; set; }
 
         [Required]
+        public string NuGetPackageRoot { get; set; }
+
+        [Required]
         public bool ShowContentHashes { private get; set; }
 
         [Required]
@@ -38,6 +41,8 @@ namespace MinBuild
 
         private IList<string> _versionKeywordsToIgnore;
 
+        private const string NugetFallbackDirectory = "nugetfallbackfolder";
+
         protected IList<string> ParseFileList(string rawFileList)
         {
             var windowsDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows).ToLower();
@@ -49,7 +54,7 @@ namespace MinBuild
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(x => x.ToLower().Trim())
                 .Where(x =>
-                    (!x.StartsWith(pfDir) || x.Contains("nugetfallbackfolder")) &&
+                    (!x.StartsWith(pfDir) || x.Contains(NugetFallbackDirectory)) &&
                     !x.EndsWith("assemblyattributes.cs") &&
                     !x.EndsWith(".corecompileinputs.cache") &&
                     !x.EndsWith(".nuget.g.props") &&
@@ -58,9 +63,25 @@ namespace MinBuild
                 .Distinct();
 
             var result = GetFileListWithoutGeneratedProjects(files);
-            result.Sort();
+            result.Sort((p1, p2) =>
+                GetStablePathForSorting(p1).CompareTo(GetStablePathForSorting(p2)));
 
             return result;
+        }
+
+        private string GetStablePathForSorting(string inputPath)
+        {
+            if (inputPath.Contains(NuGetPackageRoot.ToLower()))
+            {
+                return inputPath.Substring(NuGetPackageRoot.Length + 1);
+            }
+
+            var nfbIndex = inputPath.IndexOf(NugetFallbackDirectory, StringComparison.Ordinal);
+            if (nfbIndex != -1)
+            {
+                return inputPath.Substring(nfbIndex + NugetFallbackDirectory.Length + 1);
+            }
+            return inputPath;
         }
 
         // xaml compile creates generated csproj projects that have non-deterministic
@@ -669,6 +690,7 @@ namespace MinBuild
             if (inputs.Count == 0 || outputs.Count == 0)
                 return;
 
+            // TODO Remove NuGet packages and fallback directory
             var primaryOutput = outputs.FirstOrDefault();
             var outDir = Path.GetDirectoryName(primaryOutput) ?? "";
             LogProjectMessage("Primary output dir is " + outDir);

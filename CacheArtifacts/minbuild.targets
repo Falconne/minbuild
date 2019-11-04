@@ -81,6 +81,7 @@
             Outputs="$(OutputFilesCSharp)"
             BuildConfig="$(ConfigurationName)|$(PlatformName)"
             SkipCacheForProjects="$(SkipCacheForProjects)"
+            NuGetPackageRoot="$(NuGetPackageRoot)"
             ProjectName="$(ProjectName)">
 
             <Output TaskParameter="InputHash" PropertyName="InputHash"/>
@@ -106,6 +107,7 @@
             RootDir="$(RootDir)"
             BuildConfig="$(ConfigurationName)|$(PlatformName)"
             SkipCacheForProjects="$(SkipCacheForProjects)"
+            NuGetPackageRoot="$(NuGetPackageRoot)"
             ProjectName="$(ProjectName)" />
     </Target>
 
