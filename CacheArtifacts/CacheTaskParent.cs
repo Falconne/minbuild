@@ -49,7 +49,7 @@ namespace MinBuild
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(x => x.ToLower().Trim())
                 .Where(x =>
-                    !x.StartsWith(pfDir) &&
+                    (!x.StartsWith(pfDir) || x.Contains("NuGetFallbackFolder")) &&
                     !x.EndsWith("assemblyattributes.cs") &&
                     !x.EndsWith(".corecompileinputs.cache") &&
                     !x.EndsWith(".nuget.g.props") &&
