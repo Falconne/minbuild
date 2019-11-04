@@ -20,7 +20,6 @@ namespace MinBuild
         [Required]
         public string CacheRoot { get; set; }
 
-        [Required]
         public string NuGetPackageRoot { get; set; }
 
         [Required]
@@ -71,6 +70,9 @@ namespace MinBuild
 
         private string GetStablePathForSorting(string inputPath)
         {
+            if (string.IsNullOrWhiteSpace(NuGetPackageRoot))
+                return inputPath;
+
             if (inputPath.Contains(NuGetPackageRoot.ToLower()))
             {
                 return inputPath.Substring(NuGetPackageRoot.Length + 1);
