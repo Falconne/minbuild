@@ -81,7 +81,7 @@
             Outputs="$(OutputFilesCSharp)"
             BuildConfig="$(ConfigurationName)|$(PlatformName)"
             SkipCacheForProjects="$(SkipCacheForProjects)"
-            NuGetPackageRoot="$(NuGetPackageRoot)"
+            NuGetPackageFolders="$(NuGetPackageFolders)"
             ProjectName="$(ProjectName)">
 
             <Output TaskParameter="InputHash" PropertyName="InputHash"/>
@@ -107,7 +107,7 @@
             RootDir="$(RootDir)"
             BuildConfig="$(ConfigurationName)|$(PlatformName)"
             SkipCacheForProjects="$(SkipCacheForProjects)"
-            NuGetPackageRoot="$(NuGetPackageRoot)"
+            NuGetPackageFolders="$(NuGetPackageFolders)"
             ProjectName="$(ProjectName)" />
     </Target>
 
@@ -129,7 +129,6 @@
             RootDir="$(RootDir)"
             SkipCacheForProjects="$(SkipCacheForProjects)"
             ProjectPath="$(ProjectPath)"
-            NuGetPackageRoot="NULL"
             Inputs="$(InputFilesCPP)">
 
             <Output TaskParameter="RestoreSuccessful" PropertyName="RestoreSuccessful"/>
@@ -155,7 +154,6 @@
             BuildConfig="$(Configuration)|$(PlatformName)"
             SkipCacheForProjects="$(SkipCacheForProjects)"
             ProjectPath="$(ProjectPath)"
-            NuGetPackageRoot="NULL"
             ProjectName="$(ProjectName)" />
     </Target>
 

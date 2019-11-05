@@ -20,8 +20,6 @@ namespace MinBuild
         [Required]
         public string CacheRoot { get; set; }
 
-        public string NuGetPackageRoot { get; set; }
-
         [Required]
         public bool ShowContentHashes { private get; set; }
 
@@ -40,7 +38,27 @@ namespace MinBuild
 
         private IList<string> _versionKeywordsToIgnore;
 
-        private const string NugetFallbackDirectory = "nugetfallbackfolder";
+        private IList<string> _nugetPackageFolders;
+
+
+        protected void SetNuGetPackageFolders(string nuGetPackageFolders)
+        {
+            if (string.IsNullOrWhiteSpace(nuGetPackageFolders))
+            {
+                LogProjectMessage("No NuGet package folders given");
+                return;
+            }
+
+            _nugetPackageFolders = nuGetPackageFolders
+                .Split(';')
+                .Select(p => p.ToLower())
+                .ToList();
+
+            foreach (var folder in _nugetPackageFolders)
+            {
+                LogProjectMessage($"Added NuGet package folder: {folder}");
+            }
+        }
 
         protected IList<string> ParseFileList(string rawFileList)
         {
@@ -53,7 +71,7 @@ namespace MinBuild
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Select(x => x.ToLower().Trim())
                 .Where(x =>
-                    (!x.StartsWith(pfDir) || x.Contains(NugetFallbackDirectory)) &&
+                    (!x.StartsWith(pfDir) || IsNuGetPackage(x)) &&
                     !x.EndsWith("assemblyattributes.cs") &&
                     !x.EndsWith(".corecompileinputs.cache") &&
                     !x.EndsWith(".nuget.g.props") &&
@@ -68,21 +86,22 @@ namespace MinBuild
             return result;
         }
 
+        private bool IsNuGetPackage(string path)
+        {
+            return _nugetPackageFolders?.Any(path.StartsWith) ?? false;
+        }
+
         private string GetStablePathForSorting(string inputPath)
         {
-            if (string.IsNullOrWhiteSpace(NuGetPackageRoot))
+            if (_nugetPackageFolders == null)
                 return inputPath;
 
-            if (inputPath.Contains(NuGetPackageRoot.ToLower()))
+            foreach (var packageFolder in _nugetPackageFolders)
             {
-                return inputPath.Substring(NuGetPackageRoot.Length + 1);
+                if (inputPath.StartsWith(packageFolder))
+                    return inputPath.Substring(packageFolder.Length + 1);
             }
 
-            var nfbIndex = inputPath.IndexOf(NugetFallbackDirectory, StringComparison.Ordinal);
-            if (nfbIndex != -1)
-            {
-                return inputPath.Substring(nfbIndex + NugetFallbackDirectory.Length + 1);
-            }
             return inputPath;
         }
 
