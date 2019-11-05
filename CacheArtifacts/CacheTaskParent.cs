@@ -44,12 +44,20 @@ namespace MinBuild
         protected void SetNuGetPackageFolders(string nuGetPackageFolders)
         {
             if (string.IsNullOrWhiteSpace(nuGetPackageFolders))
+            {
+                LogProjectMessage("No NuGet package folders given");
                 return;
+            }
 
             _nugetPackageFolders = nuGetPackageFolders
                 .Split(';')
                 .Select(p => p.ToLower())
                 .ToList();
+
+            foreach (var folder in _nugetPackageFolders)
+            {
+                LogProjectMessage($"Added NuGet package folder: {folder}");
+            }
         }
 
         protected IList<string> ParseFileList(string rawFileList)
