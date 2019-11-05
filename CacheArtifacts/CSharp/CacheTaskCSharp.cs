@@ -10,15 +10,6 @@ namespace MinBuild
         [Required]
         public string Inputs { protected get; set; }
 
-        [Required]
-        public string NuGetPackageFolders { get; set; }
-
-
-        protected CacheTaskCSharp()
-        {
-            SetNuGetPackageFolders(NuGetPackageFolders);
-        }
-
         protected override string GetCacheType()
         {
             return "chasrp";
