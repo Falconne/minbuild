@@ -349,6 +349,10 @@ namespace MinBuild
 
                 LogProjectMessage("Restoring cached file to " + outputFile);
                 var outputDir = Path.GetDirectoryName(outputFile);
+                if (string.IsNullOrWhiteSpace(outputDir))
+                {
+                    throw new Exception($"Cannot parse directory of file {outputFile}");
+                }
                 if (!Directory.Exists(outputDir))
                     Directory.CreateDirectory(outputDir);
 
