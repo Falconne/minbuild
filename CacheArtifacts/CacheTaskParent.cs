@@ -347,11 +347,11 @@ namespace MinBuild
                     return inputHash;
                 }
 
+                LogProjectMessage("Restoring cached file to " + outputFile);
                 var outputDir = Path.GetDirectoryName(outputFile);
                 if (!Directory.Exists(outputDir))
                     Directory.CreateDirectory(outputDir);
 
-                LogProjectMessage("Restoring cached file to " + outputFile);
                 if (ShowContentHashes)
                 {
                     GetHashForFile(src);
