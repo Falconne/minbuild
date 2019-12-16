@@ -337,8 +337,9 @@ namespace MinBuild
 
             foreach (var outputFile in outputFiles)
             {
-                LogProjectMessage("\t" + Path.GetFullPath(outputFile), MessageImportance.Normal);
-                var filename = Path.GetFileName(outputFile);
+                var outputFileFull = Path.GetFullPath(outputFile);
+                LogProjectMessage("\t" + Path.GetFullPath(outputFileFull), MessageImportance.Normal);
+                var filename = Path.GetFileName(outputFileFull);
                 // ReSharper disable once AssignNullToNotNullAttribute
                 var src = Path.Combine(cacheOutput, filename);
                 if (!File.Exists(src))
@@ -347,11 +348,11 @@ namespace MinBuild
                     return inputHash;
                 }
 
-                LogProjectMessage("Restoring cached file to " + outputFile);
-                var outputDir = Path.GetDirectoryName(outputFile);
+                LogProjectMessage("Restoring cached file to " + outputFileFull);
+                var outputDir = Path.GetDirectoryName(outputFileFull);
                 if (string.IsNullOrWhiteSpace(outputDir))
                 {
-                    throw new Exception($"Cannot parse directory of file {outputFile}");
+                    throw new Exception($"Cannot parse directory of file {outputFileFull}");
                 }
                 if (!Directory.Exists(outputDir))
                     Directory.CreateDirectory(outputDir);
@@ -360,8 +361,8 @@ namespace MinBuild
                 {
                     GetHashForFile(src);
                 }
-                CopyWithRetry(src, outputFile);
-                TouchFileWithRetry(outputFile, DateTime.UtcNow);
+                CopyWithRetry(src, outputFileFull);
+                TouchFileWithRetry(outputFileFull, DateTime.UtcNow);
 
                 // Copy any COM interop DLLs to all output folders, as we don't know where
                 // they need to go.
