@@ -338,7 +338,7 @@ namespace MinBuild
             foreach (var outputFile in outputFiles)
             {
                 var outputFileFull = Path.GetFullPath(outputFile);
-                LogProjectMessage("\t" + Path.GetFullPath(outputFileFull), MessageImportance.Normal);
+                LogProjectMessage("\t" + outputFileFull, MessageImportance.Normal);
                 var filename = Path.GetFileName(outputFileFull);
                 // ReSharper disable once AssignNullToNotNullAttribute
                 var src = Path.Combine(cacheOutput, filename);
